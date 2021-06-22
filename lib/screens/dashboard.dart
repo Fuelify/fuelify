@@ -24,7 +24,7 @@ class _DashBoardState extends State<DashBoard> {
     };
 
     var navigateToDiscovery = () async {
-      Navigator.pushReplacementNamed(context, '/discovery');
+      Navigator.pushNamed(context, '/discovery');
     };
 
     return Scaffold(
