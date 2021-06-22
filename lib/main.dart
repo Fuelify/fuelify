@@ -6,6 +6,7 @@ import 'package:fuelify/screens/register.dart';
 import 'package:fuelify/screens/welcome.dart';
 import 'package:fuelify/providers/auth.dart';
 import 'package:fuelify/providers/user_provider.dart';
+import 'package:fuelify/providers/feedback_position.dart';
 import 'package:fuelify/dependencies/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => FeedbackPositionProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
       ],
