@@ -21,6 +21,7 @@ class _LoginState extends State<Login> {
     AuthProvider auth = Provider.of<AuthProvider>(context);
 
     final usernameField = TextFormField(
+      initialValue: "ethan@fuelify.com", //TODO REMOVE
       autofocus: false,
       //validator: validateEmail,
       validator: (value) =>
@@ -30,6 +31,7 @@ class _LoginState extends State<Login> {
     );
 
     final passwordField = TextFormField(
+      initialValue: "123", //TODO REMOVE
       autofocus: false,
       obscureText: true,
       validator: (value) => value!.isEmpty ? "Please enter password" : null,
@@ -102,7 +104,7 @@ class _LoginState extends State<Login> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 250.0),
+                  SizedBox(height: 100.0),
                   label("Email"),
                   SizedBox(height: 5.0),
                   usernameField,
