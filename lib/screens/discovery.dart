@@ -26,8 +26,8 @@ class _DiscoveryState extends State<Discovery> {
           children: [
             recipes.isEmpty
                 ? Text(
-                  'One moment while we learn from your selections and rebuild your individual recommendation model...',
-                  textAlign: TextAlign.center,
+                    'One moment while we learn from your selections and rebuild your individual recommendation model...',
+                    textAlign: TextAlign.center,
                   )
                 : Stack(children: recipes.map(buildRecipe).toList()),
             Expanded(child: Container()),
@@ -46,7 +46,8 @@ class _DiscoveryState extends State<Discovery> {
       onPointerMove: (pointerEvent) {
         final provider =
             Provider.of<FeedbackPositionProvider>(context, listen: false);
-        provider.updatePosition(pointerEvent.localDelta.dx, pointerEvent.localDelta.dy);
+        provider.updatePosition(
+            pointerEvent.localDelta.dx, pointerEvent.localDelta.dy);
       },
       onPointerCancel: (_) {
         final provider =
@@ -59,11 +60,12 @@ class _DiscoveryState extends State<Discovery> {
         provider.resetPosition();
       },
       child: Draggable(
-        child: RecipeCardWidget(recipe: recipe, isRecipeInFocus: isRecipeInFocus),
+        child:
+            RecipeCardWidget(recipe: recipe, isRecipeInFocus: isRecipeInFocus),
         feedback: Material(
           type: MaterialType.transparency,
-          child:
-              RecipeCardWidget(recipe: recipe, isRecipeInFocus: isRecipeInFocus),
+          child: RecipeCardWidget(
+              recipe: recipe, isRecipeInFocus: isRecipeInFocus),
         ),
         childWhenDragging: Container(),
         onDragEnd: (details) => onDragEnd(details, recipe),
@@ -71,23 +73,44 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
+  // onDragEnd Action
   void onDragEnd(DraggableDetails details, Recipe recipe) {
     final minimumDrag = 100;
-    if (details.offset.dx > minimumDrag) {
-      print('Minimum drag: ' + minimumDrag.toString());
-      print('dX: ' + details.offset.dx.toString());
-      recipe.isLiked = true;
-      setState(() => recipes.remove(recipe));
-    } else if (details.offset.dx < -minimumDrag) {
-      print('Minimum drag: -' + minimumDrag.toString());
-      print('dX: ' + details.offset.dx.toString());
-      recipe.isDisliked = true;
-      setState(() => recipes.remove(recipe));
+    final provider =
+        Provider.of<FeedbackPositionProvider>(context, listen: false);
+
+    print(provider.swipingDirection);
+
+    print(details.offset.dx.abs());
+    print(details.offset.dy.abs());
+    if (details.offset.dx.abs() > details.offset.dy.abs()) {
+      // Drag in x direction dominates y
+      if (details.offset.dx > minimumDrag) {
+        print('Recipe Liked');
+        recipe.isLiked = true;
+        setState(() => recipes.remove(recipe));
+      } else if (details.offset.dx < -minimumDrag) {
+        print('Recipe Disliked');
+        recipe.isDisliked = true;
+        setState(() => recipes.remove(recipe));
+      } else {
+        print('Was not dragged far enough to categorize');
+        //setState(() => recipes.remove(recipe));
+      }
     } else {
-      print('Was not dragged far enough to categorize and thus move to next');
-      print('Minimum drag: -' + minimumDrag.toString());
-      print('dX: ' + details.offset.dx.toString());
-      //setState(() => recipes.remove(recipe));
+      // Drag in y direction dominates x
+      if (details.offset.dy > minimumDrag) {
+        print(details.offset.dy);
+        print('Was not dragged far enough to categorize');
+        //setState(() => recipes.remove(recipe));
+      } else if (details.offset.dy < -minimumDrag) {
+        print('Recipe Favorited');
+        recipe.isFavorited = true;
+        setState(() => recipes.remove(recipe));
+      } else {
+        print('Was not dragged far enough to categorize');
+        //setState(() => recipes.remove(recipe));
+      }
     }
   }
 }
