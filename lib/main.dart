@@ -6,12 +6,12 @@ import 'package:fuelify/screens/login.dart';
 import 'package:fuelify/screens/register.dart';
 import 'package:fuelify/screens/welcome.dart';
 
-import 'package:fuelify/providers/auth.dart';
-import 'package:fuelify/providers/user_provider.dart';
+import 'package:fuelify/providers/authentication.dart';
+import 'package:fuelify/providers/user.dart';
 import 'package:fuelify/providers/feedback_position.dart';
-import 'package:fuelify/providers/dark_notifier.dart';
+import 'package:fuelify/providers/dark_mode.dart';
 
-import 'package:fuelify/dependencies/shared_preferences.dart';
+import 'package:fuelify/dependencies/user_preferences.dart';
 import 'package:provider/provider.dart';
 
 import 'models/user.dart';
@@ -21,7 +21,7 @@ void main() {
     providers: [
       ChangeNotifierProvider(create: (_) => DarkNotifier()),
       ChangeNotifierProvider(create: (_) => FeedbackPositionProvider()),
-      ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ChangeNotifierProvider(create: (_) => UserProvider()),
     ],
     child: MyApp(),
@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
                 Provider.of<DarkNotifier>(context).isDark
             ? Colors.black45
             : Colors.white,
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.grey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: FutureBuilder(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/models/user.dart';
-import 'package:fuelify/providers/auth.dart';
-import 'package:fuelify/providers/user_provider.dart';
+import 'package:fuelify/providers/authentication.dart';
+import 'package:fuelify/providers/user.dart';
 import 'package:fuelify/utils/validators.dart';
 import 'package:fuelify/commons/widgets.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +18,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    AuthProvider auth = Provider.of<AuthProvider>(context);
+    AuthenticationProvider auth = Provider.of<AuthenticationProvider>(context);
 
     final usernameField = TextFormField(
       initialValue: "ethan@fuelify.com", //TODO REMOVE
