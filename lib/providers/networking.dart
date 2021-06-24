@@ -39,10 +39,9 @@ class NetworkProvider with ChangeNotifier {
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
 
-
       notifyListeners();
 
-      result = responseData;
+      result = {'status': true, 'message': 'Successful', 'user': responseData['recipes']};
     } else {
       notifyListeners();
       result = {'Message': 'Failed fetch additional recipes to showcase'};
