@@ -4,6 +4,8 @@ import 'package:fuelify/models/recipe.dart';
 import 'package:fuelify/data/recipes.dart';
 import 'package:fuelify/commons/cards.dart';
 import 'package:fuelify/providers/feedback_position.dart';
+import 'package:fuelify/providers/networking.dart';
+
 
 class Discovery extends StatefulWidget {
   @override
@@ -43,6 +45,7 @@ class _DiscoveryState extends State<Discovery> {
     final isRecipeInFocus = recipeIndex == recipes.length - 1;
 
     return Listener(
+      // replace this with a GestureDetector
       onPointerMove: (pointerEvent) {
         final provider =
             Provider.of<FeedbackPositionProvider>(context, listen: false);
@@ -75,11 +78,10 @@ class _DiscoveryState extends State<Discovery> {
 
   // onDragEnd Action
   void onDragEnd(DraggableDetails details, Recipe recipe) {
-    final minimumDrag = 100;
-    final provider =
-        Provider.of<FeedbackPositionProvider>(context, listen: false);
+    
+    NetworkProvider network = Provider.of<NetworkProvider>(context);
 
-    print(provider.swipingDirection);
+    final minimumDrag = 100;
 
     print(details.offset.dx.abs());
     print(details.offset.dy.abs());
@@ -111,6 +113,23 @@ class _DiscoveryState extends State<Discovery> {
         print('Was not dragged far enough to categorize');
         //setState(() => recipes.remove(recipe));
       }
+    }
+
+    // Check if another lot of recipes need to be fetched from API
+    if (recipes.length <= 2) {
+      print('Send request to API for additional recipes');
+      // async load and concat to recipes list
+      final Future<Map<String, dynamic>> successfulMessage = network.fetchRecipes();
+      successfulMessage.then((response) {
+          if (response['status']) {
+            print('Fetched recipes successfully!');
+            recipes.addAll(response['recipes']);
+          } else {
+            print('Error occurred while fetching recipes');
+          }
+        });
+    } else {
+      print('Error occurred while fetching recipes');
     }
   }
 }
