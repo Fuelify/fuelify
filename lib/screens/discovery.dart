@@ -46,7 +46,7 @@ class _DiscoveryState extends State<Discovery> {
       onPointerMove: (pointerEvent) {
         final provider =
             Provider.of<FeedbackPositionProvider>(context, listen: false);
-        provider.updatePosition(pointerEvent.localDelta.dx);
+        provider.updatePosition(pointerEvent.localDelta.dx, pointerEvent.localDelta.dy);
       },
       onPointerCancel: (_) {
         final provider =
