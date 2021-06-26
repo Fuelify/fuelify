@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/models/user.dart';
-import 'package:fuelify/providers/user_provider.dart';
-import 'package:fuelify/providers/auth.dart';
+import 'package:fuelify/providers/user.dart';
+import 'package:fuelify/providers/authentication.dart';
 import 'package:provider/provider.dart';
 import 'package:fuelify/commons/widgets.dart';
 
@@ -14,7 +14,7 @@ class _DashBoardState extends State<DashBoard> {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;
-    AuthProvider auth = Provider.of<AuthProvider>(context);
+    AuthenticationProvider auth = Provider.of<AuthenticationProvider>(context);
 
     var requestTokenTest = () async {
       final Map<String, dynamic> requestMessage = await auth.tokentest();

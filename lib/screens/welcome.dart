@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/models/user.dart';
-import 'package:fuelify/providers/user_provider.dart';
+import 'package:fuelify/providers/user.dart';
 import 'package:provider/provider.dart';
 
 class Welcome extends StatelessWidget {

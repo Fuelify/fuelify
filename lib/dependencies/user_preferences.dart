@@ -14,9 +14,6 @@ class UserPreferences {
     prefs.setString("token", user.token);
     prefs.setString("refreshToken", user.refreshToken);
 
-    print("object preference");
-    print(user.refreshToken);
-
     return true;
   }
 

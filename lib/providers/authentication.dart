@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/dependencies/endpoints.dart';
-import 'package:fuelify/dependencies/shared_preferences.dart';
+import 'package:fuelify/dependencies/user_preferences.dart';
 
 enum Status {
   NotLoggedIn,
@@ -17,7 +17,7 @@ enum Status {
   LoggedOut
 }
 
-class AuthProvider with ChangeNotifier {
+class AuthenticationProvider with ChangeNotifier {
   Status _loggedInStatus = Status.NotLoggedIn;
   Status _registeredInStatus = Status.NotRegistered;
 
@@ -36,7 +36,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     var url = Uri.parse(AppUrl.login);
-    print(url);
+    
     Response response = await post(
       url,
       body: json.encode(loginData),
@@ -46,7 +46,7 @@ class AuthProvider with ChangeNotifier {
     if (response.statusCode == 200) {
       //final Map<String, dynamic> responseData = json.decode(response.body);
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-      print(responseData);
+      
       var userData = responseData['data'];
 
       User authUser = User.fromJson(userData);
@@ -111,7 +111,7 @@ class AuthProvider with ChangeNotifier {
       url,
       headers: {'content-type': 'application/json', 'Authorization': token},
     );
-    print(response.statusCode);
+    
     if (response.statusCode == 200) {
       //final Map<String, dynamic> responseData = json.decode(response.body);
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
