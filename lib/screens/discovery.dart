@@ -5,6 +5,7 @@ import 'package:fuelify/data/foods.dart';
 import 'package:fuelify/commons/cards.dart';
 import 'package:fuelify/providers/feedback_position.dart';
 import 'package:fuelify/providers/networking.dart';
+import 'package:fuelify/providers/food.dart';
 
 class Discovery extends StatefulWidget {
   @override
@@ -12,10 +13,12 @@ class Discovery extends StatefulWidget {
 }
 
 class _DiscoveryState extends State<Discovery> {
-  final List<Food> foods = dummyFoods;
 
   @override
   Widget build(BuildContext context) {
+    DiscoverFoodsProvider discover =
+        Provider.of<DiscoverFoodsProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text("DISCOVERY PAGE"),
@@ -25,12 +28,12 @@ class _DiscoveryState extends State<Discovery> {
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            foods.isEmpty
+            discover.foods.isEmpty
                 ? Text(
                     'One moment while we learn from your selections and rebuild your individual recommendation model...',
                     textAlign: TextAlign.center,
                   )
-                : Stack(children: foods.map(buildFood).toList()),
+                : Stack(children: discover.foods.map(buildFood).toList()),
             Expanded(child: Container()),
             //BottomButtonsWidget()
           ],
@@ -40,8 +43,11 @@ class _DiscoveryState extends State<Discovery> {
   }
 
   Widget buildFood(Food food) {
-    final foodIndex = foods.indexOf(food);
-    final isFoodInFocus = foodIndex == foods.length - 1;
+    DiscoverFoodsProvider discover =
+        Provider.of<DiscoverFoodsProvider>(context);
+
+    final foodIndex = discover.foods.indexOf(food);
+    final isFoodInFocus = foodIndex == discover.foods.length - 1;
 
     return Listener(
       // replace this with a GestureDetector
@@ -81,6 +87,7 @@ class _DiscoveryState extends State<Discovery> {
         Provider.of<NetworkProvider>(context, listen: false);
     final provider =
         Provider.of<FeedbackPositionProvider>(context, listen: false);
+    final discover = Provider.of<DiscoverFoodsProvider>(context, listen: false);
 
     print('------');
     print(provider.swipingDirection);
@@ -92,11 +99,11 @@ class _DiscoveryState extends State<Discovery> {
       if (provider.dx > minimumDrag) {
         print('Food Liked');
         food.isLiked = true;
-        setState(() => foods.remove(food));
+        setState(() => discover.foods.remove(food));
       } else if (provider.dx < -minimumDrag) {
         print('Food Disliked');
         food.isDisliked = true;
-        setState(() => foods.remove(food));
+        setState(() => discover.foods.remove(food));
       } else {
         print('Was not dragged far enough to categorize');
         //setState(() => foods.remove(food));
@@ -110,7 +117,7 @@ class _DiscoveryState extends State<Discovery> {
       } else if (provider.dy < -minimumDrag) {
         print('Food Favorited');
         food.isFavorited = true;
-        setState(() => foods.remove(food));
+        setState(() => discover.foods.remove(food));
       } else {
         print('Was not dragged far enough to categorize');
         //setState(() => foods.remove(food));
@@ -121,19 +128,32 @@ class _DiscoveryState extends State<Discovery> {
     provider.resetPosition();
 
     // Check if another lot of foods need to be fetched from API
-    if (foods.length <= 2) {
+    if (discover.foods.length <= 2) {
       print('Send request to API for additional foods');
       // Async load and concat to foods list
       final Future<Map<String, dynamic>> successfulResponse =
           network.fetchFoods();
       successfulResponse.then((response) {
-        print(response);
-        /*if (response['status']) {
-          print('Fetched foods successfully!');
-          foods.addAll(response['foods']);
-        } else {
-          print('Error occurred while fetching foods');
-        }*/
+        
+        List<Food> newFoods = [];
+        for (final item in response['foods']) {
+          newFoods.add(
+            Food(
+              designation: item['designation'], 
+              userFavorites: item['userFavorites'], 
+              name: item['name'], 
+              age: item['age'], 
+              imgUrl: item['imgUrl'], 
+              location: item['location'], 
+              bio: item['bio']
+            )
+          );
+        }
+        for (food in discover.foods) {
+          newFoods.add(food);
+        }
+        
+        setState(() => discover.addFoods(newFoods));
       });
     } else {
       print('Sufficient foods remain in the list');
