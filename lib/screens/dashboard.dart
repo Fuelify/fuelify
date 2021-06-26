@@ -16,20 +16,26 @@ class _DashBoardState extends State<DashBoard> {
     User user = Provider.of<UserProvider>(context).user;
     AuthenticationProvider auth = Provider.of<AuthenticationProvider>(context);
 
+    int _selectedIndex = 0;
+
     var requestTokenTest = () async {
       final Map<String, dynamic> requestMessage = await auth.tokentest();
-
       print(requestMessage);
-
     };
 
     var navigateToDiscovery = () async {
       Navigator.pushNamed(context, '/discovery');
     };
 
+    void _onItemTapped(int index) {
+      setState(() {
+        _selectedIndex = index;
+      });
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("DASHBOARD PAGE"),
+        title: Text("Dashboard"),
         elevation: 0.1,
       ),
       body: Column(
@@ -52,6 +58,33 @@ class _DashBoardState extends State<DashBoard> {
             navigateToDiscovery
           )
         ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Plan',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            label: 'Discovery',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.food_bank_rounded),
+            label: 'Recipes',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
