@@ -25,17 +25,13 @@ class NetworkProvider with ChangeNotifier {
       url,
       headers: {'content-type': 'application/json', 'Authorization': token},
     );
-    print(response.body);
+    
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-
+      
       notifyListeners();
 
-      result = {
-        'status': true,
-        'message': 'Successful',
-        'user': responseData['foods']
-      };
+      result = responseData;
     } else {
       notifyListeners();
       result = {'Message': 'Failed fetch additional foods to showcase'};
