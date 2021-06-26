@@ -11,6 +11,7 @@ import 'package:fuelify/providers/user.dart';
 import 'package:fuelify/providers/networking.dart';
 import 'package:fuelify/providers/feedback_position.dart';
 import 'package:fuelify/providers/dark_mode.dart';
+import 'package:fuelify/providers/food.dart';
 
 import 'package:fuelify/dependencies/user_preferences.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,7 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => DarkNotifier()),
+      ChangeNotifierProvider(create: (_) => DiscoverFoodsProvider()),
       ChangeNotifierProvider(create: (_) => FeedbackPositionProvider()),
       ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ChangeNotifierProvider(create: (_) => NetworkProvider()),
@@ -46,7 +48,7 @@ class MyApp extends StatelessWidget {
                 Provider.of<DarkNotifier>(context).isDark
             ? Colors.black45
             : Colors.white,
-        primarySwatch: Colors.grey,
+        primarySwatch: Colors.blueGrey,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: FutureBuilder(
