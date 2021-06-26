@@ -8,7 +8,6 @@ import 'package:fuelify/dependencies/endpoints.dart';
 import 'package:fuelify/dependencies/user_preferences.dart';
 
 class NetworkProvider with ChangeNotifier {
-
   /*
     FETCH ADDITIONAL FOODS
   */
@@ -18,20 +17,25 @@ class NetworkProvider with ChangeNotifier {
 
     notifyListeners();
 
-    var token = await UserPreferences().getToken(); // retrieves logged in users auth token
+    var token = await UserPreferences()
+        .getToken(); // retrieves logged in users auth token
     var url = Uri.parse(AppUrl.fetchFoods);
-    
+
     Response response = await get(
       url,
       headers: {'content-type': 'application/json', 'Authorization': token},
     );
-    
+    print(response.body);
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
 
       notifyListeners();
 
-      result = {'status': true, 'message': 'Successful', 'user': responseData['foods']};
+      result = {
+        'status': true,
+        'message': 'Successful',
+        'user': responseData['foods']
+      };
     } else {
       notifyListeners();
       result = {'Message': 'Failed fetch additional foods to showcase'};
