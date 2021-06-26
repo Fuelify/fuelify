@@ -7,20 +7,10 @@ import 'package:fuelify/models/user.dart';
 import 'package:fuelify/dependencies/endpoints.dart';
 import 'package:fuelify/dependencies/user_preferences.dart';
 
-enum Status {
-  NotLoggedIn,
-  NotRegistered,
-  LoggedIn,
-  Registered,
-  Authenticating,
-  Registering,
-  LoggedOut
-}
-
 class NetworkProvider with ChangeNotifier {
 
   /*
-    FETCH ADDITIONAL RECIPES
+    FETCH ADDITIONAL FOODS
   */
 
   Future<Map<String, dynamic>> fetchFoods() async {
