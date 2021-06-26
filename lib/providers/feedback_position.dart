@@ -8,10 +8,12 @@ class FeedbackPositionProvider extends ChangeNotifier {
   SwipingDirection _swipingDirection = SwipingDirection.none;
 
   SwipingDirection get swipingDirection => _swipingDirection;
+  double get dx => _dx;
+  double get dy => _dy;
 
-  FeedbackPositionProvider() {
-    _swipingDirection = SwipingDirection.none;
-  }
+  //FeedbackPositionProvider() {
+  //  _swipingDirection = SwipingDirection.none;
+  //}
 
   void resetPosition() {
     _dx = 0.0;

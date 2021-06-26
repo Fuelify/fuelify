@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 /*
-  Recipe Data Class
+  Food Data Class
 */
-class Recipe {
+class Food {
   final String name;
   final String designation;
   final int userFavorites;
@@ -14,7 +14,7 @@ class Recipe {
   bool isFavorited;
   bool isDisliked;
 
-  Recipe({
+  Food({
     required this.designation,
     required this.userFavorites,
     required this.name,

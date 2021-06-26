@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:fuelify/models/recipe.dart';
-import 'package:fuelify/data/recipes.dart';
+import 'package:fuelify/models/food.dart';
+import 'package:fuelify/data/foods.dart';
 import 'package:fuelify/commons/cards.dart';
 import 'package:fuelify/providers/feedback_position.dart';
 import 'package:fuelify/providers/networking.dart';
-
 
 class Discovery extends StatefulWidget {
   @override
@@ -13,7 +12,7 @@ class Discovery extends StatefulWidget {
 }
 
 class _DiscoveryState extends State<Discovery> {
-  final List<Recipe> recipes = dummyRecipes;
+  final List<Food> foods = dummyFoods;
 
   @override
   Widget build(BuildContext context) {
@@ -26,12 +25,12 @@ class _DiscoveryState extends State<Discovery> {
         padding: const EdgeInsets.all(8),
         child: Column(
           children: [
-            recipes.isEmpty
+            foods.isEmpty
                 ? Text(
                     'One moment while we learn from your selections and rebuild your individual recommendation model...',
                     textAlign: TextAlign.center,
                   )
-                : Stack(children: recipes.map(buildRecipe).toList()),
+                : Stack(children: foods.map(buildFood).toList()),
             Expanded(child: Container()),
             //BottomButtonsWidget()
           ],
@@ -40,9 +39,9 @@ class _DiscoveryState extends State<Discovery> {
     );
   }
 
-  Widget buildRecipe(Recipe recipe) {
-    final recipeIndex = recipes.indexOf(recipe);
-    final isRecipeInFocus = recipeIndex == recipes.length - 1;
+  Widget buildFood(Food food) {
+    final foodIndex = foods.indexOf(food);
+    final isFoodInFocus = foodIndex == foods.length - 1;
 
     return Listener(
       // replace this with a GestureDetector
@@ -60,76 +59,85 @@ class _DiscoveryState extends State<Discovery> {
       onPointerUp: (_) {
         final provider =
             Provider.of<FeedbackPositionProvider>(context, listen: false);
-        provider.resetPosition();
+        print('dX before reset: ' + provider.dx.toString());
+        // Fire on pointer drag end event
+        onDragEnd(food);
       },
       child: Draggable(
         child:
-            RecipeCardWidget(recipe: recipe, isRecipeInFocus: isRecipeInFocus),
+            FoodCardWidget(food: food, isFoodInFocus: isFoodInFocus),
         feedback: Material(
           type: MaterialType.transparency,
-          child: RecipeCardWidget(
-              recipe: recipe, isRecipeInFocus: isRecipeInFocus),
+          child: FoodCardWidget(
+              food: food, isFoodInFocus: isFoodInFocus),
         ),
         childWhenDragging: Container(),
-        onDragEnd: (details) => onDragEnd(details, recipe),
+        //onDragEnd: (details) => onDragEnd(details, food),
       ),
     );
   }
 
   // onDragEnd Action
-  void onDragEnd(DraggableDetails details, Recipe recipe) {
-    
-    NetworkProvider network = Provider.of<NetworkProvider>(context);
+  void onDragEnd(Food food) {
+    NetworkProvider network =
+        Provider.of<NetworkProvider>(context, listen: false);
+    final provider =
+        Provider.of<FeedbackPositionProvider>(context, listen: false);
+
+    print('------');
+    print(provider.swipingDirection);
 
     final minimumDrag = 100;
 
-    print(details.offset.dx.abs());
-    print(details.offset.dy.abs());
-    if (details.offset.dx.abs() > details.offset.dy.abs()) {
+    if (provider.dx.abs() > provider.dy.abs()) {
       // Drag in x direction dominates y
-      if (details.offset.dx > minimumDrag) {
-        print('Recipe Liked');
-        recipe.isLiked = true;
-        setState(() => recipes.remove(recipe));
-      } else if (details.offset.dx < -minimumDrag) {
-        print('Recipe Disliked');
-        recipe.isDisliked = true;
-        setState(() => recipes.remove(recipe));
+      if (provider.dx > minimumDrag) {
+        print('Food Liked');
+        food.isLiked = true;
+        setState(() => foods.remove(food));
+      } else if (provider.dx < -minimumDrag) {
+        print('Food Disliked');
+        food.isDisliked = true;
+        setState(() => foods.remove(food));
       } else {
         print('Was not dragged far enough to categorize');
-        //setState(() => recipes.remove(recipe));
+        //setState(() => foods.remove(food));
       }
     } else {
       // Drag in y direction dominates x
-      if (details.offset.dy > minimumDrag) {
-        print(details.offset.dy);
+      if (provider.dy > minimumDrag) {
+        print(provider.dy);
         print('Was not dragged far enough to categorize');
-        //setState(() => recipes.remove(recipe));
-      } else if (details.offset.dy < -minimumDrag) {
-        print('Recipe Favorited');
-        recipe.isFavorited = true;
-        setState(() => recipes.remove(recipe));
+        //setState(() => foods.remove(food));
+      } else if (provider.dy < -minimumDrag) {
+        print('Food Favorited');
+        food.isFavorited = true;
+        setState(() => foods.remove(food));
       } else {
         print('Was not dragged far enough to categorize');
-        //setState(() => recipes.remove(recipe));
+        //setState(() => foods.remove(food));
       }
     }
 
-    // Check if another lot of recipes need to be fetched from API
-    if (recipes.length <= 2) {
-      print('Send request to API for additional recipes');
-      // async load and concat to recipes list
-      final Future<Map<String, dynamic>> successfulMessage = network.fetchRecipes();
+    // Reset provider feedback position to home position (0,0)
+    provider.resetPosition();
+
+    // Check if another lot of foods need to be fetched from API
+    if (foods.length <= 2) {
+      print('Send request to API for additional foods');
+      // async load and concat to foods list
+      /*final Future<Map<String, dynamic>> successfulMessage =
+          network.fetchFoods();
       successfulMessage.then((response) {
-          if (response['status']) {
-            print('Fetched recipes successfully!');
-            recipes.addAll(response['recipes']);
-          } else {
-            print('Error occurred while fetching recipes');
-          }
-        });
+        if (response['status']) {
+          print('Fetched foods successfully!');
+          foods.addAll(response['foods']);
+        } else {
+          print('Error occurred while fetching foods');
+        }
+      });*/
     } else {
-      print('Error occurred while fetching recipes');
+      print('Sufficient foods remain in the list');
     }
   }
 }

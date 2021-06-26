@@ -23,13 +23,13 @@ class NetworkProvider with ChangeNotifier {
     FETCH ADDITIONAL RECIPES
   */
 
-  Future<Map<String, dynamic>> fetchRecipes() async {
+  Future<Map<String, dynamic>> fetchFoods() async {
     var result;
 
     notifyListeners();
 
     var token = await UserPreferences().getToken(); // retrieves logged in users auth token
-    var url = Uri.parse(AppUrl.fetchRecipes);
+    var url = Uri.parse(AppUrl.fetchFoods);
     
     Response response = await get(
       url,
@@ -41,10 +41,10 @@ class NetworkProvider with ChangeNotifier {
 
       notifyListeners();
 
-      result = {'status': true, 'message': 'Successful', 'user': responseData['recipes']};
+      result = {'status': true, 'message': 'Successful', 'user': responseData['foods']};
     } else {
       notifyListeners();
-      result = {'Message': 'Failed fetch additional recipes to showcase'};
+      result = {'Message': 'Failed fetch additional foods to showcase'};
     }
     return result;
   }

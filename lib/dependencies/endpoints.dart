@@ -8,5 +8,5 @@ class AppUrl {
   static const String register = base + "/register";
   static const String forgotPassword = base + "/forgot-password";
   static const String testToken = base + "/tokentest";
-  static const String fetchRecipes = base + "/fetch-recipes";
+  static const String fetchFoods = base + "/foods/retieve?n=10";
 }

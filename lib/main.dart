@@ -8,6 +8,7 @@ import 'package:fuelify/screens/welcome.dart';
 
 import 'package:fuelify/providers/authentication.dart';
 import 'package:fuelify/providers/user.dart';
+import 'package:fuelify/providers/networking.dart';
 import 'package:fuelify/providers/feedback_position.dart';
 import 'package:fuelify/providers/dark_mode.dart';
 
@@ -22,6 +23,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => DarkNotifier()),
       ChangeNotifierProvider(create: (_) => FeedbackPositionProvider()),
       ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+      ChangeNotifierProvider(create: (_) => NetworkProvider()),
       ChangeNotifierProvider(create: (_) => UserProvider()),
     ],
     child: MyApp(),
