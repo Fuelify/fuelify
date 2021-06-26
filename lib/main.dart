@@ -6,6 +6,7 @@ import 'package:fuelify/screens/login.dart';
 import 'package:fuelify/screens/register.dart';
 import 'package:fuelify/screens/welcome.dart';
 
+import 'package:fuelify/providers/navigation_bar.dart';
 import 'package:fuelify/providers/authentication.dart';
 import 'package:fuelify/providers/user.dart';
 import 'package:fuelify/providers/networking.dart';
@@ -27,6 +28,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ChangeNotifierProvider(create: (_) => NetworkProvider()),
       ChangeNotifierProvider(create: (_) => UserProvider()),
+      ChangeNotifierProvider(create: (_) => BottomNavigationBarProvider()),
     ],
     child: MyApp(),
   ));

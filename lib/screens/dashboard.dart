@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/providers/user.dart';
 import 'package:fuelify/providers/authentication.dart';
+import 'package:fuelify/providers/navigation_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:fuelify/commons/widgets.dart';
 
@@ -15,8 +16,7 @@ class _DashBoardState extends State<DashBoard> {
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;
     AuthenticationProvider auth = Provider.of<AuthenticationProvider>(context);
-
-    int _selectedIndex = 0;
+    BottomNavigationBarProvider navbar = Provider.of<BottomNavigationBarProvider>(context);
 
     var requestTokenTest = () async {
       final Map<String, dynamic> requestMessage = await auth.tokentest();
@@ -28,9 +28,7 @@ class _DashBoardState extends State<DashBoard> {
     };
 
     void _onItemTapped(int index) {
-      setState(() {
-        _selectedIndex = index;
-      });
+      navbar.currentIndex = index;
     }
 
     return Scaffold(
@@ -53,10 +51,7 @@ class _DashBoardState extends State<DashBoard> {
           SizedBox(height: 25),
           longButtons("Check Token Validation", requestTokenTest),
           SizedBox(height: 35),
-          longButtons(
-            "Go to Discovery Page", 
-            navigateToDiscovery
-          )
+          longButtons("Go to Discovery Page", navigateToDiscovery)
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -82,8 +77,9 @@ class _DashBoardState extends State<DashBoard> {
             label: 'Profile',
           ),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.amber[800],
+        currentIndex: navbar.currentIndex,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.black38,
         onTap: _onItemTapped,
       ),
     );
