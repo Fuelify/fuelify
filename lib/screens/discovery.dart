@@ -64,12 +64,10 @@ class _DiscoveryState extends State<Discovery> {
         onDragEnd(food);
       },
       child: Draggable(
-        child:
-            FoodCardWidget(food: food, isFoodInFocus: isFoodInFocus),
+        child: FoodCardWidget(food: food, isFoodInFocus: isFoodInFocus),
         feedback: Material(
           type: MaterialType.transparency,
-          child: FoodCardWidget(
-              food: food, isFoodInFocus: isFoodInFocus),
+          child: FoodCardWidget(food: food, isFoodInFocus: isFoodInFocus),
         ),
         childWhenDragging: Container(),
         //onDragEnd: (details) => onDragEnd(details, food),
@@ -125,17 +123,18 @@ class _DiscoveryState extends State<Discovery> {
     // Check if another lot of foods need to be fetched from API
     if (foods.length <= 2) {
       print('Send request to API for additional foods');
-      // async load and concat to foods list
-      /*final Future<Map<String, dynamic>> successfulMessage =
+      // Async load and concat to foods list
+      final Future<Map<String, dynamic>> successfulResponse =
           network.fetchFoods();
-      successfulMessage.then((response) {
-        if (response['status']) {
+      successfulResponse.then((response) {
+        print(response);
+        /*if (response['status']) {
           print('Fetched foods successfully!');
           foods.addAll(response['foods']);
         } else {
           print('Error occurred while fetching foods');
-        }
-      });*/
+        }*/
+      });
     } else {
       print('Sufficient foods remain in the list');
     }
