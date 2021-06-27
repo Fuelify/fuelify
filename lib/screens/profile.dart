@@ -5,6 +5,9 @@ import 'package:fuelify/models/user.dart';
 import 'package:fuelify/providers/user.dart';
 
 import 'package:fuelify/commons/profile/photo.dart';
+import 'package:fuelify/commons/profile/details.dart';
+import 'package:fuelify/commons/profile/buttons.dart';
+
 import 'package:fuelify/commons/navigationbars.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -29,7 +32,14 @@ class _ProfilePageState extends State<ProfilePage> {
               onClicked: () async {},
             ),
             SizedBox(height: 24,),
-            //buildName(user),
+            buildName(user),
+            SizedBox(height: 24,),
+            Center(
+              child: UpgradeButtonWidget(
+                text: 'Upgrade to PRO',
+                onClicked: () {}
+              ),
+            ),
           ],
         ),
         bottomNavigationBar: BottomNavigationBarWidget());
