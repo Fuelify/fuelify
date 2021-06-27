@@ -66,7 +66,6 @@ class _DiscoveryPageState extends State<DiscoveryPage> {
       onPointerUp: (_) {
         final provider =
             Provider.of<FeedbackPositionProvider>(context, listen: false);
-        print('dX before reset: ' + provider.dx.toString());
         // Fire on pointer drag end event
         onDragEnd(food);
       },

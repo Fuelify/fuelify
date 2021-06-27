@@ -28,7 +28,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
           label: 'Discovery',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.food_bank_rounded),
+          icon: Icon(Icons.fastfood),
           label: 'Food',
         ),
         BottomNavigationBarItem(
