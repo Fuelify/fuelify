@@ -8,12 +8,12 @@ import 'package:fuelify/providers/feedback_position.dart';
 import 'package:fuelify/providers/networking.dart';
 import 'package:fuelify/providers/food.dart';
 
-class Discovery extends StatefulWidget {
+class DiscoveryPage extends StatefulWidget {
   @override
-  _DiscoveryState createState() => _DiscoveryState();
+  _DiscoveryPageState createState() => _DiscoveryPageState();
 }
 
-class _DiscoveryState extends State<Discovery> {
+class _DiscoveryPageState extends State<DiscoveryPage> {
 
   @override
   Widget build(BuildContext context) {

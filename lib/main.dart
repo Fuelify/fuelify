@@ -72,7 +72,7 @@ class MyApp extends StatelessWidget {
           }),
       routes: {
         '/home': (context) => HomePage(),
-        '/discovery': (context) => Discovery(),
+        '/discovery': (context) => DiscoveryPage(),
         '/login': (context) => Login(),
         '/register': (context) => Register(),
       }
