@@ -7,12 +7,12 @@ import 'package:provider/provider.dart';
 import 'package:fuelify/commons/widgets.dart';
 import 'package:fuelify/commons/navigationbars.dart';
 
-class DashBoard extends StatefulWidget {
+class HomePage extends StatefulWidget {
   @override
-  _DashBoardState createState() => _DashBoardState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _DashBoardState extends State<DashBoard> {
+class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;

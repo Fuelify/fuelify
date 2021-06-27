@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:fuelify/screens/dashboard.dart';
+import 'package:fuelify/screens/home.dart';
 import 'package:fuelify/screens/discovery.dart';
 import 'package:fuelify/screens/login.dart';
 import 'package:fuelify/screens/register.dart';
@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
             }
           }),
       routes: {
-        '/dashboard': (context) => DashBoard(),
+        '/dashboard': (context) => HomePage(),
         '/discovery': (context) => Discovery(),
         '/login': (context) => Login(),
         '/register': (context) => Register(),
