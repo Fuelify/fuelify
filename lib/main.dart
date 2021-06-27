@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
             }
           }),
       routes: {
-        '/dashboard': (context) => HomePage(),
+        '/home': (context) => HomePage(),
         '/discovery': (context) => Discovery(),
         '/login': (context) => Login(),
         '/register': (context) => Register(),
