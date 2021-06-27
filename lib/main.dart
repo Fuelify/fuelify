@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
-import 'package:fuelify/screens/dashboard.dart';
+import 'package:fuelify/screens/home.dart';
+import 'package:fuelify/screens/plan.dart';
 import 'package:fuelify/screens/discovery.dart';
+import 'package:fuelify/screens/recipes.dart';
+import 'package:fuelify/screens/profile.dart';
 import 'package:fuelify/screens/login.dart';
 import 'package:fuelify/screens/register.dart';
 import 'package:fuelify/screens/welcome.dart';
 
+import 'package:fuelify/providers/navigation_bar.dart';
 import 'package:fuelify/providers/authentication.dart';
 import 'package:fuelify/providers/user.dart';
 import 'package:fuelify/providers/networking.dart';
@@ -27,6 +31,7 @@ void main() {
       ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
       ChangeNotifierProvider(create: (_) => NetworkProvider()),
       ChangeNotifierProvider(create: (_) => UserProvider()),
+      ChangeNotifierProvider(create: (_) => BottomNavigationBarProvider()),
     ],
     child: MyApp(),
   ));
@@ -69,8 +74,11 @@ class MyApp extends StatelessWidget {
             }
           }),
       routes: {
-        '/dashboard': (context) => DashBoard(),
-        '/discovery': (context) => Discovery(),
+        '/home': (context) => HomePage(),
+        '/plan': (context) => PlanPage(),
+        '/discovery': (context) => DiscoveryPage(),
+        '/recipes': (context) => RecipesPage(),
+        '/profile': (context) => ProfilePage(),
         '/login': (context) => Login(),
         '/register': (context) => Register(),
       }

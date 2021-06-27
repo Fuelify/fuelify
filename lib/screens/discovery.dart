@@ -1,27 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fuelify/models/food.dart';
-import 'package:fuelify/data/foods.dart';
 import 'package:fuelify/commons/cards.dart';
+import 'package:fuelify/commons/navigationbars.dart';
+
 import 'package:fuelify/providers/feedback_position.dart';
 import 'package:fuelify/providers/networking.dart';
 import 'package:fuelify/providers/food.dart';
 
-class Discovery extends StatefulWidget {
+class DiscoveryPage extends StatefulWidget {
   @override
-  _DiscoveryState createState() => _DiscoveryState();
+  _DiscoveryPageState createState() => _DiscoveryPageState();
 }
 
-class _DiscoveryState extends State<Discovery> {
+class _DiscoveryPageState extends State<DiscoveryPage> {
 
   @override
   Widget build(BuildContext context) {
-    DiscoverFoodsProvider discover =
-        Provider.of<DiscoverFoodsProvider>(context);
+    DiscoverFoodsProvider discover = Provider.of<DiscoverFoodsProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("DISCOVERY PAGE"),
+        title: Text("Discovery"),
         elevation: 0.1,
       ),
       body: Padding(
@@ -39,6 +39,7 @@ class _DiscoveryState extends State<Discovery> {
           ],
         ),
       ),
+      bottomNavigationBar: BottomNavigationBarWidget(),
     );
   }
 
