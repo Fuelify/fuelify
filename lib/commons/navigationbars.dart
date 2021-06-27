@@ -9,7 +9,6 @@ class BottomNavigationBarWidget extends StatelessWidget {
     final navbar = Provider.of<BottomNavigationBarProvider>(context);
 
     void _onItemTapped(int index) {
-      print(index);
       navbar.currentIndex = index;
       Navigator.pushReplacementNamed(context, "/"+Navigate.Page[index]);
     }
@@ -30,7 +29,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.food_bank_rounded),
-          label: 'Recipes',
+          label: 'Food',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.person),

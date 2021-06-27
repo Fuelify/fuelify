@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fuelify/screens/home.dart';
 import 'package:fuelify/screens/plan.dart';
 import 'package:fuelify/screens/discovery.dart';
-import 'package:fuelify/screens/recipes.dart';
+import 'package:fuelify/screens/food.dart';
 import 'package:fuelify/screens/profile.dart';
 import 'package:fuelify/screens/login.dart';
 import 'package:fuelify/screens/register.dart';
@@ -77,7 +77,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/plan': (context) => PlanPage(),
         '/discovery': (context) => DiscoveryPage(),
-        '/recipes': (context) => RecipesPage(),
+        '/food': (context) => FoodPage(),
         '/profile': (context) => ProfilePage(),
         '/login': (context) => Login(),
         '/register': (context) => Register(),
