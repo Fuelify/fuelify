@@ -10,6 +10,7 @@ class UserPreferences {
     prefs.setString("name", user.name);
     prefs.setString("email", user.email);
     prefs.setString("phone", user.phone);
+    prefs.setString("image", user.image);
     prefs.setString("type", user.type);
     prefs.setString("token", user.token);
     prefs.setString("refreshToken", user.refreshToken);
@@ -24,6 +25,7 @@ class UserPreferences {
     String name = prefs.getString("name") ?? "";
     String email = prefs.getString("email") ?? "";
     String phone = prefs.getString("phone") ?? "";
+    String image = prefs.getString("image") ?? "";
     String type = prefs.getString("type") ?? "";
     String token = prefs.getString("token") ?? "";
     String refreshToken = prefs.getString("refreshToken") ?? "";
@@ -33,6 +35,7 @@ class UserPreferences {
         name: name,
         email: email,
         phone: phone,
+        image: image,
         type: type,
         token: token,
         refreshToken: refreshToken);
@@ -44,6 +47,7 @@ class UserPreferences {
     prefs.remove("name");
     prefs.remove("email");
     prefs.remove("phone");
+    prefs.remove("image");
     prefs.remove("type");
     prefs.remove("token");
   }
