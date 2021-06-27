@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/commons/navigationbars.dart';
 
-class RecipesPage extends StatefulWidget {
+class FoodPage extends StatefulWidget {
   @override
-  _RecipesPageState createState() => _RecipesPageState();
+  _FoodPageState createState() => _FoodPageState();
 }
 
-class _RecipesPageState extends State<RecipesPage> {
+class _FoodPageState extends State<FoodPage> {
   @override
   Widget build(BuildContext context) {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text("Recipes"),
+          title: Text("Food"),
           elevation: 0.1,
         ),
         body: Column(
