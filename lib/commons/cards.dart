@@ -22,7 +22,7 @@ class FoodCardWidget extends StatelessWidget {
     return GestureDetector(
       onTap: () {print('Food Card Tapped');},
       child: Container(
-        height: size.height * 0.7,
+        height: size.height * 0.79,
         width: size.width * 0.95,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
