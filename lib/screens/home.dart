@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     };
 
     var navigateToDiscovery = () async {
-      navbar.currentIndex = 2;
+      navbar.currentIndex = 2; //TODO UDPATE THIS USING NAVIGATE.PAGE METHOD
       Navigator.pushNamed(context, '/discovery');
     };
 
