@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fuelify/providers/navigation_bar.dart';
+import 'package:fuelify/dependencies/navigation.dart';
 
 class BottomNavigationBarWidget extends StatelessWidget {
   @override
@@ -10,6 +11,7 @@ class BottomNavigationBarWidget extends StatelessWidget {
     void _onItemTapped(int index) {
       print(index);
       navbar.currentIndex = index;
+      Navigator.pushReplacementNamed(context, "/"+Navigate.Page[index]);
     }
 
     return BottomNavigationBar(
