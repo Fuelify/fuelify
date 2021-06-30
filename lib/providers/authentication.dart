@@ -29,7 +29,9 @@ class AuthenticationProvider with ChangeNotifier {
 
     final Map<String, dynamic> loginData = {
       'email': email,
-      'password': password
+      'password': password,
+      'group': 'USER',
+      'provider': 'FUELIFY',
     };
 
     _loggedInStatus = Status.Authenticating;
@@ -75,11 +77,11 @@ class AuthenticationProvider with ChangeNotifier {
   Future<Map<String, dynamic>> register(
       String email, String password, String passwordConfirmation) async {
     final Map<String, dynamic> registrationData = {
-      'user': {
-        'email': email,
-        'password': password,
-        'password_confirmation': passwordConfirmation
-      }
+      'email': email,
+      'password': password,
+      'password_confirmation': passwordConfirmation,
+      'group': 'USER',
+      'provider': 'FUELIFY',
     };
 
     _registeredInStatus = Status.Registering;
