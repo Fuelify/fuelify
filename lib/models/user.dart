@@ -1,5 +1,5 @@
 class User {
-  int userId;
+  String id;
   String name;
   String email;
   String phone;
@@ -9,7 +9,7 @@ class User {
   String refreshToken;
 
   User({
-    this.userId = 0,
+    this.id = "",
     this.name = "",
     this.email = "",
     this.phone = "",
@@ -21,7 +21,7 @@ class User {
 
   factory User.fromJson(Map<String, dynamic> responseData) {
     return User(
-        userId: responseData['id'],
+        id: responseData['id'],
         name: responseData['name'] ?? "Joe Smith",
         email: responseData['email'],
         phone: responseData['phone'] ?? "315-988-5689",

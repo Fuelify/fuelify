@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:fuelify/dependencies/endpoints.dart';
 
 class Network {
-  // function for printing the list of animals
+  
   void requestLogin(Map<String, dynamic> requestBody) async {
     // This queries the API endpoint /login about http.
     var url = Uri.parse(AppUrl.login);
