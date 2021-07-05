@@ -7,7 +7,10 @@ import 'package:fuelify/screens/food.dart';
 import 'package:fuelify/screens/profile.dart';
 import 'package:fuelify/screens/login.dart';
 import 'package:fuelify/screens/register.dart';
-import 'package:fuelify/screens/welcome.dart';
+//import 'package:fuelify/screens/welcome.dart';
+import 'package:fuelify/screens/onboarding/update_profile.dart';
+import 'package:fuelify/screens/onboarding/update_diet.dart';
+import 'package:fuelify/screens/onboarding/update_devices.dart';
 
 import 'package:fuelify/providers/navigation_bar.dart';
 import 'package:fuelify/providers/authentication.dart';
@@ -81,6 +84,9 @@ class MyApp extends StatelessWidget {
         '/profile': (context) => ProfilePage(),
         '/login': (context) => Login(),
         '/register': (context) => Register(),
+        '/onboarding/profile': (context) => ProfileUpdate(),
+        '/onboarding/diet': (context) => DietUpdate(),
+        '/onboarding/device-connections': (context) => DeviceConnectionsUpdate(),
       }
     );
   }
