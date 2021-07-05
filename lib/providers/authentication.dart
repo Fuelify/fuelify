@@ -29,24 +29,26 @@ class AuthenticationProvider with ChangeNotifier {
 
     final Map<String, dynamic> loginData = {
       'email': email,
-      'password': password
+      'password': password,
+      'family': 'USER',
+      'provider': 'FUELIFY',
     };
 
     _loggedInStatus = Status.Authenticating;
     notifyListeners();
 
     var url = Uri.parse(AppUrl.login);
-    
+
     Response response = await post(
       url,
       body: json.encode(loginData),
       headers: {'content-type': 'application/json'},
     );
-
+    
     if (response.statusCode == 200) {
       //final Map<String, dynamic> responseData = json.decode(response.body);
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
-      
+
       var userData = responseData['data'];
 
       User authUser = User.fromJson(userData);
@@ -75,11 +77,11 @@ class AuthenticationProvider with ChangeNotifier {
   Future<Map<String, dynamic>> register(
       String email, String password, String passwordConfirmation) async {
     final Map<String, dynamic> registrationData = {
-      'user': {
-        'email': email,
-        'password': password,
-        'password_confirmation': passwordConfirmation
-      }
+      'email': email,
+      'password': password,
+      'password_confirmation': passwordConfirmation,
+      'family': 'USER',
+      'provider': 'FUELIFY',
     };
 
     _registeredInStatus = Status.Registering;
@@ -106,12 +108,12 @@ class AuthenticationProvider with ChangeNotifier {
     var token = await UserPreferences()
         .getToken(); // retrieves logged in users auth token
     var url = Uri.parse(AppUrl.testToken);
-    
+
     Response response = await get(
       url,
       headers: {'content-type': 'application/json', 'Authorization': token},
     );
-    
+
     if (response.statusCode == 200) {
       //final Map<String, dynamic> responseData = json.decode(response.body);
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;

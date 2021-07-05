@@ -6,7 +6,7 @@ class UserPreferences {
   Future<bool> saveUser(User user) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    prefs.setInt("userId", user.userId);
+    prefs.setString("id", user.id);
     prefs.setString("name", user.name);
     prefs.setString("email", user.email);
     prefs.setString("phone", user.phone);
@@ -21,7 +21,7 @@ class UserPreferences {
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    int userId = prefs.getInt("userId") ?? 0;
+    String id = prefs.getString("id") ?? "";
     String name = prefs.getString("name") ?? "";
     String email = prefs.getString("email") ?? "";
     String phone = prefs.getString("phone") ?? "";
@@ -31,7 +31,7 @@ class UserPreferences {
     String refreshToken = prefs.getString("refreshToken") ?? "";
 
     return User(
-        userId: userId,
+        id: id,
         name: name,
         email: email,
         phone: phone,
