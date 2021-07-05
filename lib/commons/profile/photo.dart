@@ -30,7 +30,7 @@ Widget buildImage(user, onClicked) {
       child: Material(
           color: Colors.transparent,
           child: Ink.image(
-            image: NetworkImage(user.image),
+            image: user.image == null ? AssetImage("assets/perosn.jpeg") : AssetImage("assets/perosn.jpeg"),//NetworkImage(user.image),
             fit: BoxFit.cover,
             width: 128,
             height: 128,
