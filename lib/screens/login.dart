@@ -72,7 +72,7 @@ class _LoginState extends State<Login> {
       form!.save();
 
       if (form.validate()) {
-
+        
         final Future<Map<String, dynamic>> successfulMessage =
             auth.login(_username ?? "", _password ?? "");
 
@@ -80,13 +80,15 @@ class _LoginState extends State<Login> {
           if (response['status']) {
             User user = response['user'];
             Provider.of<UserProvider>(context, listen: false).setUser(user);
-            Navigator.pushReplacementNamed(context, '/home');
+            // Check user onboarding state to determine if onboarding needs to be displayed to user
+            Navigator.pushReplacementNamed(context, '/onboarding/profile');
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text("Failed Login: " +
                     response['message']['message'].toString())));
           }
         });
+        
       } else {
         print(_username);
         print(_password);

@@ -44,7 +44,7 @@ class AuthenticationProvider with ChangeNotifier {
       body: json.encode(loginData),
       headers: {'content-type': 'application/json'},
     );
-    
+
     if (response.statusCode == 200) {
       //final Map<String, dynamic> responseData = json.decode(response.body);
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -88,7 +88,7 @@ class AuthenticationProvider with ChangeNotifier {
     notifyListeners();
 
     var url = Uri.parse(AppUrl.register);
-
+    print(registrationData);
     return await post(url,
             body: json.encode(registrationData),
             headers: {'content-type': 'application/json'})
@@ -150,7 +150,7 @@ class AuthenticationProvider with ChangeNotifier {
         'data': responseData
       };
     }
-
+    print(result);
     return result;
   }
 
