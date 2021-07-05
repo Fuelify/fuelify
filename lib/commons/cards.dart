@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fuelify/models/food.dart';
 import 'package:fuelify/providers/feedback_position.dart';
+import 'package:fuelify/models/user.dart';
 
 class FoodCardWidget extends StatelessWidget {
   final Food food;
@@ -97,4 +98,67 @@ Widget buildFoodInfo({required Food food}) => Padding(
         ],
       ),
     );
+}
+
+
+class DeviceCardWidget extends StatelessWidget {
+  final device;
+
+  const DeviceCardWidget({
+    Key? key,
+    required this.device,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    
+    return GestureDetector(
+      onTap: () {print('Device card tapped, pushNamed navigate to device connection view');},
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          image: DecorationImage(
+            image: AssetImage("assets/perosn.jpeg"),
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(color: Colors.black12, spreadRadius: 0.5),
+            ],
+            gradient: LinearGradient(
+              colors: [Colors.black12, Colors.black87],
+              begin: Alignment.center,
+              stops: [0.4, 1],
+              end: Alignment.bottomCenter,
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: 10,
+                left: 10,
+                bottom: 10,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 16, right: 8),
+                      child: Text(
+                        device,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
