@@ -38,12 +38,6 @@ class _DietUpdateState extends State<DietUpdate> {
           SizedBox(
             height: 24,
           ),
-          DatePickerDialog(
-            initialDate: DateTime.utc(1990,1,1), 
-            firstDate: DateTime.utc(1900,1,1), 
-            lastDate: DateTime.now()
-            
-          ),
           Center(
             child: FullWidthButtonWidget(
               text: 'Continue',
