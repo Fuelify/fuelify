@@ -7,6 +7,7 @@ import 'package:fuelify/providers/user.dart';
 import 'package:fuelify/commons/onboarding/profile.dart';
 import 'package:fuelify/commons/buttons.dart';
 import 'package:fuelify/commons/dropdowns.dart';
+import 'package:fuelify/commons/customdropdowns.dart';
 
 class DietUpdate extends StatefulWidget {
   @override
@@ -32,8 +33,6 @@ class _DietUpdateState extends State<DietUpdate> {
           SizedBox(
             height: 24,
           ),
-          DropDownWidget(),
-          
           //RadioListTile
           SizedBox(
             height: 24,
