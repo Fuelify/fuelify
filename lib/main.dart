@@ -48,6 +48,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Fuelify App',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Provider.of<DarkNotifier>(context).isDark
             ? Brightness.dark
