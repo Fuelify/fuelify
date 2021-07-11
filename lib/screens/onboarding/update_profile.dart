@@ -29,9 +29,6 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
             user: user,
             onClicked: () async {},
           ),
-          SizedBox(
-            height: 24,
-          ),
           ProfileInfoWidget(
             user: user,
             buttonText: "Continue",
