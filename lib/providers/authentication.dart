@@ -53,7 +53,7 @@ class AuthenticationProvider with ChangeNotifier {
 
       User authUser = User.fromJson(userData);
 
-      UserPreferences().saveUser(authUser);
+      UserProfile().saveUser(authUser);
 
       _loggedInStatus = Status.LoggedIn;
       notifyListeners();
@@ -105,7 +105,7 @@ class AuthenticationProvider with ChangeNotifier {
 
     notifyListeners();
 
-    var token = await UserPreferences()
+    var token = await UserProfile()
         .getToken(); // retrieves logged in users auth token
     var url = Uri.parse(AppUrl.testToken);
 
@@ -137,7 +137,7 @@ class AuthenticationProvider with ChangeNotifier {
 
       User authUser = User.fromJson(userData);
 
-      UserPreferences().saveUser(authUser);
+      UserProfile().saveUser(authUser);
       result = {
         'status': true,
         'message': 'Successfully registered',

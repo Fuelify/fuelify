@@ -1,8 +1,9 @@
 import 'package:fuelify/models/user.dart';
+import 'package:fuelify/models/onboarding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
-class UserPreferences {
+class UserProfile {
   Future<bool> saveUser(User user) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -14,6 +15,24 @@ class UserPreferences {
     prefs.setString("type", user.type);
     prefs.setString("token", user.token);
     prefs.setString("refreshToken", user.refreshToken);
+
+    return true;
+  }
+
+  Future<bool> saveOnboarding(Onboarding onboarding) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setString("personal", onboarding.personal.toString());
+    prefs.setString("diet", onboarding.diet.toString());
+    prefs.setString("devices", onboarding.devices.toString());
+
+    return true;
+  }
+
+  Future<bool> savePersonalData(Map<String, dynamic> personalData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setString("personal", personalData.toString());
 
     return true;
   }
@@ -39,6 +58,14 @@ class UserPreferences {
         type: type,
         token: token,
         refreshToken: refreshToken);
+  }
+
+  Future<String> getUserPersonalData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String personal = prefs.getString("personal") ?? "";
+    
+    return personal;
   }
 
   void removeUser() async {

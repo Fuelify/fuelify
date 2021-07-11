@@ -44,10 +44,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of the mobile application
   @override
   Widget build(BuildContext context) {
-    Future<User> getUserData() => UserPreferences().getUser();
+    Future<User> getUserData() => UserProfile().getUser();
 
     return MaterialApp(
-      title: 'Fuelify App',
+      title: 'Fuelify',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Provider.of<DarkNotifier>(context).isDark
@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
                 else if (!snapshot.hasData)
                   return Login();
                 else
-                  UserPreferences().removeUser();
+                  UserProfile().removeUser();
                 return Login();
             }
           }),

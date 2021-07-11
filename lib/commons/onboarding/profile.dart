@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:fuelify/dependencies/user_preferences.dart';
 import 'package:fuelify/commons/widgets.dart';
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/commons/customdropdowns.dart';
@@ -129,14 +130,14 @@ class ProfileInfoWidget extends StatelessWidget {
       if (form!.validate()) {
         form.save();
         print(personalData);
-
+        UserProfile().savePersonalData(personalData);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content:
                 Text("Invalid Form: " + "Please Complete the form properly")));
       }
     };
-    
+
     final nextView = (routeName) {
       print(routeName);
       Navigator.pushNamed(context, routeName);

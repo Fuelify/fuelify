@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/providers/user.dart';
 
+import 'package:fuelify/dependencies/user_preferences.dart';
+
 import 'package:fuelify/commons/onboarding/profile.dart';
 import 'package:fuelify/commons/buttons.dart';
 import 'package:fuelify/commons/dropdowns.dart';
