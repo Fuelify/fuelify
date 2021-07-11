@@ -6,7 +6,6 @@ import 'package:fuelify/providers/user.dart';
 
 import 'package:fuelify/commons/profile/photo.dart';
 import 'package:fuelify/commons/onboarding/profile.dart';
-import 'package:fuelify/commons/buttons.dart';
 
 class ProfileUpdate extends StatefulWidget {
   @override
@@ -14,14 +13,10 @@ class ProfileUpdate extends StatefulWidget {
 }
 
 class _ProfileUpdateState extends State<ProfileUpdate> {
+
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;
-
-    final nextView = (routeName) {
-      print(routeName);
-      Navigator.pushNamed(context, routeName);
-    };
 
     return Scaffold(
       appBar: AppBar(
@@ -37,14 +32,13 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
           SizedBox(
             height: 24,
           ),
-          ProfileInfoWidget(user: user),
-          Center(
-            child: FullWidthButtonWidget(
-              text: 'Continue',
-              onClicked: () {
-                nextView("/onboarding/diet");
-              },
-            ),
+          ProfileInfoWidget(
+            user: user,
+            buttonText: "Continue",
+            buttonRoute: "/onboarding/diet"
+          ),
+          SizedBox(
+            height: 24,
           ),
         ],
       ),
