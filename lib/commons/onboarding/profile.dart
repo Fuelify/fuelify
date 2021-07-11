@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:fuelify/commons/widgets.dart';
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/commons/customdropdowns.dart';
+import 'package:fuelify/commons/buttons.dart';
 
 final genderOptions = [
   DropDownOption(option: 'Male', icon: Icons.male),
@@ -14,10 +15,13 @@ final genderOptions = [
 
 class ProfileInfoWidget extends StatelessWidget {
   final User user;
+  final buttonText, buttonRoute;
 
   const ProfileInfoWidget({
     Key? key,
     required this.user,
+    this.buttonText,
+    this.buttonRoute,
   }) : super(key: key);
 
   @override
@@ -28,23 +32,24 @@ class ProfileInfoWidget extends StatelessWidget {
 
     DateTime _selectedDate = DateTime.utc(1990, 1, 1);
 
-    String? _firstname, _lastname, _location, _birthday, _gender;
+    Map<String, dynamic> personalData =
+        {}; // initialize empty personal data map
 
     final firstNameField = TextFormField(
       autofocus: false,
-      onSaved: (value) => _firstname = value,
+      onSaved: (value) => {personalData['firstname'] = value},
       decoration: buildInputDecoration("First Name", Icons.person),
     );
 
     final lastNameField = TextFormField(
       autofocus: false,
-      onSaved: (value) => _lastname = value,
+      onSaved: (value) => {personalData['lastname'] = value},
       decoration: buildInputDecoration("Last Name", Icons.person_outline_sharp),
     );
 
     final locationField = TextFormField(
       autofocus: false,
-      onSaved: (value) => _location = value,
+      onSaved: (value) => {personalData['location'] = value},
       decoration: buildInputDecoration("Location", Icons.location_on),
     );
 
@@ -52,7 +57,7 @@ class ProfileInfoWidget extends StatelessWidget {
       readOnly: true,
       controller: _dateController,
       decoration: buildInputDecoration("Location", Icons.calendar_today),
-      onSaved: (value) => _birthday = value,
+      onSaved: (value) => {personalData['birthdate'] = value},
       onTap: () async {
         await showDatePicker(
           context: context,
@@ -80,17 +85,17 @@ class ProfileInfoWidget extends StatelessWidget {
       },
     );
 
-    /*final genderField = TextFormField(
-      autofocus: false,
-      onSaved: (value) => _gender = value,
-      decoration: buildInputDecoration("Location", Icons.male),
-    );*/
     final genderField = CustomDropdown<int>(
       child: Text(
         "",
       ),
-      onChange: (int value, int index) => print(genderOptions[index].option),
-      onSaved: (int value, int index) => _gender = genderOptions[index].option,
+      onChange: (int value, int index) => {
+        print(genderOptions[index].option),
+        personalData['gender'] = genderOptions[index].option,
+      },
+      onSaved: (int value, int index) => {
+        personalData['gender'] = genderOptions[index].option,
+      },
       dropdownButtonStyle: DropdownButtonStyle(
         mainAxisAlignment: MainAxisAlignment.start,
         //width: 170,
@@ -118,43 +123,73 @@ class ProfileInfoWidget extends StatelessWidget {
           .toList(),
     );
 
+    var recordData = () {
+      final form = formKey.currentState;
+
+      if (form!.validate()) {
+        form.save();
+        print(personalData);
+
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text("Invalid Form: " + "Please Complete the form properly")));
+      }
+    };
+    
+    final nextView = (routeName) {
+      print(routeName);
+      Navigator.pushNamed(context, routeName);
+    };
+
     /*
     return SafeArea(
       child: Scaffold(
         body: SingleChildScrollView(
           */
-    return SingleChildScrollView(
-      child: Container(
-        padding: EdgeInsets.all(40.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              label("First Name"),
-              SizedBox(height: 10.0),
-              firstNameField,
-              SizedBox(height: 15.0),
-              label("Last Name"),
-              SizedBox(height: 10.0),
-              lastNameField,
-              SizedBox(height: 15.0),
-              label("Gender"),
-              SizedBox(height: 10.0),
-              genderField,
-              SizedBox(height: 15.0),
-              label("Birth Date"),
-              SizedBox(height: 10.0),
-              birthdayField,
-              SizedBox(height: 15.0),
-              label("Location"),
-              SizedBox(height: 10.0),
-              locationField,
-              SizedBox(height: 15.0),
-            ],
+    return Column(children: [
+      SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.all(40.0),
+          child: Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                label("First Name"),
+                SizedBox(height: 10.0),
+                firstNameField,
+                SizedBox(height: 15.0),
+                label("Last Name"),
+                SizedBox(height: 10.0),
+                lastNameField,
+                SizedBox(height: 15.0),
+                label("Gender"),
+                SizedBox(height: 10.0),
+                genderField,
+                SizedBox(height: 15.0),
+                label("Birth Date"),
+                SizedBox(height: 10.0),
+                birthdayField,
+                SizedBox(height: 15.0),
+                label("Location"),
+                SizedBox(height: 10.0),
+                locationField,
+                SizedBox(height: 15.0),
+              ],
+            ),
           ),
         ),
       ),
-    );
+      Center(
+        child: FullWidthButtonWidget(
+          text: buttonText,
+          onClicked: () {
+            recordData();
+            nextView(buttonRoute);
+          },
+        ),
+      )
+    ]);
   }
 }
