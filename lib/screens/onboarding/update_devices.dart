@@ -10,7 +10,8 @@ import 'package:fuelify/commons/buttons.dart';
 
 class DeviceConnectionsUpdate extends StatefulWidget {
   @override
-  _DeviceConnectionsUpdateState createState() => _DeviceConnectionsUpdateState();
+  _DeviceConnectionsUpdateState createState() =>
+      _DeviceConnectionsUpdateState();
 }
 
 class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
@@ -18,6 +19,9 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;
 
+    double deviceCardHeight = 175;
+    double deviceCardWidth = MediaQuery.of(context).size.width / 3;
+    
     var nextView = (routeName) {
       Navigator.pushNamed(context, routeName);
     };
@@ -32,9 +36,9 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
             child: Text(
-              "Activity Level",
+              "Choose your activity level:",
               style: TextStyle(
-                color: Colors.grey,
+                color: Colors.grey[850],
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
@@ -46,30 +50,37 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
             child: Text(
-              "Connect Your Activity Tracker",
+              "Connect your activity tracker",
               style: TextStyle(
-                color: Colors.grey,
+                color: Colors.grey[850],
                 fontWeight: FontWeight.bold,
                 fontSize: 18.0,
               ),
             ),
           ),
           Container(
-            height: 200,
-            width: double.infinity,
-            child: GridView.count(
-              primary: false,
-              padding: const EdgeInsets.all(20),
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 0,
-              crossAxisCount: 3,
-              children: <Widget>[
-                DeviceCardWidget(device: "Garmin"),
-                DeviceCardWidget(device: "Fitbit"),
-                DeviceCardWidget(device: "Apple"),
-              ],
-            )
-          ),
+              height: deviceCardHeight,
+              width: double.infinity,
+              //color: Colors.cyan,
+              child: GridView.count(
+                primary: false,
+                padding: const EdgeInsets.all(20),
+                childAspectRatio: (deviceCardWidth / deviceCardHeight),
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                crossAxisCount: 3,
+                children: <Widget>[
+                  DeviceCardWidget(
+                      deviceLogo: AssetImage("assets/garmin_logo.png"),
+                      deviceImage: AssetImage("assets/garmin_watch.jpeg")),
+                  DeviceCardWidget(
+                      deviceLogo: AssetImage("assets/fitbit_logo.png"),
+                      deviceImage: AssetImage("assets/fitbit_watch.png")),
+                  DeviceCardWidget(
+                      deviceLogo: AssetImage("assets/apple_logo.png"),
+                      deviceImage: AssetImage("assets/apple_watch.png")),
+                ],
+              )),
           Center(
             child: FullWidthButtonWidget(
               text: 'Continue',
