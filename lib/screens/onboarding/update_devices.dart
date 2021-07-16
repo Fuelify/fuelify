@@ -63,6 +63,7 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
               width: double.infinity,
               //color: Colors.cyan,
               child: GridView.count(
+                physics: NeverScrollableScrollPhysics(),
                 primary: false,
                 padding: const EdgeInsets.all(20),
                 childAspectRatio: (deviceCardWidth / deviceCardHeight),
