@@ -70,6 +70,22 @@ class _RegisterState extends State<Register> {
 
     var doRegister = () {
       final form = formKey.currentState;
+      form!.save();
+      auth
+          .register(_username ?? "", _password ?? "", _confirmPassword ?? "")
+          .then((response) {
+        if (response['status']) {
+          User user = response['data'];
+          Provider.of<UserProvider>(context, listen: false).setUser(user);
+          Navigator.pushNamed(context, '/home');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text("Registration Failed: " + response.toString())));
+        }
+      });
+      
+
+      /*
       if (form!.validate()) {
         form.save();
         auth
@@ -78,16 +94,18 @@ class _RegisterState extends State<Register> {
           if (response['status']) {
             User user = response['data'];
             Provider.of<UserProvider>(context, listen: false).setUser(user);
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushNamed(context, '/home');
           } else {
-            ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Registration Failed: "+response.toString())));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Registration Failed: " + response.toString())));
           }
         });
       } else {
-        ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Invalid Form: "+"Please Complete the form properly")));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text("Invalid Form: " + "Please Complete the form properly")));
       }
+      */
     };
 
     return SafeArea(

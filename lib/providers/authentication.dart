@@ -44,7 +44,7 @@ class AuthenticationProvider with ChangeNotifier {
       body: json.encode(loginData),
       headers: {'content-type': 'application/json'},
     );
-    
+
     if (response.statusCode == 200) {
       //final Map<String, dynamic> responseData = json.decode(response.body);
       final responseData = jsonDecode(response.body) as Map<String, dynamic>;
@@ -53,7 +53,7 @@ class AuthenticationProvider with ChangeNotifier {
 
       User authUser = User.fromJson(userData);
 
-      UserPreferences().saveUser(authUser);
+      UserProfile().saveUser(authUser);
 
       _loggedInStatus = Status.LoggedIn;
       notifyListeners();
@@ -88,7 +88,7 @@ class AuthenticationProvider with ChangeNotifier {
     notifyListeners();
 
     var url = Uri.parse(AppUrl.register);
-
+    print(registrationData);
     return await post(url,
             body: json.encode(registrationData),
             headers: {'content-type': 'application/json'})
@@ -105,7 +105,7 @@ class AuthenticationProvider with ChangeNotifier {
 
     notifyListeners();
 
-    var token = await UserPreferences()
+    var token = await UserProfile()
         .getToken(); // retrieves logged in users auth token
     var url = Uri.parse(AppUrl.testToken);
 
@@ -137,7 +137,7 @@ class AuthenticationProvider with ChangeNotifier {
 
       User authUser = User.fromJson(userData);
 
-      UserPreferences().saveUser(authUser);
+      UserProfile().saveUser(authUser);
       result = {
         'status': true,
         'message': 'Successfully registered',
@@ -150,7 +150,7 @@ class AuthenticationProvider with ChangeNotifier {
         'data': responseData
       };
     }
-
+    print(result);
     return result;
   }
 
