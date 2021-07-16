@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/providers/user.dart';
 
-import 'package:fuelify/commons/onboarding/profile.dart';
 import 'package:fuelify/commons/buttons.dart';
 
 class DeviceConnectionsUpdate extends StatefulWidget {
@@ -31,57 +30,49 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
         title: Text("Device Connections"),
         elevation: 0.1,
       ),
-      body: ListView(
+      body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-            child: Text(
-              "Choose your activity level:",
-              style: TextStyle(
-                color: Colors.grey[850],
-                fontWeight: FontWeight.bold,
-                fontSize: 18.0,
-              ),
-            ),
-          ),
-          SizedBox(
-            height: 24,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 20.0),
-            child: Text(
-              "Connect your activity tracker",
-              style: TextStyle(
-                color: Colors.grey[850],
-                fontWeight: FontWeight.bold,
-                fontSize: 18.0,
-              ),
-            ),
-          ),
           Container(
-              height: deviceCardHeight,
-              width: double.infinity,
-              //color: Colors.cyan,
-              child: GridView.count(
-                physics: NeverScrollableScrollPhysics(),
-                primary: false,
-                padding: const EdgeInsets.all(20),
-                childAspectRatio: (deviceCardWidth / deviceCardHeight),
-                crossAxisSpacing: 20,
-                mainAxisSpacing: 20,
-                crossAxisCount: 3,
-                children: <Widget>[
-                  DeviceCardWidget(
-                      deviceLogo: AssetImage("assets/garmin_logo.png"),
-                      deviceImage: AssetImage("assets/garmin_watch.jpeg")),
-                  DeviceCardWidget(
-                      deviceLogo: AssetImage("assets/fitbit_logo.png"),
-                      deviceImage: AssetImage("assets/fitbit_watch.png")),
-                  DeviceCardWidget(
-                      deviceLogo: AssetImage("assets/apple_logo.png"),
-                      deviceImage: AssetImage("assets/apple_watch.png")),
-                ],
-              )),
+            width: double.infinity,
+            child: Padding(
+              padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0),
+              child: Text(
+                "Connect your activity tracker",
+                style: TextStyle(
+                  color: Colors.grey[850],
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18.0,
+                ),
+              ),
+            ),
+          ),
+          
+          Container(
+            height: deviceCardHeight,
+            width: double.infinity,
+            //color: Colors.cyan,
+            child: GridView.count(
+              physics: NeverScrollableScrollPhysics(),
+              primary: false,
+              padding: const EdgeInsets.all(20),
+              childAspectRatio: (deviceCardWidth / deviceCardHeight),
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              crossAxisCount: 3,
+              children: <Widget>[
+                DeviceCardWidget(
+                    deviceLogo: AssetImage("assets/garmin_logo.png"),
+                    deviceImage: AssetImage("assets/garmin_watch.jpeg")),
+                DeviceCardWidget(
+                    deviceLogo: AssetImage("assets/fitbit_logo.png"),
+                    deviceImage: AssetImage("assets/fitbit_watch.png")),
+                DeviceCardWidget(
+                    deviceLogo: AssetImage("assets/apple_logo.png"),
+                    deviceImage: AssetImage("assets/apple_watch.png")),
+              ],
+            )
+          ),
+          Spacer(),
           Center(
             child: FullWidthButtonWidget(
               text: 'Continue',
