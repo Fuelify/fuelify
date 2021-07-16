@@ -43,7 +43,7 @@ class _DietUpdateState extends State<DietUpdate> {
             child: FullWidthButtonWidget(
               text: 'Continue',
               onClicked: () {
-                nextView("/onboarding/device-connections");
+                nextView("/onboarding/activity-level");
               },
             ),
           ),
