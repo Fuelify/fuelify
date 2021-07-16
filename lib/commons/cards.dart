@@ -132,6 +132,7 @@ class DeviceCardWidget extends StatelessWidget {
             Flexible(
               flex: 7,
               child: Container(
+                height: double.infinity,
                 padding: EdgeInsets.only(left: 10, right: 10, top: 18, bottom: 10),
                 child: Image(
                   image: deviceImage ?? AssetImage("assets/perosn.jpeg"),
@@ -142,8 +143,10 @@ class DeviceCardWidget extends StatelessWidget {
             Flexible(
               flex: 2,
               child: Container(
+                height: double.infinity,
                 padding: EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 10),
                 child: Image(
+                  alignment: Alignment.center,
                   image: deviceLogo,
                   fit: BoxFit.contain
                 ),
