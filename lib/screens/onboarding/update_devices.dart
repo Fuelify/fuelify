@@ -20,7 +20,7 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
 
     double deviceCardHeight = 175;
     double deviceCardWidth = MediaQuery.of(context).size.width / 3;
-    
+
     var nextView = (routeName) {
       Navigator.pushNamed(context, routeName);
     };
@@ -46,7 +46,6 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
               ),
             ),
           ),
-          
           Container(
             height: deviceCardHeight,
             width: double.infinity,
@@ -71,6 +70,14 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
                     deviceImage: AssetImage("assets/apple_watch.png")),
               ],
             )
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+            child: Text(
+              "*Currently we only offer the ability to connect to these devices; however, we are continually looking to offer our users more connections options.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12),
+            ),
           ),
           Spacer(),
           Center(
