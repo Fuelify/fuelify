@@ -14,27 +14,27 @@ class _ActivityLevelUpdateState extends State<ActivityLevelUpdate> {
     {
       "Title": "Sedentary",
       "Body": "Most of your day is spent sitting (e.g. desk job)",
-      "ImageUrl": "assets/garmin_watch.jpeg",
+      "ImageUrl": "assets/onboarding/sedentary-activity.jpeg",
       "isSelected": false,
     },
     {
       "Title": "Lightly Active",
       "Body": "Some of your day is spent standing or walking (e.g. teacher)",
-      "ImageUrl": "assets/fitbit_watch.png",
+      "ImageUrl": "assets/onboarding/lightlyactive-activity.jpeg",
       "isSelected": false,
     },
     {
       "Title": "Moderately Active",
       "Body":
           "A good part of your day is spent up and moving (e.g. food server, delivery person)",
-      "ImageUrl": "assets/apple_watch.png",
+      "ImageUrl": "assets/onboarding/moderatelyactive-activity.jpeg",
       "isSelected": false,
     },
     {
       "Title": "Very Active",
       "Body":
           "Most of your day is spent doing hard physical activity (e.g. construction worker)",
-      "ImageUrl": "assets/apple_watch.png",
+      "ImageUrl": "assets/onboarding/veryactive-activity.jpeg",
       "isSelected": false,
     }
   ];
