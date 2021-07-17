@@ -15,6 +15,7 @@ class FullWidthButtonWidget extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: 40.0,
+        vertical: 40.0
       ), 
       child: SizedBox(
         height: 50, //height of button
