@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:fuelify/constants.dart';
+
 import 'package:fuelify/screens/home.dart';
 import 'package:fuelify/screens/plan.dart';
 import 'package:fuelify/screens/discovery.dart';
@@ -58,7 +60,7 @@ class MyApp extends StatelessWidget {
                 Provider.of<DarkNotifier>(context).isDark
             ? Colors.black45
             : Colors.white,
-        primarySwatch: Colors.blueGrey,
+        primaryColor: primaryThemeColor.shade100,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: FutureBuilder(
