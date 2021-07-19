@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:provider/provider.dart';
 import 'package:fuelify/models/food.dart';
 import 'package:fuelify/providers/feedback_position.dart';
@@ -120,78 +121,37 @@ class DeviceCardWidget extends StatelessWidget {
             'Device card tapped, pushNamed navigate to device connection view');
       },
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(color: Colors.black38, spreadRadius: 0.5, blurRadius: 2.5),
-          ],
-          color: Colors.white,
-        ),
-        child: Column(
-          children: [
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black38, spreadRadius: 0.5, blurRadius: 2.5),
+            ],
+            color: Colors.white,
+          ),
+          child: Column(children: [
             Flexible(
-              flex: 7,
-              child: Container(
-                height: double.infinity,
-                padding: EdgeInsets.only(left: 10, right: 10, top: 18, bottom: 10),
-                child: Image(
-                  image: deviceImage ?? AssetImage("assets/perosn.jpeg"),
-                  fit: BoxFit.contain,
-                )
-              )
-            ),
+                flex: 7,
+                child: Container(
+                    height: double.infinity,
+                    padding: EdgeInsets.only(
+                        left: 10, right: 10, top: 18, bottom: 10),
+                    child: Image(
+                      image: deviceImage ?? AssetImage("assets/perosn.jpeg"),
+                      fit: BoxFit.contain,
+                    ))),
             Flexible(
-              flex: 2,
-              child: Container(
-                height: double.infinity,
-                padding: EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 10),
-                child: Image(
-                  alignment: Alignment.center,
-                  image: deviceLogo,
-                  fit: BoxFit.contain
-                ),
-              )
-            )
-            /*Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(color: Colors.black12, spreadRadius: 0.5),
-                ],
-                gradient: LinearGradient(
-                  colors: [Colors.transparent, Colors.black87],
-                  begin: Alignment.center,
-                  stops: [0.5, 1],
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    right: 10,
-                    left: 10,
-                    bottom: 5,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Container(
-                          width: 75,
-                          padding: EdgeInsets.only(bottom: 5, right: 8),
-                          child: Image(
-                            image: deviceLogo,
-                            fit: BoxFit.contain
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),*/
-          ]
-        )
-      ),
+                flex: 2,
+                child: Container(
+                  height: double.infinity,
+                  padding:
+                      EdgeInsets.only(left: 10, right: 10, top: 0, bottom: 10),
+                  child: Image(
+                      alignment: Alignment.center,
+                      image: deviceLogo,
+                      fit: BoxFit.contain),
+                ))
+          ])),
     );
   }
 }
