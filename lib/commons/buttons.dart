@@ -13,9 +13,11 @@ class FullWidthButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: 40.0,
-        vertical: 40.0
+      padding: EdgeInsets.only(
+        left: 20.0,
+        right: 20.0,
+        bottom: 40.0,
+        top: 20.0
       ), 
       child: SizedBox(
         height: 50, //height of button
@@ -25,7 +27,7 @@ class FullWidthButtonWidget extends StatelessWidget {
           child: Text( text ),
           style: ElevatedButton.styleFrom(
             onPrimary: Colors.white,
-            primary: Colors.blue,
+            primary: Colors.black,
             shape: StadiumBorder(),
             padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12)
           )
@@ -33,5 +35,65 @@ class FullWidthButtonWidget extends StatelessWidget {
       )
     );
       
+  }
+}
+
+
+class FullWidthOverlayButtonWidget extends StatelessWidget {
+  final String text;
+  final VoidCallback onClicked;
+
+  const FullWidthOverlayButtonWidget({
+    Key? key,
+    required this.text,
+    required this.onClicked,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 0,
+      left: 0,
+      bottom: 0,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.only(
+            bottom: 40.0,
+            top: 20.0
+          ), 
+          child: Container( 
+            decoration: BoxDecoration(
+              //borderRadius: BorderRadius.circular(10),
+              //boxShadow: [
+              //  BoxShadow(color: Colors.black12, spreadRadius: 0.5),
+              //],
+              gradient: LinearGradient(
+                colors: [Colors.white10, Colors.white],
+                begin: Alignment.topCenter,
+                stops: [0, 0.5],
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 40),
+              child: SizedBox(
+                height: 50, //height of button
+                width: double.infinity, //width of button equal to parent widget
+                child: ElevatedButton(
+                  onPressed: onClicked, 
+                  child: Text( text ),
+                  style: ElevatedButton.styleFrom(
+                    onPrimary: Colors.white,
+                    primary: Colors.black,
+                    shape: StadiumBorder(),
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12)
+                  )
+                )
+              )
+            )
+          )
+        ),
+      ),
+    ); 
   }
 }
