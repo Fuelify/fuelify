@@ -82,7 +82,7 @@ class _PrimaryGoalUpdateState extends State<PrimaryGoalUpdate> {
               child: FullWidthButtonWidget(
                 text: 'Continue',
                 onClicked: () {
-                  nextView("/onboarding/health-primary");
+                  nextView("/onboarding/weight-goals");
                 },
               ),
             ),
