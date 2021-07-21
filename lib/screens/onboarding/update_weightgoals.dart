@@ -203,7 +203,7 @@ class _WeightGoalsUpdateState extends State<WeightGoalsUpdate> {
           FullWidthOverlayButtonWidget(
             text: 'Continue',
             onClicked: () {
-              nextView("/onboarding/weight-goals");
+              nextView("/onboarding/shopping-preferences");
             },
           ),
         ]
