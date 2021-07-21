@@ -116,7 +116,10 @@ class _PrimaryGoalUpdateState extends State<PrimaryGoalUpdate> {
             dense: true,
             title: Text(
               optionText,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: selectedOption == index ? colorSelected != null ? Colors.white : Colors.black : colorUnselected != null ? Colors.black : Colors.black,
+              )
             ),
           ),
         )
