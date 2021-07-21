@@ -14,6 +14,9 @@ import 'package:fuelify/screens/onboarding/update_profile.dart';
 import 'package:fuelify/screens/onboarding/update_diet.dart';
 import 'package:fuelify/screens/onboarding/update_activity.dart';
 import 'package:fuelify/screens/onboarding/update_devices.dart';
+import 'package:fuelify/screens/onboarding/update_goals.dart';
+import 'package:fuelify/screens/onboarding/update_primarygoal.dart';
+import 'package:fuelify/screens/onboarding/update_weightgoals.dart';
 
 import 'package:fuelify/providers/navigation_bar.dart';
 import 'package:fuelify/providers/authentication.dart';
@@ -92,6 +95,9 @@ class MyApp extends StatelessWidget {
         '/onboarding/diet': (context) => DietUpdate(),
         '/onboarding/activity-level': (context) => ActivityLevelUpdate(),
         '/onboarding/device-connections': (context) => DeviceConnectionsUpdate(),
+        '/onboarding/health-goals': (context) => HealthGoalsUpdate(),
+        '/onboarding/health-primary': (context) => PrimaryGoalUpdate(),
+        '/onboarding/weight-goals': (context) => WeightGoalsUpdate(),
       }
     );
   }
