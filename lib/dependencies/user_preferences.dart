@@ -110,6 +110,18 @@ class UserProfile {
     prefs.setString("healthgoals", json.encode(goalsData));
     return true;
   }
+  
+  Future<String?> getPrimaryGoalData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? goal = prefs.getString("primarygoal");
+    return goal;
+  }
+
+  Future<bool> savePrimaryGoalData(String goal) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("primarygoal", goal);
+    return true;
+  }
 
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
