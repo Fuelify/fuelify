@@ -11,6 +11,7 @@ import 'package:fuelify/screens/login.dart';
 import 'package:fuelify/screens/register.dart';
 //import 'package:fuelify/screens/welcome.dart';
 import 'package:fuelify/screens/onboarding/update_profile.dart';
+import 'package:fuelify/screens/onboarding/update_personal.dart';
 import 'package:fuelify/screens/onboarding/update_diet.dart';
 import 'package:fuelify/screens/onboarding/update_activity.dart';
 import 'package:fuelify/screens/onboarding/update_devices.dart';
@@ -93,6 +94,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => Login(),
         '/register': (context) => Register(),
         '/onboarding/profile': (context) => ProfileUpdate(),
+        '/onboarding/personal-details': (context) => PersonalDetailsUpdate(),
         '/onboarding/diet': (context) => DietUpdate(),
         '/onboarding/activity-level': (context) => ActivityLevelUpdate(),
         '/onboarding/device-connections': (context) => DeviceConnectionsUpdate(),
