@@ -21,7 +21,7 @@ class User {
     this.type = "",
     this.token = "",
     this.refreshToken = "",
-    //this.authentication = Authentication("",token: "", refreshToken: "")
+    //this.authentication = Authentication(type: "User", id:"", email: "", token: "", refreshToken: ""),
   });
 
   factory User.fromJson(Map<String, dynamic> responseData) {
