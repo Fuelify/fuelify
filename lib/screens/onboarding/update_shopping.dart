@@ -135,15 +135,29 @@ class _ShoppingPreferencesUpdateState extends State<ShoppingPreferencesUpdate> {
                       Container(
                         width: double.infinity,
                         child: Padding(
-                          padding: EdgeInsets.only(top: 20.0, bottom: 20.0, left: 4, right: 4),
-                          child: Text(
-                            "What is your weekly grocery budget?",
-                            style: TextStyle(
-                              color: Colors.grey[850],
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.0,
-                            ),
-                          ),
+                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "What is your weekly grocery budget?",
+                                style: TextStyle(
+                                  color: Colors.grey[850],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0,
+                                ),
+                              ),
+                              SizedBox(height: 5,),
+                              Text(
+                                "Approximate, you can always change this later",
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ]
+                          )
                         ),
                       ),
                       Padding(
