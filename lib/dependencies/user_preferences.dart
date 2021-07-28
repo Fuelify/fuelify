@@ -1,11 +1,15 @@
+import 'dart:convert';
+import 'dart:async';
+
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/models/onboarding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async';
+
 
 class UserProfile {
   Future<bool> saveUser(User user) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
 
     prefs.setString("id", user.id);
     prefs.setString("name", user.name);
@@ -29,12 +33,41 @@ class UserProfile {
     return true;
   }
 
+  Future<bool> saveProfileData(Map<String, dynamic> profileData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("profile", profileData.toString());
+    return true;
+  }
+  
+  Future<Map> getProfileData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? profile = prefs.getString("profile");
+    final profileData;
+    if (profile != null) {
+      profileData = jsonDecode(profile);
+    } else {
+      profileData = {};
+    }
+    return profileData;
+  }
+
   Future<bool> savePersonalData(Map<String, dynamic> personalData) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    prefs.setString("personal", personalData.toString());
-
+    prefs.setString("personal", json.encode(personalData));
     return true;
+  }
+  
+  Future<Map> getPersonalData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? personal = prefs.getString("personal");
+    print(personal);
+    final personalData;
+    if (personal != null) {
+      personalData = jsonDecode(personal);
+    } else {
+      personalData = {};
+    }
+    return personalData;
   }
 
   Future<User> getUser() async {
