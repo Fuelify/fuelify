@@ -80,6 +80,18 @@ class UserProfile {
     prefs.setString("diet", diet);
     return true;
   }
+  
+  Future<String?> getActivityData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? activity = prefs.getString("activity");
+    return activity;
+  }
+
+  Future<bool> saveActivityData(String activity) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("activity", activity);
+    return true;
+  }
 
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
