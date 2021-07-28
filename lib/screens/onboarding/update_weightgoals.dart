@@ -39,8 +39,8 @@ class _WeightGoalsUpdateState extends State<WeightGoalsUpdate> {
   int _weeklyWeightOption = 0;// = "Maintain my current weight";
 
   final TextEditingController _currentWeightController = TextEditingController();
-    final TextEditingController _goalWeightController = TextEditingController();
-    final TextEditingController _weeklyWeightController = TextEditingController();
+  final TextEditingController _goalWeightController = TextEditingController();
+  final TextEditingController _weeklyWeightController = TextEditingController();
 
   _handleCurrentWeightChange(value) {
     if (value != null) {
@@ -262,7 +262,7 @@ class _WeightSelectionDialogState extends State<WeightSelectionDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          onPressed: () => Navigator.pop(context,_currentWeight),
+          onPressed: () => Navigator.pop(context,null),
           child: const Text('Cancel'),
         ),
         TextButton(
@@ -323,7 +323,7 @@ class _WeeklyWeightGoalSelectionDialogState extends State<WeeklyWeightGoalSelect
       ),
       actions: <Widget>[
         TextButton(
-          onPressed: () => Navigator.pop(context,_selectedOption),
+          onPressed: () => Navigator.pop(context,null),
           child: const Text('Cancel'),
         ),
         TextButton(
@@ -336,186 +336,3 @@ class _WeeklyWeightGoalSelectionDialogState extends State<WeeklyWeightGoalSelect
     );
   }
 }
-
-
-
-/*
-import 'package:flutter/material.dart';
-import 'package:numberpicker/numberpicker.dart';
-
-import 'package:fuelify/constants.dart';
-
-import 'package:fuelify/commons/buttons.dart';
-import 'package:fuelify/commons/widgets.dart';
-
-class WeightGoalsUpdate extends StatefulWidget {
-  @override
-  _WeightGoalsUpdateState createState() => _WeightGoalsUpdateState();
-}
-
-class _WeightGoalsUpdateState extends State<WeightGoalsUpdate> {
-
-  double _currentWeight = 158.5;
-  double _targetWeight = 145;
-  String _weeklyWeight = "Maintain my current weight";
-  
-  late DecimalNumberPicker CurrentWeightNumberPicker;
-
-
-  _handleValueChanged(value) {
-    if (value != null) {
-      setState(() => _currentWeight = value);
-    }
-  }
-
-  _handleValueChangedExternally(value) {
-    if (value != null) {
-      setState(() => _currentWeight = value);
-      //CurrentWeightNumberPicker.animateDecimalAndInteger(value);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final formKey = new GlobalKey<FormState>();
-
-    final TextEditingController _currentWeightController = TextEditingController();
-    final TextEditingController _targetWeightController = TextEditingController();
-    final TextEditingController _weeklyWeightController = TextEditingController();
-    
-    Map<String, dynamic> weightData = {}; // initialize empty personal data map
-
-    CurrentWeightNumberPicker = new DecimalNumberPicker(
-      value: _currentWeight,
-      minValue: 0,
-      maxValue: 300,
-      decimalPlaces: 1,
-      onChanged: _handleValueChanged,
-    );
-
-    var weightCurrentField = TextFormField(
-      readOnly: true,
-      controller: _currentWeightController,
-      decoration: buildInputDecoration("Current Weight", Icons.monitor_weight_rounded),
-      onSaved: (value) => {weightData['current'] = value},
-      onTap: () async {
-        await showDialog<double>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Current Weight'),
-              content: Column(
-                children: [
-                  CurrentWeightNumberPicker,
-                  Text('Current value: $_currentWeight'),
-                ]
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () => Navigator.pop(context, 'Cancel'),
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    print(_currentWeight);
-                    Navigator.pop(context, 'Set');
-                  },
-                  child: const Text('Set'),
-                ),
-              ],
-            );
-          },
-        ).then((currentWeight) {
-          print(currentWeight);
-          if (currentWeight != null) {
-            _currentWeight = currentWeight;
-            _currentWeightController.text = currentWeight.toString();
-          }
-        });
-      },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter date.';
-        }
-        return null;
-      },
-    );
-
-    var nextView = (routeName) {
-      Navigator.pushNamed(context, routeName);
-    };
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Weight Goals"),
-        elevation: 0.1,
-      ),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Form(
-              key: formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 4),
-                      child: Text(
-                        "What is your current weight?",
-                        style: TextStyle(
-                          color: Colors.grey[850],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  weightCurrentField,
-                  Container(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 4),
-                      child: Text(
-                        "What is your goal weight?",
-                        style: TextStyle(
-                          color: Colors.grey[850],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20, horizontal: 4),
-                      child: Text(
-                        "What is your weekly weight goal?",
-                        style: TextStyle(
-                          color: Colors.grey[850],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ),
-          FullWidthOverlayButtonWidget(
-            text: 'Continue',
-            onClicked: () {
-              nextView("/onboarding/weight-goals");
-            },
-          ),
-        ]
-      )
-    );
-  }
-}
-*/
