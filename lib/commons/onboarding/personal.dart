@@ -45,7 +45,7 @@ class PersonalInfoWidget extends StatelessWidget {
 
     double _height = personalData['height'] != null ? personalData['height'] : 5.5;
     DateTime _selectedDate = personalData['birthdate'] != null ? DateTime.utc(int.parse(personalData['birthdate'].split("-")[0]), int.parse(personalData['birthdate'].split("-")[1]), int.parse(personalData['birthdate'].split("-")[2])) : DateTime.utc(1990, 1, 1);
-    int _selectedUnitsOption = 0;
+    int _selectedUnitsOption = personalData['units'] != null ? _dataOptions.indexWhere((option) => option['Title'] == personalData['units']) : 0;
       
     _handleHeightChange(value) {
       if (value != null) {
@@ -56,7 +56,7 @@ class PersonalInfoWidget extends StatelessWidget {
 
     _handleUnitSelectionChange(value) {
       if (value != null) {
-        //setState(() => _selectedUnitsOption = value);
+        _selectedUnitsOption = value;
         _unitsController.text = _dataOptions[value]['Title'];
       }
     }
