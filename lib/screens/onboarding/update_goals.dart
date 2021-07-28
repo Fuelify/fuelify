@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/constants.dart';
 
+import 'package:fuelify/dependencies/user_preferences.dart';
+
 import 'package:fuelify/commons/buttons.dart';
 
 class HealthGoalsUpdate extends StatefulWidget {
@@ -32,6 +34,23 @@ class _HealthGoalsUpdateState extends State<HealthGoalsUpdate> {
   ];
 
   List selectedOptions = [];
+  
+  @override
+  void initState() {
+    UserProfile().getGoalsData().then(initializeGoalsData);
+    super.initState();
+  }
+
+  void initializeGoalsData(List<dynamic> goals) {
+    setState(() {
+      List<int> options = [];
+      for (String x in goals) {
+        options.add(_dataOptions.indexWhere((option) => option['Text'] == x));
+      }
+      this.selectedOptions = options;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +115,11 @@ class _HealthGoalsUpdateState extends State<HealthGoalsUpdate> {
               child: FullWidthButtonWidget(
                 text: 'Continue',
                 onClicked: () {
+                  List<String> options = [];
+                  for (int option in selectedOptions) {
+                    options.add(_dataOptions[option]['Text']);
+                  }
+                  UserProfile().saveGoalsData(options);
                   nextView("/onboarding/health-primary");
                 },
               ),
