@@ -41,6 +41,7 @@ class ProfileInfoWidget extends StatelessWidget {
     );
 
     final locationField = TextFormField(
+      initialValue: profile.location != null ? profile.location : "",
       autofocus: false,
       onSaved: (value) => {profileData['location'] = value},
       decoration: buildInputDecoration("Location", Icons.language),

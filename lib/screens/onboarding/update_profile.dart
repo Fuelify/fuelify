@@ -22,8 +22,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
 
     final formKey = new GlobalKey<FormState>();
 
-    Map<String, dynamic> profileData =
-        {}; // initialize empty personal data map
+    Map<String, dynamic> profileData = {}; // initialize empty personal data map
 
     final nextView = (routeName) {
       print(routeName);
