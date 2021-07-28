@@ -43,7 +43,6 @@ class _PersonalDetailsUpdateState extends State<PersonalDetailsUpdate> {
 
       if (form!.validate()) {
         form.save();
-        print(personalData);
         UserProfile().savePersonalData(personalData);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
