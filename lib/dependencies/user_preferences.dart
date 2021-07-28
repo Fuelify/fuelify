@@ -42,7 +42,7 @@ class UserProfile {
   Future<Map> getProfileData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? profile = prefs.getString("profile");
-    final profileData;
+    final Map<String,dynamic> profileData;
     if (profile != null) {
       profileData = jsonDecode(profile);
     } else {
@@ -60,8 +60,7 @@ class UserProfile {
   Future<Map> getPersonalData() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     String? personal = prefs.getString("personal");
-    print(personal);
-    final personalData;
+    final Map<String,dynamic> personalData;
     if (personal != null) {
       personalData = jsonDecode(personal);
     } else {
