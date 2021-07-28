@@ -19,6 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;
+    Profile profile = Provider.of<UserProvider>(context).profile;
 
     return Scaffold(
         appBar: AppBar(
@@ -28,7 +29,7 @@ class _ProfilePageState extends State<ProfilePage> {
         body: ListView(
           children: [
             ProfilePhotoWidget(
-              user: user,
+              profile: profile,
               onClicked: () async {},
             ),
             SizedBox(height: 24,),
