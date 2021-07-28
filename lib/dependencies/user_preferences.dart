@@ -92,6 +92,24 @@ class UserProfile {
     prefs.setString("activity", activity);
     return true;
   }
+  
+  Future<List<dynamic>> getGoalsData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? goals = prefs.getString("healthgoals");
+    final List<dynamic> healthgoals;
+    if (goals != null) {
+      healthgoals = json.decode(goals);
+    } else {
+      healthgoals = [];
+    }
+    return healthgoals;
+  }
+
+  Future<bool> saveGoalsData(List<String> goalsData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("healthgoals", json.encode(goalsData));
+    return true;
+  }
 
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
