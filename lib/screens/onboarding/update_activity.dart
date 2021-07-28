@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-//import 'package:fuelify/commons/cards.dart';
+
+import 'package:fuelify/dependencies/user_preferences.dart';
 
 import 'package:fuelify/commons/buttons.dart';
 
@@ -36,6 +37,18 @@ class _ActivityLevelUpdateState extends State<ActivityLevelUpdate> {
   ];
 
   int? selectedOption;
+  
+  @override
+  void initState() {
+    UserProfile().getActivityData().then(initializeActivityData);
+    super.initState();
+  }
+
+  void initializeActivityData(String? activity) {
+    setState(() {
+      this.selectedOption = activity != null ? _dataOptions.indexWhere((option) => option['Title'] == activity) : null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +103,9 @@ class _ActivityLevelUpdateState extends State<ActivityLevelUpdate> {
               child: FullWidthButtonWidget(
                 text: 'Continue',
                 onClicked: () {
+                  if (selectedOption != null) {
+                    UserProfile().saveActivityData(_dataOptions[selectedOption as int]['Title']);
+                  }
                   nextView("/onboarding/device-connections");
                 },
               ),
