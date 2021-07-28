@@ -39,17 +39,17 @@ class PersonalInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final TextEditingController _heightController = TextEditingController();
-    final TextEditingController _dateController = TextEditingController();
-    final TextEditingController _unitsController = TextEditingController();
+    final TextEditingController _heightController = TextEditingController(text: personalData['height'].toString()+' feet');
+    final TextEditingController _dateController = TextEditingController(text: personalData['birthdate']);
+    final TextEditingController _unitsController = TextEditingController(text: personalData['units']);
 
     double _height = personalData['height'] != null ? personalData['height'] : 5.5;
-    DateTime _selectedDate = personalData['birthdate'] != null ? DateTime.utc(personalData['birthdate'].split("-")[0], personalData['birthdate'].split("-")[1], personalData['birthdate'].split("-")[2]) : DateTime.utc(1990, 1, 1);
+    DateTime _selectedDate = personalData['birthdate'] != null ? DateTime.utc(int.parse(personalData['birthdate'].split("-")[0]), int.parse(personalData['birthdate'].split("-")[1]), int.parse(personalData['birthdate'].split("-")[2])) : DateTime.utc(1990, 1, 1);
     int _selectedUnitsOption = 0;
       
     _handleHeightChange(value) {
       if (value != null) {
-        //setState(() => _height = value);
+        _height = value;
         _heightController.text = value.toString()+' '+'feet';
       }
     }
@@ -116,7 +116,7 @@ class PersonalInfoWidget extends StatelessWidget {
 
     final genderField = CustomDropdown<int>(
       child: Text(
-        "",
+       personalData['gender'] != null ? personalData['gender'] : "",
       ),
       onChange: (int value, int index) => {
         print(genderOptions[index].option),
