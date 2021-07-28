@@ -88,8 +88,8 @@ class Authentication {
 class Profile {
   String? firstName;
   String? lastName;
+  String? image;
   String? location;
-  //String? unitPreference;
   double? height;
   double? weight;
   String? birthdate;
@@ -104,6 +104,7 @@ class Profile {
   Profile({
     this.firstName,
     this.lastName,
+    this.image,
     this.location,
     this.height,
     this.weight,
@@ -121,6 +122,7 @@ class Profile {
     return Profile(
       firstName: data['name']['first'],
       lastName: data['name']['last'],
+      image: data['image'] ?? "https://images.unsplash.com/photo-1554151228-14d9def656e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80", //TODO UDPATE THIS TO DEFAULT EMPTY ICON
       location: data['location'],
       height: data['height'],
       birthdate: data['birthdate'],
