@@ -39,7 +39,7 @@ class PersonalInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final TextEditingController _heightController = TextEditingController(text: personalData['height'].toString()+' feet');
+    final TextEditingController _heightController = TextEditingController(text: personalData['height'] != null ? personalData['height'].toString()+' feet': null);
     final TextEditingController _dateController = TextEditingController(text: personalData['birthdate']);
     final TextEditingController _unitsController = TextEditingController(text: personalData['units']);
 
