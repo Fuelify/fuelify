@@ -6,37 +6,45 @@ import 'package:fuelify/models/user.dart';
 import 'package:fuelify/providers/user.dart';
 
 import 'package:fuelify/commons/buttons.dart';
-import 'package:fuelify/commons/profile/photo.dart';
-import 'package:fuelify/commons/onboarding/profile.dart';
+import 'package:fuelify/commons/onboarding/personal.dart';
 
-class ProfileUpdate extends StatefulWidget {
+class PersonalDetailsUpdate extends StatefulWidget {
   @override
-  _ProfileUpdateState createState() => _ProfileUpdateState();
+  _PersonalDetailsUpdateState createState() => _PersonalDetailsUpdateState();
 }
 
-class _ProfileUpdateState extends State<ProfileUpdate> {
+class _PersonalDetailsUpdateState extends State<PersonalDetailsUpdate> {
+
+  //Future<User> getUserData() => UserProfile().getUser();
+  Map<String, dynamic> personalData = {}; // initialize empty personal data map
+  
+  @override
+  void initState() {
+    UserProfile().getPersonalData().then(initializePersonalData);
+    super.initState();
+  }
+
+  void initializePersonalData(Map data) {
+    setState(() {
+      this.personalData = data as Map<String, dynamic>;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     User user = Provider.of<UserProvider>(context).user;
-
+    
     final formKey = new GlobalKey<FormState>();
 
-    Map<String, dynamic> profileData =
-        {}; // initialize empty personal data map
-
-    final nextView = (routeName) {
-      print(routeName);
-      Navigator.pushNamed(context, routeName);
-    };
+    
 
     var recordData = () {
       final form = formKey.currentState;
 
       if (form!.validate()) {
         form.save();
-        print(profileData);
-        UserProfile().saveProfileData(profileData);
+        print(personalData);
+        UserProfile().savePersonalData(personalData);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content:
@@ -44,9 +52,14 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
       }
     };
 
+    final nextView = (routeName) {
+      print(routeName);
+      Navigator.pushNamed(context, routeName);
+    };
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile Information"),
+        title: Text("Personal Details"),
         elevation: 0.1,
       ),
       body: Stack(
@@ -59,14 +72,10 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                   padding: EdgeInsets.only(left: 20.0, right: 20.0, top: 20.0, bottom: 60.0),
                   child: ListView(
                     children: [
-                      ProfilePhotoWidget(
-                        user: user,
-                        onClicked: () async {},
-                      ),
-                      ProfileInfoWidget(
+                      PersonalInfoWidget(
                         user: user,
                         formKey: formKey,
-                        profileData: profileData,
+                        personalData: personalData,
                       ),
                       SizedBox(
                         height: 24,
@@ -81,7 +90,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
             text: 'Continue',
             onClicked: () {
               recordData();
-              nextView("/onboarding/personal-details");
+              nextView("/onboarding/diet");
             },
           ),
         ]
