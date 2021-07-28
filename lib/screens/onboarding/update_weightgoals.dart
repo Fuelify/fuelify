@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 
-import 'package:fuelify/constants.dart';
+import 'package:fuelify/dependencies/user_preferences.dart';
 
 import 'package:fuelify/commons/buttons.dart';
 import 'package:fuelify/commons/widgets.dart';
@@ -12,68 +12,78 @@ class WeightGoalsUpdate extends StatefulWidget {
 }
 
 class _WeightGoalsUpdateState extends State<WeightGoalsUpdate> {
-  
-  final List<Map<String, dynamic>> _dataOptions = [
-    {
-      "Text": "To lose weight",
-    },
-    {
-      "Text": "To eat healthier",
-    },
-    {
-      "Text": "To get more fit",
-    },
-    {
-      "Text": "To maintain weight and support my training",
-    },
-    {
-      "Text": "To build more muscle",
-    },
-    {
-      "Text": "To gain weight",
-    },
-  ];
+
+  Map<String, dynamic> weightGoalsData = {}; // initialize empty personal data map
 
   double _currentWeight = 158.5;
   double _goalWeight = 145;
-  int _weeklyWeightOption = 0;// = "Maintain my current weight";
+  int _weeklyWeightOption = 0;//_dataOptions.ind"Maintain my current weight";
 
-  final TextEditingController _currentWeightController = TextEditingController();
-  final TextEditingController _goalWeightController = TextEditingController();
-  final TextEditingController _weeklyWeightController = TextEditingController();
-
-  _handleCurrentWeightChange(value) {
-    if (value != null) {
-      setState(() => _currentWeight = value);
-      _currentWeightController.text = value.toString()+' '+'lbs';
-    }
+  TextEditingController _currentWeightController = TextEditingController();
+  TextEditingController _goalWeightController = TextEditingController();
+  TextEditingController _weeklyWeightController = TextEditingController();
+  
+  @override
+  void initState() {
+    UserProfile().getWeightGoalsData().then(initializeWeightGoalData);
+    super.initState();
   }
 
-  _handleGoalWeightChange(value) {
-    if (value != null) {
-      setState(() => _goalWeight = value);
-      _goalWeightController.text = value.toString()+' '+'lbs';
-    }
-  }
-
-  _handleWeeklyWeightChange(value) {
-    if (value != null) {
-      setState(() => _weeklyWeightOption = value);
-      _weeklyWeightController.text = value;
-    }
-  }
+  void initializeWeightGoalData(Map data) {
+    setState(() {
+      this.weightGoalsData = data as Map<String, dynamic>;
+      this._currentWeight = weightGoalsData['current'] != null ? weightGoalsData['current'] : 158.5;
+      this._goalWeight = weightGoalsData['goal'] != null ? weightGoalsData['goal'] : 145;
+      this._weeklyWeightOption = data['weekly'] != null ? weightGoalsData['weekly'] : 0;//_dataOptions.ind"Maintain my current weight";
+      this._currentWeightController = TextEditingController(text: weightGoalsData['current'] != null ? weightGoalsData['current'].toString()+' lbs': null);
+      this._goalWeightController = TextEditingController(text: weightGoalsData['goal'] != null ? weightGoalsData['goal'].toString()+' lbs': null);
+      this._weeklyWeightController = TextEditingController(text: weightGoalsData['weekly'] != null ? weightGoalsData['weekly'].toString(): null);
+    });
+  }      
+  
 
   @override
   Widget build(BuildContext context) {
     final formKey = new GlobalKey<FormState>();
+    _handleCurrentWeightChange(value) {
+      if (value != null) {
+        setState(() => _currentWeight = value);
+        _currentWeightController.text = value.toString()+' '+'lbs';
+      }
+    }
 
-    Map<String, dynamic> weightData = {}; // initialize empty personal data map
+    _handleGoalWeightChange(value) {
+      if (value != null) {
+        setState(() => _goalWeight = value);
+        _goalWeightController.text = value.toString()+' '+'lbs';
+      }
+    }
+
+    _handleWeeklyWeightChange(value) {
+      if (value != null) {
+        setState(() => _weeklyWeightOption = value);
+        _weeklyWeightController.text = value;
+      }
+    }
+
+    var recordData = () {
+      final form = formKey.currentState;
+
+      if (form!.validate()) {
+        form.save();
+        UserProfile().saveWeightGoalsData(weightGoalsData);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text("Invalid Form: " + "Please Complete the form properly")));
+      }
+    };
 
     var weightCurrentField = TextFormField(
       readOnly: true,
       controller: _currentWeightController,
       decoration: buildInputDecoration("Current Weight", Icons.monitor_weight_rounded),
-      onSaved: (value) => {weightData['current'] = value},
+      onSaved: (value) => {weightGoalsData['current'] = _currentWeight},
       onTap: () async {
         await showDialog<double>(
           context: context,
@@ -94,7 +104,7 @@ class _WeightGoalsUpdateState extends State<WeightGoalsUpdate> {
       readOnly: true,
       controller: _goalWeightController,
       decoration: buildInputDecoration("Goal Weight", Icons.monitor_weight_rounded),
-      onSaved: (value) => {weightData['goal'] = value},
+      onSaved: (value) => {weightGoalsData['goal'] = _goalWeight},
       onTap: () async {
         await showDialog<double>(
           context: context,
@@ -115,7 +125,7 @@ class _WeightGoalsUpdateState extends State<WeightGoalsUpdate> {
       readOnly: true,
       controller: _weeklyWeightController,
       decoration: buildInputDecoration("Weekly Weight Goal", Icons.show_chart_rounded),
-      onSaved: (value) => {weightData['goal'] = value},
+      onSaved: (value) => {weightGoalsData['weekly'] = _weeklyWeightOption},
       onTap: () async {
         await showDialog<int>(
           context: context,
@@ -203,6 +213,7 @@ class _WeightGoalsUpdateState extends State<WeightGoalsUpdate> {
           FullWidthOverlayButtonWidget(
             text: 'Continue',
             onClicked: () {
+              recordData();
               nextView("/onboarding/shopping-preferences");
             },
           ),
