@@ -123,6 +123,24 @@ class UserProfile {
     return true;
   }
 
+  Future<bool> saveWeightGoalsData(Map<String, dynamic> weightGoalsData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("weightgoals", json.encode(weightGoalsData));
+    return true;
+  }
+  
+  Future<Map> getWeightGoalsData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? weightGoals = prefs.getString("weightgoals");
+    final Map<String,dynamic> weightGoalsData;
+    if (weightGoals != null) {
+      weightGoalsData = jsonDecode(weightGoals);
+    } else {
+      weightGoalsData = {};
+    }
+    return weightGoalsData;
+  }
+
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
