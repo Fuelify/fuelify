@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 import 'package:fuelify/commons/widgets.dart';
-import 'package:fuelify/models/user.dart';
 import 'package:fuelify/commons/customdropdowns.dart';
 
 final genderOptions = [
@@ -25,13 +24,11 @@ final List<Map<String, dynamic>> _dataOptions = [
 ];
 
 class PersonalInfoWidget extends StatelessWidget {
-  final User user;
   final formKey;
   final personalData;
 
   const PersonalInfoWidget({
     Key? key,
-    required this.user,
     required this.formKey,
     required this.personalData,
   }) : super(key: key);
