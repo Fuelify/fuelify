@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/constants.dart';
 
+import 'package:fuelify/dependencies/user_preferences.dart';
+
 import 'package:fuelify/commons/buttons.dart';
 
 class ShoppingPreferencesUpdate extends StatefulWidget {
@@ -37,9 +39,37 @@ class _ShoppingPreferencesUpdateState extends State<ShoppingPreferencesUpdate> {
   int? selectedOption1;
   int? selectedOption2;
   double _currentSliderValue = 50;
+  
+  @override
+  void initState() {
+    UserProfile().getShoppingData().then(initializeShoppingData);
+    super.initState();
+  }
+
+  void initializeShoppingData(Map data) {
+    setState(() {
+      this.selectedOption1 = data['tendency'] != null ? _dataOptions1.indexWhere((option) => option['Text'] == data['tendency']) : null;
+      this.selectedOption2 = data['priceSensitivity'] != null ? _dataOptions2.indexWhere((option) => option['Text'] == data['priceSensitivity']) : null;
+      this._currentSliderValue = data['budget'] != null ? data['budget'] : 50;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
+    var recordData = () {
+      Map<String, dynamic> shoppingData = {};
+      if (selectedOption1 != null ) {
+        shoppingData['tendency'] =  _dataOptions1[selectedOption1 as int]['Text'];
+      }
+      if (selectedOption2 != null ) {
+        shoppingData['priceSensitivity'] =  _dataOptions2[selectedOption2 as int]['Text'];
+      }
+      if (selectedOption1 != null ) {
+        shoppingData['budget'] = _currentSliderValue; 
+      }
+      UserProfile().saveShoppingData(shoppingData);
+    };
 
     var nextView = (routeName) {
       Navigator.pushNamed(context, routeName);
@@ -195,7 +225,8 @@ class _ShoppingPreferencesUpdateState extends State<ShoppingPreferencesUpdate> {
           FullWidthOverlayButtonWidget(
             text: 'Continue',
             onClicked: () {
-              nextView("/onboarding/shopping-preferences");
+              recordData();
+              //nextView("/onboarding/shopping-preferences");
             },
           ),
         ]
