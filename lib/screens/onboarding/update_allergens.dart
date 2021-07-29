@@ -81,35 +81,6 @@ class _AllergensUpdateState extends State<AllergensUpdate> {
       UserProfile().saveAllergensData(allergenData);
     };
 
-    /*
-    TextFormField(
-      readOnly: true,
-      controller: _weeklyWeightController,
-      decoration: buildInputDecoration("Weekly Weight Goal", Icons.show_chart_rounded),
-      onSaved: (value) {
-        weightGoalsData['weekly'] = _dataOptions[_weeklyWeightOption]['Text'];
-      },
-      onTap: () async {
-        await showDialog<int>(
-          context: context,
-          builder: (BuildContext context) {
-            return WeeklyWeightGoalSelectionDialog(
-              value: _weeklyWeightOption, 
-              title: "Weekly Weight Goal",
-              dataOptions: _dataOptions,
-            );
-          },
-        ).then(_handleWeeklyWeightChange);
-      },
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please select weekly weight goal';
-        }
-        return null;
-      },
-    );
-    */
-
     var nextView = (routeName) {
       Navigator.pushNamed(context, routeName);
     };
@@ -149,7 +120,7 @@ class _AllergensUpdateState extends State<AllergensUpdate> {
             text: 'Continue',
             onClicked: () {
               recordData();
-              //nextView("/onboarding/shopping-preferences");
+              nextView("/onboarding/eating-habits");
             },
           ),
         ]
@@ -168,7 +139,6 @@ class AllergenSelections extends StatelessWidget {
   AllergenSelections({Key? key, required this.selectedOptions, required this.dataOptions, required this.onChanged}) : super(key: key);
   
   List<Widget> createCheckBoxList1(options,n) {
-    print(options);
     List<Widget> widgets = [];
     for (int i = 0; i < n; i++) {
       widgets.add(
@@ -201,7 +171,6 @@ class AllergenSelections extends StatelessWidget {
   }
 
   List<Widget> createCheckBoxList2(options,n) {
-    print(options);
     List<Widget> widgets = [];
     for (int i = n; i < options.length; i++) {
       widgets.add(
@@ -254,114 +223,3 @@ class AllergenSelections extends StatelessWidget {
     );
   }
 }
-
-/*
-class AllergenSelections extends StatefulWidget {
-
-  AllergenSelections({Key? key, required this.selectedOptions, required this.dataOptions, required this.onChanged}) : super(key: key);
-
-  @override
-  _AllergenSelectionsState createState() => new _AllergenSelectionsState();
-}
-
-class _AllergenSelectionsState extends State<AllergenSelections> {
-  late List _selectedOptions;
-  
-  @override
-  void initState() {
-    super.initState();
-    // Initialize list of selected options
-    _selectedOptions = widget.selectedOptions;
-  }
-  
-  List<Widget> createCheckBoxList1(options,n) {
-    print(options);
-    List<Widget> widgets = [];
-    for (int i = 0; i < n; i++) {
-      widgets.add(
-        CheckboxListTile(
-          title: Text(
-            options[i]['Text'],
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-          value: _selectedOptions.contains(i),
-          onChanged: (bool? value) {
-            widget.onChanged();
-            if (value != null) {
-              setState(() {
-                print(value);
-                if (_selectedOptions.contains(i)) { // uncheck by removing from list
-                  _selectedOptions.remove(i);
-                } else { // check by adding to list
-                  _selectedOptions.add(i);
-                }
-              });
-            }
-          },
-          activeColor: Colors.black,
-          checkColor: Colors.black,
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-      );
-    }
-    return widgets;
-  }
-
-  List<Widget> createCheckBoxList2(options,n) {
-    print(options);
-    List<Widget> widgets = [];
-    for (int i = n; i < options.length; i++) {
-      widgets.add(
-        CheckboxListTile(
-          title: Text(
-            options[i]['Text'],
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-          value: _selectedOptions.contains(i),
-          onChanged: (bool? value) {
-            if (value != null) {
-              setState(() {
-                print(value);
-                if (_selectedOptions.contains(i)) { // uncheck by removing from list
-                  _selectedOptions.remove(i);
-                } else { // check by adding to list
-                  _selectedOptions.add(i);
-                }
-              });
-            }
-          },
-          activeColor: Colors.black,
-          checkColor: Colors.black,
-          controlAffinity: ListTileControlAffinity.leading,
-        ),
-      );
-    }
-    return widgets;
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Column(
-              children: createCheckBoxList1(widget.dataOptions,5),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              children: createCheckBoxList2(widget.dataOptions,5),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-*/

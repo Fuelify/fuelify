@@ -226,7 +226,7 @@ class _ShoppingPreferencesUpdateState extends State<ShoppingPreferencesUpdate> {
             text: 'Continue',
             onClicked: () {
               recordData();
-              //nextView("/onboarding/shopping-preferences");
+              nextView("/onboarding/activity-level");
             },
           ),
         ]

@@ -123,7 +123,7 @@ class _DietUpdateState extends State<DietUpdate> {
               if (selectedOption != null) {
                 UserProfile().saveDietData(_dataOptions[selectedOption as int]['Title']);
               }
-              nextView("/onboarding/activity-level");
+              nextView("/onboarding/allergens");
             },
           ),
         ]
