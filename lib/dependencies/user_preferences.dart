@@ -159,6 +159,24 @@ class UserProfile {
     return shoppingData;
   }
 
+  Future<bool> saveEatingData(Map<String, dynamic> eatingData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("eating", json.encode(eatingData));
+    return true;
+  }
+  
+  Future<Map> getEatingData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? eating = prefs.getString("eating");
+    final Map<String,dynamic> eatingData;
+    if (eating != null) {
+      eatingData = jsonDecode(eating);
+    } else {
+      eatingData = {};
+    }
+    return eatingData;
+  }
+
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
 
