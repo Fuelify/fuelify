@@ -20,6 +20,7 @@ import 'package:fuelify/screens/onboarding/update_primarygoal.dart';
 import 'package:fuelify/screens/onboarding/update_weightgoals.dart';
 import 'package:fuelify/screens/onboarding/update_shopping.dart';
 import 'package:fuelify/screens/onboarding/update_eating.dart';
+import 'package:fuelify/screens/onboarding/update_allergens.dart';
 
 import 'package:fuelify/providers/navigation_bar.dart';
 import 'package:fuelify/providers/authentication.dart';
@@ -104,6 +105,7 @@ class MyApp extends StatelessWidget {
         '/onboarding/weight-goals': (context) => WeightGoalsUpdate(),
         '/onboarding/shopping-preferences': (context) => ShoppingPreferencesUpdate(),
         '/onboarding/eating-habits': (context) => EatingHabitsUpdate(),
+        '/onboarding/allergens': (context) => AllergensUpdate(),
       }
     );
   }
