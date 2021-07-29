@@ -150,7 +150,7 @@ class _EatingHabitsUpdateState extends State<EatingHabitsUpdate> {
             text: 'Continue',
             onClicked: () {
               recordData();
-              //nextView("/onboarding/shopping-preferences");
+              nextView("/onboarding/health-goals");
             },
           ),
         ]

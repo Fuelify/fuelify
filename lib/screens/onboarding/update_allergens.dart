@@ -120,7 +120,7 @@ class _AllergensUpdateState extends State<AllergensUpdate> {
             text: 'Continue',
             onClicked: () {
               recordData();
-              //nextView("/onboarding/shopping-preferences");
+              nextView("/onboarding/eating-habits");
             },
           ),
         ]
@@ -139,7 +139,6 @@ class AllergenSelections extends StatelessWidget {
   AllergenSelections({Key? key, required this.selectedOptions, required this.dataOptions, required this.onChanged}) : super(key: key);
   
   List<Widget> createCheckBoxList1(options,n) {
-    print(options);
     List<Widget> widgets = [];
     for (int i = 0; i < n; i++) {
       widgets.add(
@@ -172,7 +171,6 @@ class AllergenSelections extends StatelessWidget {
   }
 
   List<Widget> createCheckBoxList2(options,n) {
-    print(options);
     List<Widget> widgets = [];
     for (int i = n; i < options.length; i++) {
       widgets.add(
