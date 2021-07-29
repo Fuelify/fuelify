@@ -176,6 +176,26 @@ class UserProfile {
     }
     return eatingData;
   }
+  
+  Future<List<dynamic>> getAllergensData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? allergens = prefs.getString("allergens");
+    final List<dynamic> allergensData;
+    if (allergens != null) {
+      allergensData = json.decode(allergens);
+    } else {
+      allergensData = [];
+    }
+    return allergensData;
+  }
+
+  Future<bool> saveAllergensData(List<String> allergensData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("allergens", json.encode(allergensData));
+    return true;
+  }
+
+
 
   Future<User> getUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
