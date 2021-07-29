@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 import 'package:fuelify/commons/widgets.dart';
-import 'package:fuelify/models/user.dart';
 import 'package:fuelify/commons/customdropdowns.dart';
 
 final genderOptions = [
@@ -25,13 +24,11 @@ final List<Map<String, dynamic>> _dataOptions = [
 ];
 
 class PersonalInfoWidget extends StatelessWidget {
-  final User user;
   final formKey;
   final personalData;
 
   const PersonalInfoWidget({
     Key? key,
-    required this.user,
     required this.formKey,
     required this.personalData,
   }) : super(key: key);
@@ -39,24 +36,24 @@ class PersonalInfoWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final TextEditingController _heightController = TextEditingController();
-    final TextEditingController _dateController = TextEditingController();
-    final TextEditingController _unitsController = TextEditingController();
+    final TextEditingController _heightController = TextEditingController(text: personalData['height'] != null ? personalData['height'].toString()+' feet': null);
+    final TextEditingController _dateController = TextEditingController(text: personalData['birthdate']);
+    final TextEditingController _unitsController = TextEditingController(text: personalData['units']);
 
     double _height = personalData['height'] != null ? personalData['height'] : 5.5;
-    DateTime _selectedDate = personalData['birthdate'] != null ? DateTime.utc(personalData['birthdate'].split("-")[0], personalData['birthdate'].split("-")[1], personalData['birthdate'].split("-")[2]) : DateTime.utc(1990, 1, 1);
-    int _selectedUnitsOption = 0;
+    DateTime _selectedDate = personalData['birthdate'] != null ? DateTime.utc(int.parse(personalData['birthdate'].split("-")[0]), int.parse(personalData['birthdate'].split("-")[1]), int.parse(personalData['birthdate'].split("-")[2])) : DateTime.utc(1990, 1, 1);
+    int _selectedUnitsOption = personalData['units'] != null ? _dataOptions.indexWhere((option) => option['Title'] == personalData['units']) : 0;
       
     _handleHeightChange(value) {
       if (value != null) {
-        //setState(() => _height = value);
+        _height = value;
         _heightController.text = value.toString()+' '+'feet';
       }
     }
 
     _handleUnitSelectionChange(value) {
       if (value != null) {
-        //setState(() => _selectedUnitsOption = value);
+        _selectedUnitsOption = value;
         _unitsController.text = _dataOptions[value]['Title'];
       }
     }
@@ -116,7 +113,7 @@ class PersonalInfoWidget extends StatelessWidget {
 
     final genderField = CustomDropdown<int>(
       child: Text(
-        "",
+       personalData['gender'] != null ? personalData['gender'] : "",
       ),
       onChange: (int value, int index) => {
         print(genderOptions[index].option),

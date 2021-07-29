@@ -79,7 +79,7 @@ class _LoginState extends State<Login> {
         successfulMessage.then((response) {
           if (response['status']) {
             User user = response['user'];
-            Provider.of<UserProvider>(context, listen: false).setUser(user);
+            Provider.of<UserProvider>(context, listen: false).setUser(user); // set without triggering consumers to rebuild
             // Check user onboarding state to determine if onboarding needs to be displayed to user
             Navigator.pushReplacementNamed(context, '/onboarding/profile');
           } else {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/constants.dart';
 
+import 'package:fuelify/dependencies/user_preferences.dart';
+
 import 'package:fuelify/commons/buttons.dart';
 
 class PrimaryGoalUpdate extends StatefulWidget {
@@ -32,6 +34,19 @@ class _PrimaryGoalUpdateState extends State<PrimaryGoalUpdate> {
   ];
 
   int? selectedOption;
+  
+  @override
+  void initState() {
+    UserProfile().getPrimaryGoalData().then(initializePrimaryGoalData);
+    super.initState();
+  }
+
+  void initializePrimaryGoalData(String? goal) {
+    setState(() {
+      this.selectedOption = goal != null ? _dataOptions.indexWhere((option) => option['Text'] == goal) : null;
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +97,9 @@ class _PrimaryGoalUpdateState extends State<PrimaryGoalUpdate> {
               child: FullWidthButtonWidget(
                 text: 'Continue',
                 onClicked: () {
+                  if (selectedOption != null) {
+                    UserProfile().savePrimaryGoalData(_dataOptions[selectedOption as int]['Text']);
+                  }
                   nextView("/onboarding/weight-goals");
                 },
               ),

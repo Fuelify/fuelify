@@ -1,11 +1,15 @@
+import 'dart:convert';
+import 'dart:async';
+
 import 'package:fuelify/models/user.dart';
 import 'package:fuelify/models/onboarding.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async';
+
 
 class UserProfile {
   Future<bool> saveUser(User user) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
 
     prefs.setString("id", user.id);
     prefs.setString("name", user.name);
@@ -29,12 +33,130 @@ class UserProfile {
     return true;
   }
 
+  Future<bool> saveProfileData(Map<String, dynamic> profileData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("profile", profileData.toString());
+    return true;
+  }
+  
+  Future<Map> getProfileData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? profile = prefs.getString("profile");
+    final Map<String,dynamic> profileData;
+    if (profile != null) {
+      profileData = jsonDecode(profile);
+    } else {
+      profileData = {};
+    }
+    return profileData;
+  }
+
   Future<bool> savePersonalData(Map<String, dynamic> personalData) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    prefs.setString("personal", personalData.toString());
-
+    prefs.setString("personal", json.encode(personalData));
     return true;
+  }
+  
+  Future<Map> getPersonalData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? personal = prefs.getString("personal");
+    final Map<String,dynamic> personalData;
+    if (personal != null) {
+      personalData = jsonDecode(personal);
+    } else {
+      personalData = {};
+    }
+    return personalData;
+  }
+  
+  Future<String?> getDietData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? diet = prefs.getString("diet");
+    return diet;
+  }
+
+  Future<bool> saveDietData(String diet) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("diet", diet);
+    return true;
+  }
+  
+  Future<String?> getActivityData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? activity = prefs.getString("activity");
+    return activity;
+  }
+
+  Future<bool> saveActivityData(String activity) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("activity", activity);
+    return true;
+  }
+  
+  Future<List<dynamic>> getGoalsData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? goals = prefs.getString("healthgoals");
+    final List<dynamic> healthgoals;
+    if (goals != null) {
+      healthgoals = json.decode(goals);
+    } else {
+      healthgoals = [];
+    }
+    return healthgoals;
+  }
+
+  Future<bool> saveGoalsData(List<String> goalsData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("healthgoals", json.encode(goalsData));
+    return true;
+  }
+  
+  Future<String?> getPrimaryGoalData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? goal = prefs.getString("primarygoal");
+    return goal;
+  }
+
+  Future<bool> savePrimaryGoalData(String goal) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("primarygoal", goal);
+    return true;
+  }
+
+  Future<bool> saveWeightGoalsData(Map<String, dynamic> weightGoalsData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("weightgoals", json.encode(weightGoalsData));
+    return true;
+  }
+  
+  Future<Map> getWeightGoalsData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? weightGoals = prefs.getString("weightgoals");
+    final Map<String,dynamic> weightGoalsData;
+    if (weightGoals != null) {
+      weightGoalsData = jsonDecode(weightGoals);
+    } else {
+      weightGoalsData = {};
+    }
+    return weightGoalsData;
+  }
+
+  Future<bool> saveShoppingData(Map<String, dynamic> shoppingData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString("shopping", json.encode(shoppingData));
+    return true;
+  }
+  
+  Future<Map> getShoppingData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? shopping = prefs.getString("shopping");
+    final Map<String,dynamic> shoppingData;
+    if (shopping != null) {
+      shoppingData = jsonDecode(shopping);
+    } else {
+      shoppingData = {};
+    }
+    return shoppingData;
   }
 
   Future<User> getUser() async {

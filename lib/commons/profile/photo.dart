@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:fuelify/models/user.dart';
 
 class ProfilePhotoWidget extends StatelessWidget {
-  final User user;
+  final Profile profile;
   final VoidCallback onClicked;
 
   const ProfilePhotoWidget({
     Key? key,
-    required this.user,
+    required this.profile,
     required this.onClicked,
   }) : super(key: key);
 
@@ -18,19 +18,19 @@ class ProfilePhotoWidget extends StatelessWidget {
       child: Container(
         margin: EdgeInsets.only(top: 15.0),
         child: Stack(
-          children: [buildImage(user, onClicked), buildEditIcon()],
+          children: [buildImage(profile, onClicked), buildEditIcon()],
         ),
       ),
     );
   }
 }
 
-Widget buildImage(user, onClicked) {
+Widget buildImage(profile, onClicked) {
   return ClipOval(
       child: Material(
           color: Colors.transparent,
           child: Ink.image(
-            image: user.image == null ? AssetImage("assets/perosn.jpeg") : AssetImage("assets/perosn.jpeg"),//NetworkImage(user.image),
+            image: profile.image == null ? AssetImage("assets/perosn.jpeg") : AssetImage("assets/perosn.jpeg"),//NetworkImage(user.image),
             fit: BoxFit.cover,
             width: 128,
             height: 128,

@@ -12,13 +12,13 @@ final genderOptions = [
 ];
 
 class ProfileInfoWidget extends StatelessWidget {
-  final User user;
+  final Profile profile;
   final formKey;
   final profileData;
 
   const ProfileInfoWidget({
     Key? key,
-    required this.user,
+    required this.profile,
     required this.formKey,
     required this.profileData,
   }) : super(key: key);
@@ -27,20 +27,21 @@ class ProfileInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final firstNameField = TextFormField(
-      initialValue: user.name != null ? user.name : "",
+      initialValue: profile.firstName != null ? profile.firstName : "",
       autofocus: false,
       onSaved: (value) => {profileData['firstname'] = value},
       decoration: buildInputDecoration("First Name", Icons.person),
     );
 
     final lastNameField = TextFormField(
-      initialValue: user.name != null ? user.name : "",
+      initialValue: profile.lastName != null ? profile.lastName : "",
       autofocus: false,
       onSaved: (value) => {profileData['lastname'] = value},
       decoration: buildInputDecoration("Last Name", Icons.person_outline_sharp),
     );
 
     final locationField = TextFormField(
+      initialValue: profile.location != null ? profile.location : "",
       autofocus: false,
       onSaved: (value) => {profileData['location'] = value},
       decoration: buildInputDecoration("Location", Icons.language),

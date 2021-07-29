@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:fuelify/commons/cards.dart';
-import 'package:provider/provider.dart';
 
-import 'package:fuelify/models/user.dart';
-import 'package:fuelify/providers/user.dart';
+import 'package:fuelify/dependencies/user_preferences.dart';
 
 import 'package:fuelify/commons/buttons.dart';
 
@@ -42,10 +39,21 @@ class _DietUpdateState extends State<DietUpdate> {
   ];
 
   int? selectedOption;
+  
+  @override
+  void initState() {
+    UserProfile().getDietData().then(initializeDietData);
+    super.initState();
+  }
+
+  void initializeDietData(String? diet) {
+    setState(() {
+      this.selectedOption = diet != null ? _dataOptions.indexWhere((option) => option['Title'] == diet) : null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<UserProvider>(context).user;
 
     double deviceCardHeight = 125;
     double deviceCardWidth = MediaQuery.of(context).size.width / 3;
@@ -112,6 +120,9 @@ class _DietUpdateState extends State<DietUpdate> {
           FullWidthOverlayButtonWidget(
             text: 'Continue',
             onClicked: () {
+              if (selectedOption != null) {
+                UserProfile().saveDietData(_dataOptions[selectedOption as int]['Title']);
+              }
               nextView("/onboarding/activity-level");
             },
           ),

@@ -18,12 +18,11 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
 
   @override
   Widget build(BuildContext context) {
-    User user = Provider.of<UserProvider>(context).user;
+    Profile profile = Provider.of<UserProvider>(context).profile;
 
     final formKey = new GlobalKey<FormState>();
 
-    Map<String, dynamic> profileData =
-        {}; // initialize empty personal data map
+    Map<String, dynamic> profileData = {}; // initialize empty personal data map
 
     final nextView = (routeName) {
       print(routeName);
@@ -60,11 +59,11 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
                   child: ListView(
                     children: [
                       ProfilePhotoWidget(
-                        user: user,
+                        profile: profile,
                         onClicked: () async {},
                       ),
                       ProfileInfoWidget(
-                        user: user,
+                        profile: profile,
                         formKey: formKey,
                         profileData: profileData,
                       ),
