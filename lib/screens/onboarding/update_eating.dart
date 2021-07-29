@@ -41,8 +41,8 @@ class _EatingHabitsUpdateState extends State<EatingHabitsUpdate> {
 
   void initializeEatingData(Map data) {
     setState(() {
-      this.selectedOption1 = data['tendency'] != null ? _dataOptions1.indexWhere((option) => option['Text'] == data['tendency']) : null;
-      this.selectedOption2 = data['priceSensitivity'] != null ? _dataOptions2.indexWhere((option) => option['Text'] == data['priceSensitivity']) : null;
+      this.selectedOption1 = data['calorieSensitive'] != null ? _dataOptions1.indexWhere((option) => option['Text'] == data['calorieSensitive']) : null;
+      this.selectedOption2 = data['choosyEater'] != null ? _dataOptions2.indexWhere((option) => option['Text'] == data['choosyEater']) : null;
     });
   }
 
@@ -66,7 +66,7 @@ class _EatingHabitsUpdateState extends State<EatingHabitsUpdate> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Shopping Preferences"),
+        title: Text("Eating Habits"),
         elevation: 0.1,
       ),
       body: Stack(
@@ -111,29 +111,15 @@ class _EatingHabitsUpdateState extends State<EatingHabitsUpdate> {
                       Container(
                         width: double.infinity,
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 4),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Would you consider yourself a choosy eater?",
-                                style: TextStyle(
-                                  color: Colors.grey[850],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                ),
-                              ),
-                              SizedBox(height: 5,),
-                              Text(
-                                "Includes: sales, discounts, bulk deals, season",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 14.0,
-                                ),
-                              ),
-                            ]
-                          )
+                          padding: EdgeInsets.only(top: 20.0, bottom: 10.0, left: 4, right: 4),
+                          child: Text(
+                            "Would you consider yourself a choosy eater?",
+                            style: TextStyle(
+                              color: Colors.grey[850],
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18.0,
+                            ),
+                          ),
                         ),
                       ),
                       ListView.builder(
@@ -149,35 +135,6 @@ class _EatingHabitsUpdateState extends State<EatingHabitsUpdate> {
                             unselectedColor,
                           );
                         }
-                      ),
-                      SizedBox(height: 20,),
-                      Container(
-                        width: double.infinity,
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 4),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "What is your weekly grocery budget?",
-                                style: TextStyle(
-                                  color: Colors.grey[850],
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18.0,
-                                ),
-                              ),
-                              SizedBox(height: 5,),
-                              Text(
-                                "Approximate, you can always change this later",
-                                style: TextStyle(
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.normal,
-                                  fontSize: 14.0,
-                                ),
-                              ),
-                            ]
-                          )
-                        ),
                       ),
                       
                       SizedBox(height: 30,),
