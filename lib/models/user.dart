@@ -7,6 +7,9 @@ class User {
   String type;
   String token;
   String refreshToken;
+  dynamic settings;
+  dynamic states;
+  String plan;
 
   Authentication authentication = Authentication(id: "", email:"", token: "", refreshToken: "");
   Profile profile = Profile();
@@ -21,23 +24,30 @@ class User {
     this.type = "",
     this.token = "",
     this.refreshToken = "",
+    this.plan = "Free",
+    this.settings = const {"DarkMode": false,"Units":"Imperial"},
+    this.states = const {"Registered": true,"Onboarded":false},
     //this.authentication = Authentication(type: "User", id:"", email: "", token: "", refreshToken: ""),
   });
 
   factory User.fromJson(Map<String, dynamic> responseData) {
     
     return User(
-        id: responseData['id'],
-        name: responseData['name'] ?? "Joe Smith",
-        email: responseData['email'],
-        phone: responseData['phone'] ?? "315-988-5689",
-        image: responseData['image'] ??
-            "https://images.unsplash.com/photo-1554151228-14d9def656e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80", //TODO UDPATE THIS TO DEFAULT EMPTY ICON
+      id: responseData['id'],
+      name: responseData['name'] ?? "Joe Smith",
+      email: responseData['email'],
+      phone: responseData['phone'] ?? "315-988-5689",
+      image: responseData['image'] ??
+          "https://images.unsplash.com/photo-1554151228-14d9def656e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80", //TODO UDPATE THIS TO DEFAULT EMPTY ICON
 
-        //authentication: Authentication(token: responseData['access_token'], refreshToken: responseData['refresh_token']),
-        type: responseData['type'] ?? "USER",
-        token: responseData['access_token'],
-        refreshToken: responseData['refresh_token']);
+      //authentication: Authentication(token: responseData['access_token'], refreshToken: responseData['refresh_token']),
+      type: responseData['type'] ?? "USER",
+      token: responseData['access_token'],
+      refreshToken: responseData['refresh_token'],
+      states: responseData['states'] ?? {"Registered": true,"Onboarded":false},
+      settings: responseData['settings'] ?? {"DarkMode": false,"Units":"Imperial"},
+      plan: responseData['plan'] ?? "Free",
+    );
   }
 
   factory User.setAuthentication(Map<String, dynamic> authData, User user) {

@@ -81,7 +81,16 @@ class _LoginState extends State<Login> {
             User user = response['user'];
             Provider.of<UserProvider>(context, listen: false).setUser(user); // set without triggering consumers to rebuild
             // Check user onboarding state to determine if onboarding needs to be displayed to user
-            Navigator.pushReplacementNamed(context, '/onboarding/profile');
+            if (user.states.containsKey("Onboarded")) {
+              if(user.states['Onboarded'] == true) { // go to home page
+                Navigator.pushReplacementNamed(context, '/home');
+              } else { // go to onboarding
+                Navigator.pushReplacementNamed(context, '/onboarding/profile');
+              }
+            } else {
+              Navigator.pushReplacementNamed(context, '/onboarding/profile');
+            }
+            
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                 content: Text("Failed Login: " +
