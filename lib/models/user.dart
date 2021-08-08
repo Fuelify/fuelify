@@ -96,8 +96,7 @@ class Authentication {
 }
 
 class Profile {
-  String? firstName;
-  String? lastName;
+  Map<String,String>? name;
   String? image;
   String? location;
   double? height;
@@ -107,13 +106,11 @@ class Profile {
   String? genderDesc;
   String? diet;
   String? activeness;
-  Map? goalsHealth;
-  Map? goalsWeight;
+  Map? goals;
   Map? shopping;
 
   Profile({
-    this.firstName,
-    this.lastName,
+    this.name,
     this.image,
     this.location,
     this.height,
@@ -123,15 +120,13 @@ class Profile {
     this.genderDesc,
     this.diet,
     this.activeness,
-    this.goalsHealth,
-    this.goalsWeight,
+    this.goals,
     this.shopping,
   });
 
   factory Profile.fromJson(Map<String, dynamic> data) {
     return Profile(
-      firstName: data['name']['first'],
-      lastName: data['name']['last'],
+      name: data['name'],
       image: data['image'] ?? "https://images.unsplash.com/photo-1554151228-14d9def656e4?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80", //TODO UDPATE THIS TO DEFAULT EMPTY ICON
       location: data['location'],
       height: data['height'],
@@ -140,10 +135,28 @@ class Profile {
       genderDesc: data['genderdesc'],
       diet: data['diet'],
       activeness: data['activeness'],
-      goalsHealth: data['goals']['health'], // --> {all, primary}
-      goalsWeight: data['goals']['weight'], // --> {target, weekly}
+      goals: data['goals']['health'], // --> {all, primary} --> {target, weekly}
       shopping: data['shopping'] // --> {tendency, priceSensitivity, budget}
     );
+  }
+
+  Map<String,dynamic> toJSON() {
+    return {
+      "Name": name,
+      "Image": image,
+      "Location": location,
+      "Personal": {
+        "height": height,
+        "birthdate": birthdate,
+        "gender": gender,
+        "genderDesc": genderDesc,
+      },
+      "Diet": diet,
+      "Activeness": activeness,
+      "Goals": goals,
+      "Shopping": shopping
+    };
+    
   }
 }
 

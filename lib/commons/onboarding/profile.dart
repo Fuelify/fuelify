@@ -27,14 +27,14 @@ class ProfileInfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final firstNameField = TextFormField(
-      initialValue: profile.firstName != null ? profile.firstName : "",
+      initialValue: profile.name != null ? profile.name!['first'] : "",
       autofocus: false,
       onSaved: (value) => {profileData['firstname'] = value},
       decoration: buildInputDecoration("First Name", Icons.person),
     );
 
     final lastNameField = TextFormField(
-      initialValue: profile.lastName != null ? profile.lastName : "",
+      initialValue: profile.name != null ? profile.name!['last'] : "",
       autofocus: false,
       onSaved: (value) => {profileData['lastname'] = value},
       decoration: buildInputDecoration("Last Name", Icons.person_outline_sharp),

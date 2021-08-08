@@ -84,7 +84,7 @@ class _DeviceConnectionsUpdateState extends State<DeviceConnectionsUpdate> {
             child: FullWidthButtonWidget(
               text: 'Continue',
               onClicked: () {
-                nextView("/onboarding/health-goals");
+                nextView("/onboarding/submission");
               },
             ),
           ),
