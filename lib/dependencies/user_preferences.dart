@@ -35,7 +35,7 @@ class UserProfile {
 
   Future<bool> saveProfileData(Map<String, dynamic> profileData) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString("profile", profileData.toString());
+    prefs.setString("profile", json.encode(profileData));
     return true;
   }
   
@@ -219,14 +219,54 @@ class UserProfile {
         token: token,
         refreshToken: refreshToken);
   }
+  
 
-  Future<String> getUserPersonalData() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<Profile> getUserProfile() async {
 
-    String personal = prefs.getString("personal") ?? "";
-    
-    return personal;
+    final profile = await getProfileData();
+    final personal = await getPersonalData();
+    final diet = await getDietData();
+    final allergens = await getAllergensData();
+    final eating = await getEatingData();
+    final healthgoals = await getGoalsData();
+    final primarygoal = await getPrimaryGoalData();
+    final weightgoals = await getWeightGoalsData();
+    final shopping = await getShoppingData();
+    final activeness = await getActivityData();
+
+    final Map<String,dynamic> userProfile = {};
+
+    userProfile['Profile'] = profile;
+    userProfile['Personal'] = personal;
+    userProfile['Diet'] = diet;
+    userProfile['Allergens'] = allergens;
+    userProfile['EatingHabits'] = eating;
+    userProfile['Goals'] = personal;
+    userProfile['Personal'] = personal;
+
+    return Profile(
+      name: {
+        'first': profile['firstname'],
+        'last': profile['lastname']
+      },
+      location: profile['location'],
+      height: personal['height'],
+      birthdate: personal['birthdate'],
+      gender: personal['gender'],
+      genderDesc: personal['genderdesc'],
+      diet: diet,
+      activeness: activeness,
+      goals: {
+        'health': {
+          'all': healthgoals,
+          'primary': primarygoal,
+        },
+        'weight': weightgoals
+      },
+      shopping: shopping,
+    );
   }
+  
 
   void removeUser() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
