@@ -37,15 +37,39 @@ class _SubmissionState extends State<Submission> {
 
     final nextView = (routeName) {
       print(routeName);
-      Navigator.pushNamed(context, routeName);
+      Navigator.pushReplacementNamed(context, routeName);
     };
 
     var saveOnboarding = (Profile profile) async {
-      print('saving data');
-      final Map<String, dynamic> requestMessage = await user.updateProfile(profileData.toJSON());
-      //Provider.of<UserProvider>(context, listen: false).setUser(user); // set without triggering consumers to rebuild
-      print(requestMessage);
+      await user.updateProfile(profileData.toJSON());
+      if (user.onboardingStatus == UserStatus.OnboardingSaved) {
+        await user.setOnboardingStatus(true);
+        nextView("/home");
+      } else{
+        print('Handle error somehow');
+      }
     };
+    
+    var saving = Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(height: 25,),
+        CircularProgressIndicator(
+          color: Colors.black,
+          strokeWidth: 5,
+        ),
+        SizedBox(height: 20,),
+        Text(
+          "Hang tight, we are in the process of saving your data...",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontWeight: FontWeight.normal,
+            fontSize: 12, 
+          ),
+        )
+      ],
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -63,8 +87,16 @@ class _SubmissionState extends State<Submission> {
                   child: ListView(
                     children: [
                       Text(
-                        'Congratulations, you have now completed the onboarding process!'
-                      )
+                        'Congratulations, you have now completed the onboarding process!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20, 
+                        ),
+                      ),
+                      user.onboardingStatus == UserStatus.OnboardingSaving || user.onboardingStatus == UserStatus.OnboardingSaved
+                      ? saving
+                      : Text(""),
                     ],
                   ),
                 ),
@@ -72,10 +104,9 @@ class _SubmissionState extends State<Submission> {
             ],
           ),
           FullWidthOverlayButtonWidget(
-            text: 'Continue',
+            text: 'Submit',
             onClicked: () {
               saveOnboarding(profileData);
-              //nextView("/onboarding/personal-details");
             },
           ),
         ]
