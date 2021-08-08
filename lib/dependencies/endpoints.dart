@@ -13,6 +13,7 @@ class AppUrl {
     User Endpoints
   */
   static const String userUpdateProfile = base + "/user/profile/update";
+  static const String userUpdateOnboardingState = base + "/user/state/onboarding";
 
   static const String fetchFoods = base + "/foods/fetch?limit=10";
 }
