@@ -1,0 +1,12 @@
+Root Level State Management Provider Folder
+--------------------------------------------
+  - Providers found here are global in the sense that they can be found throughout the codebase
+  - These providers differ from local controller providers in that local controllers shall be autodisposed when local screen is disposed
+  - These providers persist across screens and are not disposed of unless the application is closed
+
+Available State Management Providers
+-------------------------------------
+ - Dark Mode Provider - Handles Toggling Application Theme Light/Dark Mode
+ - Data Provider
+ ....- Navigation Bar Provider - Handles Moving Between Bottom Nav Bar Pages
+ 

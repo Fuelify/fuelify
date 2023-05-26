@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
 
+/*
+  General App Data
+*/
+
+const bool debug = true;
+const String debugEnterRoute = 'plan'; // enter route following splash screen; allows for reaching desired screen faster while developing
+
+
+/*
+  Theme Data
+*/
+
 const kBackgroundColor = Color(0xFF202020);
 const kPrimaryColor = Color(0xFFFFBD73);
 const primaryThemeColor = Colors.grey;

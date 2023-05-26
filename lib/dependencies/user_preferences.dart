@@ -210,14 +210,15 @@ class UserProfile {
     String refreshToken = prefs.getString("refreshToken") ?? "";
 
     return User(
-        id: id,
-        name: name,
-        email: email,
-        phone: phone,
-        image: image,
-        type: type,
-        token: token,
-        refreshToken: refreshToken);
+      id: id,
+      name: name,
+      email: email,
+      phone: phone,
+      image: image,
+      type: type,
+      token: token,
+      refreshToken: refreshToken
+    );
   }
   
 
