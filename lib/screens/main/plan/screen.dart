@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fuelify/models/meal.dart';
-import 'package:fuelify/screens/main/plan/controllers/calendar_navigation.dart';
+import 'package:fuelify/screens/main/plan/controllers/calendar_day.dart';
+import 'package:fuelify/screens/main/plan/controllers/calendar_day_navigation.dart';
+import 'package:fuelify/screens/main/plan/controllers/calendar_week.dart';
+import 'package:fuelify/screens/main/plan/controllers/calendar_week_navigation.dart';
 import 'package:fuelify/screens/main/plan/controllers/meal_plan.dart';
+import 'package:fuelify/screens/main/plan/widgets/meal_tile.dart';
 import 'package:fuelify/screens/main/plan/widgets/plan_navigation_bar.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -26,52 +30,52 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
     // Preload meal plan data from server
     ref.read(mealPlanProvider.notifier).preloadData();
 
-    return Scaffold(
-      appBar: const PlanScreenNavigationBarWidget(),
-      body: PageView.builder(
-        itemBuilder: (context, position) {
-          return WeekView(position);
-        },
-      ),
+    return const Scaffold(
+      appBar: PlanScreenNavigationBarWidget(),
+      body: WeekView()
     );
   }
 }
 
 class WeekView extends ConsumerStatefulWidget {
-  final int weekOffset;
 
-  const WeekView(this.weekOffset, {super.key});
+  const WeekView({super.key});
 
   @override
   _WeekViewState createState() => _WeekViewState();
 }
+
 class _WeekViewState extends ConsumerState<WeekView> with SingleTickerProviderStateMixin {
   final PageController _weekViewController = PageController(initialPage: 500); // large enough to scroll in both directions
-  int _pageIndex = 500;
+  
   final PageController _dayViewController = PageController(); 
 
   @override
   void initState() {
     super.initState();
+    ref.read(weekViewProvider.notifier).controller = _weekViewController;
   }
 
   @override
   Widget build(BuildContext context) {
-    final tabIndex = ref.watch(planCalendarNavigationControllerProvider);
+
+    final weekViewController = ref.watch(weekViewControllerProvider);
+    final dayViewController = ref.watch(dayViewControllerProvider);
+
+    final weekPageIndex = ref.watch(weekViewProvider);
+    final dayPageIndex = ref.watch(dayViewProvider);
 
     return PageView.builder(
-      controller: _weekViewController,
+      controller: weekViewController,
       onPageChanged: (index) {
+        ref.read(weekViewProvider.notifier).setPage(index);
         setState(() {
-          if (ref.read(planCalendarNavigationControllerProvider.notifier).index == 0) {
-            ref.read(planCalendarNavigationControllerProvider.notifier).setCurrentIndex(0);
-            //_dayViewController.jumpToPage(6);
+          
+          if (ref.read(dayViewProvider.notifier).day == 0) {
+            ref.read(dayViewProvider.notifier).setPage(0);
           } else {
-            ref.read(planCalendarNavigationControllerProvider.notifier).setCurrentIndex(0);
-            //_dayViewController.jumpToPage(0);
+            ref.read(dayViewProvider.notifier).setPage(0);
           }
-          //ref.read(planCalendarNavigationControllerProvider.notifier).onItemTapped(0); // set to the monday of swippe to week by default
-          _pageIndex = index;
         });
       },
       itemBuilder: (context, index) {
@@ -80,62 +84,63 @@ class _WeekViewState extends ConsumerState<WeekView> with SingleTickerProviderSt
 
         return Container(
           padding: const EdgeInsets.only(left: 10, right: 10),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  children: List.generate(7, (dayindex) {
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          ref.read(planCalendarNavigationControllerProvider.notifier).onItemTapped(dayindex);
-                          _dayViewController.jumpToPage(dayindex);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left:2.0,right:2.0,top:6,bottom:6),
-                          decoration: BoxDecoration(
-                            borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
-                            color: tabIndex == dayindex ? Colors.black : Colors.white, 
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                dayOfWeek[firstDayOfWeek.add(Duration(days: dayindex)).weekday-1],
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: tabIndex == dayindex ? Colors.white : Colors.black87
-                                ),
+          color: Colors.white,
+          child: Column(
+            children: <Widget>[
+              Row(
+                children: List.generate(7, (dayindex) {
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        ref.read(dayViewProvider.notifier).setPage(dayindex);
+                        dayViewController.jumpToPage(dayindex);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.only(left:2.0,right:2.0,top:6,bottom:6),
+                        decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
+                          color: dayPageIndex == dayindex ? Colors.black : dayindex == DateTime.now().weekday-1 && weekPageIndex == 500 ? const Color.fromARGB(255, 220, 220, 220) : Colors.white, 
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              dayOfWeek[firstDayOfWeek.add(Duration(days: dayindex)).weekday-1],
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: dayPageIndex == dayindex ? Colors.white : Colors.black87
                               ),
-                              const SizedBox(height: 4,),
-                              Text(
-                                '${firstDayOfWeek.add(Duration(days: dayindex)).day}',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: tabIndex == dayindex ? Colors.white : Colors.black87
-                                ),
+                            ),
+                            const SizedBox(height: 4,),
+                            Text(
+                              '${firstDayOfWeek.add(Duration(days: dayindex)).day}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: dayPageIndex == dayindex ? Colors.white : Colors.black87
                               ),
-                            ],
-                          )
+                            ),
+                          ],
                         )
-                      ),
-                    );
-                    }
-                  )
+                      )
+                    ),
+                  );
+                  }
+                )
+              ),
+              Expanded(
+                child: PageView(
+                  controller: dayViewController,
+                  onPageChanged: (dayindex) {
+                    ref.read(dayViewProvider.notifier).setPage(dayindex);
+                  },
+                  children: List.generate(7, (index) {
+                    return DayView(DateFormat('yyyy-MM-dd').format(firstDayOfWeek.add(Duration(days: index))));
+                  }),
                 ),
-                Expanded(
-                  child: PageView(
-                    controller: _dayViewController,
-                    onPageChanged: (dayindex) {
-                      ref.read(planCalendarNavigationControllerProvider.notifier).onItemTapped(dayindex);
-                    },
-                    children: List.generate(7, (index) {
-                      return DayView(DateFormat('yyyy-MM-dd').format(firstDayOfWeek.add(Duration(days: index))));
-                    }),
-                  ),
-                ),
-              ],
-            )
-          );
+              ),
+            ],
+          )
+        );
       }
     );
   }
@@ -169,11 +174,24 @@ class DayView extends ConsumerWidget {
     return ListView.builder(
       itemCount: data.length,
       itemBuilder: (context, index) {
-        return Card(
-          shadowColor: Colors.black,
-          child: ListTile(
-            title: Text('$calendarDate ${data[index].title}'),
-          ),
+        final mealTile = MealTile(
+          meal: data[index], 
+          onTap: () => print('push to recipe view expanded (maybe bottom sheet?)'),
+          onLongPress: () => print('pop whole card into movable object that can be moved to different day'),
+        );
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          child: Draggable<MealTile>(
+            data: mealTile,
+            childWhenDragging: Container(),
+            feedback: SizedBox(
+                width: MediaQuery.of(context).size.width * 0.95, // Set the desired width
+                height: MediaQuery.of(context).size.width * 0.95 / (16/7), // Set the desired height
+                child: mealTile
+              ),
+            child: mealTile
+          )
         );
       },
     );
