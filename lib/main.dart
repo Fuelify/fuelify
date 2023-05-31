@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:fuelify/providers/dark_mode.dart';
 import 'package:fuelify/networking/router.dart';
 import 'package:fuelify/screens/errors/requests/screen.dart';
-import 'package:fuelify/screens/main/plan/controllers/meal_plan.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 
