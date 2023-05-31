@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:fuelify/screens/splash_screen.dart';
-import 'package:fuelify/screens/login_screen.dart';
-import 'package:fuelify/screens/register_screen.dart';
+import 'package:fuelify/screens/authentication/login_screen.dart';
+import 'package:fuelify/screens/authentication/register_screen.dart';
 
 // Main App Pages
 import 'package:fuelify/screens/main/home/screen.dart';
@@ -40,7 +40,7 @@ class Routes {
 }
 
 class DashboardRoutes {
-  static const defaultLandingRoute = 0;
+  static const defaultLandingRoute = 1;
   static const List<String> route = [
     "home",
     "plan",
