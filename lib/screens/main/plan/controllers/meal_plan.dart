@@ -32,8 +32,6 @@ class MealPlanController extends StateNotifier<Map<String, List<Meal>>> {
     mealPlan = dataMap.map((key, value) {
       return MapEntry(key, (value as List<dynamic>).map((v) => Meal.fromJSON(v)).toList());
     });
-
-    print(mealPlan);
     
     // Save data to Hive
       // ...
