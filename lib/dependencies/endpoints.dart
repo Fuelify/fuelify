@@ -1,7 +1,7 @@
 // API Endpoints
 class AppUrl {
   static const String liveBaseURL = "http://18.117.207.252"; //"https://user.fuelifyyourlife.com";
-  static const String localBaseURL = "http://192.168.1.79:3000";
+  static const String localBaseURL = "http://localhost:3000"; //"http://192.168.1.79:3000";
 
   static const String base = localBaseURL; //liveBaseURL
   static const String login = base + "/user/login";

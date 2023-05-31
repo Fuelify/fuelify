@@ -1,41 +1,24 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class DarkNotifier with ChangeNotifier {
-  PrefsState _currentPrefs = PrefsState(darkMode: false);
+final Future<SharedPreferences> sharedPreferences = SharedPreferences.getInstance();
 
-  DarkNotifier() {
-    _loadDarkPref();
+class DarkNotifier extends StateNotifier<bool> {
+  DarkNotifier(bool? defaultMode) : super(defaultMode ?? false);
+
+  Future<void> loadDarkModePreference() async {
+    final prefs = await sharedPreferences;
+    bool darkPref = prefs.getBool('isDark') ?? false;
+    state = darkPref;
   }
 
-  Future<void> _loadDarkPref() async {
-    await SharedPreferences.getInstance().then((prefs) {
-      bool darkPref = prefs.getBool('isDark') ?? false;
-      _currentPrefs = PrefsState(darkMode: darkPref);
-
-      notifyListeners();
-    });
-  }
-  
-  Future<void> _saveDarkPref() async {
-    await SharedPreferences.getInstance().then((prefs) {
-      prefs.setBool('isDark', _currentPrefs.darkMode);
-    });
+  Future<void> saveDarkModePreference() async {
+    final prefs = await sharedPreferences;
+    prefs.setBool('isDark', state);
   }
 
-  bool get isDark => _currentPrefs.darkMode;
-
-  set darkMode(bool newValue) {
-    if (newValue == _currentPrefs.darkMode) return;
-    _currentPrefs = PrefsState(darkMode: newValue);
-    notifyListeners();
-    _saveDarkPref();
+  void toggleDarkMode() {
+    state = !state;
+    saveDarkModePreference();
   }
-}
-
-class PrefsState {
-  final bool darkMode;
-  
-  const PrefsState({this.darkMode = false});
 }

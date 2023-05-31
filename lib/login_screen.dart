@@ -55,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Expanded(
             flex: 3,
             child: Container(
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 image: DecorationImage(
                   image: AssetImage("assets/perosn.jpeg"),
                   fit: BoxFit.cover,
@@ -75,7 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: <Widget>[
                       Text(
                         "SIGN IN",
-                        style: Theme.of(context).textTheme.display1,
+                        style: Theme.of(context).textTheme.headline4,
                       ),
                       Text(
                         "SIGN UP",
@@ -83,14 +83,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 40),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
+                      children: const <Widget>[
                         Padding(
-                          padding: const EdgeInsets.only(right: 16),
+                          padding: EdgeInsets.only(right: 16),
                           child: Icon(
                             Icons.alternate_email,
                             color: kPrimaryColor,
@@ -108,9 +108,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
+                    children: const <Widget>[
                       Padding(
-                        padding: const EdgeInsets.only(right: 16),
+                        padding: EdgeInsets.only(right: 16),
                         child: Icon(
                           Icons.lock,
                           color: kPrimaryColor,
@@ -127,13 +127,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   _buildForgetPasswordBtn(context),
                   _buildRememberMeCheckbox(context),
-                  Spacer(),
+                  const Spacer(),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 30),
                     child: Row(
                       children: <Widget>[
                         Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
@@ -145,9 +145,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.white.withOpacity(.5),
                           ),
                         ),
-                        SizedBox(width: 20),
+                        const SizedBox(width: 20),
                         Container(
-                          padding: EdgeInsets.all(16),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
@@ -159,10 +159,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: Colors.white.withOpacity(.5),
                           ),
                         ),
-                        Spacer(),
+                        const Spacer(),
                         Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
+                            padding: const EdgeInsets.all(16),
+                            decoration: const BoxDecoration(
                               shape: BoxShape.circle,
                               color: kPrimaryColor,
                             ),
@@ -173,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   'password': '123',
                                 });
                               },
-                              child: Icon(
+                              child: const Icon(
                                 Icons.arrow_forward,
                                 color: Colors.black,
                               ),
