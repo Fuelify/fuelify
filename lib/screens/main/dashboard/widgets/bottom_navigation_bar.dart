@@ -19,8 +19,8 @@ class _BottomNavigationBarWidgetState extends ConsumerState<BottomNavigationBarW
     return BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
-          icon: Icon(Icons.home_rounded),
-          label: 'Home',
+          icon: Icon(Icons.groups),
+          label: 'Social',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.calendar_today),
