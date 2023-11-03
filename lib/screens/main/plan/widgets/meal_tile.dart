@@ -5,13 +5,11 @@ import 'package:fuelify/models/meal.dart';
 class MealTile extends StatelessWidget {
   final Meal meal;
   final VoidCallback onTap;
-  final VoidCallback? onLongPress;
 
   const MealTile({
     Key? key,
     required this.meal,
     required this.onTap,
-    this.onLongPress,
   }) : super(key: key);
 
   @override
@@ -19,7 +17,6 @@ class MealTile extends StatelessWidget {
   
     return GestureDetector(
       onTap: onTap,
-      onLongPress: onLongPress, 
       child: Card(
         shadowColor: Colors.black,
         child: AspectRatio(

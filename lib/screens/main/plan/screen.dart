@@ -4,6 +4,7 @@ import 'package:fuelify/screens/main/plan/controllers/calendar_day.dart';
 import 'package:fuelify/screens/main/plan/controllers/calendar_day_navigation.dart';
 import 'package:fuelify/screens/main/plan/controllers/calendar_week.dart';
 import 'package:fuelify/screens/main/plan/controllers/calendar_week_navigation.dart';
+import 'package:fuelify/screens/main/plan/controllers/draggable.dart';
 import 'package:fuelify/screens/main/plan/controllers/meal_plan.dart';
 import 'package:fuelify/screens/main/plan/widgets/meal_tile.dart';
 import 'package:fuelify/screens/main/plan/widgets/plan_navigation_bar.dart';
@@ -90,39 +91,53 @@ class _WeekViewState extends ConsumerState<WeekView> with SingleTickerProviderSt
               Row(
                 children: List.generate(7, (dayindex) {
                   return Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        ref.read(dayViewProvider.notifier).setPage(dayindex);
-                        dayViewController.jumpToPage(dayindex);
+                    child: DragTarget<MealTile>(
+                      builder: (context, candidateData, rejectedData) {
+                        return GestureDetector(
+                          onTap: () {
+                            ref.read(dayViewProvider.notifier).setPage(dayindex);
+                            dayViewController.jumpToPage(dayindex);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.only(left:2.0,right:2.0,top:6,bottom:6),
+                            decoration: BoxDecoration(
+                              borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
+                              color: dayPageIndex == dayindex ? Colors.black : dayindex == DateTime.now().weekday-1 && weekPageIndex == 500 ? const Color.fromARGB(255, 220, 220, 220) : Colors.white, 
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  dayOfWeek[firstDayOfWeek.add(Duration(days: dayindex)).weekday-1],
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: dayPageIndex == dayindex ? Colors.white : Colors.black87
+                                  ),
+                                ),
+                                const SizedBox(height: 4,),
+                                Text(
+                                  '${firstDayOfWeek.add(Duration(days: dayindex)).day}',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: dayPageIndex == dayindex ? Colors.white : Colors.black87
+                                  ),
+                                ),
+                              ],
+                            )
+                          )
+                        );
                       },
-                      child: Container(
-                        padding: const EdgeInsets.only(left:2.0,right:2.0,top:6,bottom:6),
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.only(topLeft: Radius.circular(5), topRight: Radius.circular(5)),
-                          color: dayPageIndex == dayindex ? Colors.black : dayindex == DateTime.now().weekday-1 && weekPageIndex == 500 ? const Color.fromARGB(255, 220, 220, 220) : Colors.white, 
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              dayOfWeek[firstDayOfWeek.add(Duration(days: dayindex)).weekday-1],
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: dayPageIndex == dayindex ? Colors.white : Colors.black87
-                              ),
-                            ),
-                            const SizedBox(height: 4,),
-                            Text(
-                              '${firstDayOfWeek.add(Duration(days: dayindex)).day}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: dayPageIndex == dayindex ? Colors.white : Colors.black87
-                              ),
-                            ),
-                          ],
-                        )
-                      )
-                    ),
+                      onWillAccept: (data) {
+                        // Decide whether the dragged item will be accepted or not
+                        return true;
+                      },
+                      onAccept: (data) {
+                        print('dropped onto tile ${dayindex}');
+                        ref.read(mealPlanProvider.notifier).moveMeal(data.meal,firstDayOfWeek.add(Duration(days: dayindex)));
+                        // Handle the received data, in this case, the RecipeCard
+                        // For example, you can add the received card to the list of cards for the day
+                      },
+                    )
                   );
                   }
                 )
@@ -177,14 +192,22 @@ class DayView extends ConsumerWidget {
         final mealTile = MealTile(
           meal: data[index], 
           onTap: () => print('push to recipe view expanded (maybe bottom sheet?)'),
-          onLongPress: () => print('pop whole card into movable object that can be moved to different day'),
         );
 
         return Padding(
           padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Draggable<MealTile>(
+          child: LongPressDraggable<MealTile>(
             data: mealTile,
             childWhenDragging: Container(),
+            onDragStarted: () {
+              ref.read(draggedItemProvider.notifier).startDragging(mealTile);
+            },
+            onDragCompleted: () {
+              ref.read(draggedItemProvider.notifier).stopDragging();
+            },
+            onDraggableCanceled: (_, __) {
+              ref.read(draggedItemProvider.notifier).stopDragging();
+            },
             feedback: SizedBox(
                 width: MediaQuery.of(context).size.width * 0.95, // Set the desired width
                 height: MediaQuery.of(context).size.width * 0.95 / (16/7), // Set the desired height
