@@ -38,4 +38,18 @@ class MealPlanController extends StateNotifier<Map<String, List<Meal>>> {
 
     state = mealPlan;
   }
+
+  moveMeal(Meal meal, DateTime moveTo) {
+    print(meal.date);
+    print(moveTo);
+
+    // Update meal date
+    
+    // Update state holding meal plan data
+    
+    state = state;
+    
+  }
+
+
 }
