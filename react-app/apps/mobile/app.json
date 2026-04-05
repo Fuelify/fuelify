@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Fuelify",
+    "slug": "fuelify-mobile",
+    "version": "1.0.0",
+    "scheme": "fuelify",
+    "platforms": ["ios", "android"],
+    "ios": {
+      "bundleIdentifier": "com.fuelify.mobile",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.fuelify.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#202020"
+      }
+    },
+    "plugins": ["expo-router", "expo-secure-store"]
+  }
+}

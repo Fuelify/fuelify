@@ -1,0 +1,42 @@
+:root {
+  /* Ported from lib/constants.dart */
+  --color-background: #202020;
+  --color-primary: #FFBD73;
+  --color-primary-theme: #9E9E9E;
+  --color-selected: #4DB6AC;
+  --color-unselected: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+/* Dark mode */
+[data-theme='dark'] {
+  --color-bg: var(--color-background);
+  --color-text: #ffffff;
+}
+
+[data-theme='light'] {
+  --color-bg: #ffffff;
+  --color-text: #202020;
+}
+
+body {
+  background: var(--color-bg, #ffffff);
+  color: var(--color-text, #202020);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
