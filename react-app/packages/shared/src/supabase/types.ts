@@ -1,14 +1,86 @@
-// Auto-generated Supabase Database types for the Fuelify PostgreSQL schema
-// These map to the tables created in supabase/migrations/
+// Supabase Database types for the Fuelify PostgreSQL schema
+// Maps to the tables created in supabase/migrations/00001_initial_schema.sql
 
 export interface Database {
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          id: string; // UUID — matches auth.users.id
+          first_name: string | null;
+          last_name: string | null;
+          phone: string | null;
+          image_url: string | null;
+          location: string | null;
+          height: number | null;
+          weight: number | null;
+          birthdate: string | null;
+          gender: string | null;
+          gender_desc: string | null;
+          diet: string | null;
+          activeness: string | null;
+          goals: Record<string, unknown>;
+          shopping: Record<string, unknown>;
+          allergens: string[];
+          dark_mode: boolean;
+          units: string;
+          plan: string;
+          onboarded: boolean;
+          onboarding_step: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          first_name?: string | null;
+          last_name?: string | null;
+          phone?: string | null;
+          image_url?: string | null;
+          location?: string | null;
+          height?: number | null;
+          weight?: number | null;
+          birthdate?: string | null;
+          gender?: string | null;
+          gender_desc?: string | null;
+          diet?: string | null;
+          activeness?: string | null;
+          goals?: Record<string, unknown>;
+          shopping?: Record<string, unknown>;
+          allergens?: string[];
+          dark_mode?: boolean;
+          units?: string;
+          plan?: string;
+          onboarded?: boolean;
+          onboarding_step?: number;
+        };
+        Update: {
+          first_name?: string | null;
+          last_name?: string | null;
+          phone?: string | null;
+          image_url?: string | null;
+          location?: string | null;
+          height?: number | null;
+          weight?: number | null;
+          birthdate?: string | null;
+          gender?: string | null;
+          gender_desc?: string | null;
+          diet?: string | null;
+          activeness?: string | null;
+          goals?: Record<string, unknown>;
+          shopping?: Record<string, unknown>;
+          allergens?: string[];
+          dark_mode?: boolean;
+          units?: string;
+          plan?: string;
+          onboarded?: boolean;
+          onboarding_step?: number;
+        };
+      };
       meal_plans: {
         Row: {
           id: string;
           user_id: string;
-          date: string; // DATE stored as YYYY-MM-DD
+          date: string;
           created_at: string;
           updated_at: string;
         };
@@ -34,7 +106,7 @@ export interface Database {
           recipe_id: string | null;
           title: string;
           description: string;
-          meal_type: string; // 'breakfast' | 'lunch' | 'dinner' | 'snack'
+          meal_type: string;
           sort_order: number;
           date: string;
           created_at: string;
@@ -93,8 +165,8 @@ export interface Database {
           title: string;
           description: string;
           image_url: string | null;
-          ingredients: string[]; // JSONB stored as string array
-          steps: string[]; // JSONB stored as string array
+          ingredients: string[];
+          steps: string[];
           prep_time_minutes: number | null;
           cook_time_minutes: number | null;
           servings: number | null;
@@ -142,7 +214,7 @@ export interface Database {
           id: string;
           user_id: string;
           recipe_id: string;
-          classification: string; // 'liked' | 'disliked' | 'favorited'
+          classification: string;
           created_at: string;
           updated_at: string;
         };
@@ -195,6 +267,7 @@ export interface Database {
 }
 
 // Convenience type aliases
+export type ProfileRow = Database['public']['Tables']['profiles']['Row'];
 export type MealPlanRow = Database['public']['Tables']['meal_plans']['Row'];
 export type MealRow = Database['public']['Tables']['meals']['Row'];
 export type MealFeedbackRow = Database['public']['Tables']['meal_feedback']['Row'];

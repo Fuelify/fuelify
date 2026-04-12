@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuthStore } from '../providers';
 import { validateEmail, validatePassword } from '@fuelify/shared';
 
 // Mirrors: lib/screens/authentication/register_screen.dart
 export default function RegistrationPage() {
   const router = useRouter();
+  const signUp = useAuthStore((s) => s.signUp);
+  const status = useAuthStore((s) => s.status);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -22,8 +25,12 @@ export default function RegistrationPage() {
     if (passwordValidation !== 'Success') { setError(passwordValidation); return; }
     if (password !== confirmPassword) { setError('Passwords do not match'); return; }
 
-    // TODO: Implement registration API call
-    router.replace('/onboarding/welcome');
+    const result = await signUp(email, password);
+    if (result.status) {
+      router.replace('/onboarding/welcome');
+    } else {
+      setError(result.message);
+    }
   };
 
   return (
@@ -46,8 +53,12 @@ export default function RegistrationPage() {
             style={{ width: '100%', padding: 12, borderRadius: 8, border: '1px solid #444', backgroundColor: '#333', color: '#fff' }} />
         </div>
 
-        <button type="submit" style={{ width: '100%', padding: 14, borderRadius: 8, border: 'none', backgroundColor: '#FFBD73', color: '#202020', fontWeight: 600, fontSize: '1rem', cursor: 'pointer' }}>
-          Register
+        <button
+          type="submit"
+          disabled={status === 'authenticating'}
+          style={{ width: '100%', padding: 14, borderRadius: 8, border: 'none', backgroundColor: '#FFBD73', color: '#202020', fontWeight: 600, fontSize: '1rem', cursor: status === 'authenticating' ? 'wait' : 'pointer' }}
+        >
+          {status === 'authenticating' ? 'Creating account...' : 'Register'}
         </button>
 
         <p style={{ color: '#999', textAlign: 'center', marginTop: 16 }}>

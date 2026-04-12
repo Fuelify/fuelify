@@ -8,7 +8,7 @@ import { validateEmail, validatePassword } from '@fuelify/shared';
 // Mirrors: lib/screens/authentication/login_screen.dart
 export default function LoginPage() {
   const router = useRouter();
-  const login = useAuthStore((s) => s.login);
+  const signIn = useAuthStore((s) => s.signIn);
   const status = useAuthStore((s) => s.status);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,7 +29,7 @@ export default function LoginPage() {
       return;
     }
 
-    const result = await login(email, password);
+    const result = await signIn(email, password);
     if (result.status) {
       router.replace('/plan');
     } else {

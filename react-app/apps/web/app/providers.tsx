@@ -1,23 +1,23 @@
 'use client';
 
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useStore } from 'zustand';
 import {
-  // DynamoDB-backed (auth)
-  createAuthStore,
-  ApiClient,
-  WebTokenStorage,
-  // Supabase-backed (data)
+  // Supabase
   createSupabaseClient,
   MealPlanRepository,
   RecipeRepository,
-  // Platform-agnostic stores
+  ProfileRepository,
+  // Stores
+  createAuthStore,
+  createProfileStore,
   createPreferencesStore,
   createNavigationStore,
   createMealPlanStore,
   createRecipeStore,
   // Types
   type AuthStore,
+  type ProfileStore,
   type PreferencesStore,
   type NavigationStore,
   type MealPlanStore,
@@ -25,25 +25,15 @@ import {
 } from '@fuelify/shared';
 
 // ===================================================================
-// DynamoDB — Auth via existing API (login, user settings, onboarding)
-// ===================================================================
-const tokenStorage = new WebTokenStorage();
-const apiClient = new ApiClient(tokenStorage);
-
-// ===================================================================
-// Supabase — PostgreSQL for meal plans, recipes, food, reviews
+// Single Supabase client — handles auth + all data
 // ===================================================================
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const mealPlanRepo = new MealPlanRepository(supabase);
-const recipeRepo = new RecipeRepository(supabase);
-
-// TODO: Replace with actual user ID from auth store after login
-const PLACEHOLDER_USER_ID = 'current-user';
 
 // Store types
 type AuthStoreApi = ReturnType<typeof createAuthStore>;
+type ProfileStoreApi = ReturnType<typeof createProfileStore>;
 type PreferencesStoreApi = ReturnType<typeof createPreferencesStore>;
 type NavigationStoreApi = ReturnType<typeof createNavigationStore>;
 type MealPlanStoreApi = ReturnType<typeof createMealPlanStore>;
@@ -51,55 +41,89 @@ type RecipeStoreApi = ReturnType<typeof createRecipeStore>;
 
 // Contexts
 const AuthStoreContext = createContext<AuthStoreApi | null>(null);
+const ProfileStoreContext = createContext<ProfileStoreApi | null>(null);
 const PreferencesStoreContext = createContext<PreferencesStoreApi | null>(null);
 const NavigationStoreContext = createContext<NavigationStoreApi | null>(null);
 const MealPlanStoreContext = createContext<MealPlanStoreApi | null>(null);
 const RecipeStoreContext = createContext<RecipeStoreApi | null>(null);
 
+// Auth store is created once (no userId dependency)
+function useCreateAuthStore() {
+  const ref = useRef<AuthStoreApi>(null);
+  if (!ref.current) {
+    ref.current = createAuthStore(supabase);
+  }
+  return ref.current;
+}
+
+// Data stores depend on userId — recreated when user logs in
+function useCreateDataStores(userId: string | null) {
+  const [stores, setStores] = useState<{
+    profileStore: ProfileStoreApi;
+    mealPlanStore: MealPlanStoreApi;
+    recipeStore: RecipeStoreApi;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!userId) {
+      setStores(null);
+      return;
+    }
+    const profileRepo = new ProfileRepository(supabase);
+    const mealPlanRepo = new MealPlanRepository(supabase);
+    const recipeRepo = new RecipeRepository(supabase);
+    setStores({
+      profileStore: createProfileStore(profileRepo, userId),
+      mealPlanStore: createMealPlanStore(mealPlanRepo, userId),
+      recipeStore: createRecipeStore(recipeRepo, userId),
+    });
+  }, [userId]);
+
+  return stores;
+}
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const authStoreRef = useRef<AuthStoreApi>(null);
+  const authStore = useCreateAuthStore();
+  const userId = useStore(authStore, (s) => s.userId);
+  const dataStores = useCreateDataStores(userId);
+
   const preferencesStoreRef = useRef<PreferencesStoreApi>(null);
   const navigationStoreRef = useRef<NavigationStoreApi>(null);
-  const mealPlanStoreRef = useRef<MealPlanStoreApi>(null);
-  const recipeStoreRef = useRef<RecipeStoreApi>(null);
+  if (!preferencesStoreRef.current) preferencesStoreRef.current = createPreferencesStore();
+  if (!navigationStoreRef.current) navigationStoreRef.current = createNavigationStore();
 
-  if (!authStoreRef.current) {
-    authStoreRef.current = createAuthStore(apiClient, tokenStorage);
-  }
-  if (!preferencesStoreRef.current) {
-    preferencesStoreRef.current = createPreferencesStore();
-  }
-  if (!navigationStoreRef.current) {
-    navigationStoreRef.current = createNavigationStore();
-  }
-  if (!mealPlanStoreRef.current) {
-    // Supabase-backed: MealPlanRepository → PostgreSQL
-    mealPlanStoreRef.current = createMealPlanStore(mealPlanRepo, PLACEHOLDER_USER_ID);
-  }
-  if (!recipeStoreRef.current) {
-    // Supabase-backed: RecipeRepository → PostgreSQL
-    recipeStoreRef.current = createRecipeStore(recipeRepo, PLACEHOLDER_USER_ID);
-  }
+  // Initialize auth on mount
+  useEffect(() => {
+    authStore.getState().initialize();
+  }, [authStore]);
 
   return (
-    <AuthStoreContext.Provider value={authStoreRef.current}>
-      <PreferencesStoreContext.Provider value={preferencesStoreRef.current}>
-        <NavigationStoreContext.Provider value={navigationStoreRef.current}>
-          <MealPlanStoreContext.Provider value={mealPlanStoreRef.current}>
-            <RecipeStoreContext.Provider value={recipeStoreRef.current}>
-              {children}
-            </RecipeStoreContext.Provider>
-          </MealPlanStoreContext.Provider>
-        </NavigationStoreContext.Provider>
-      </PreferencesStoreContext.Provider>
+    <AuthStoreContext.Provider value={authStore}>
+      <ProfileStoreContext.Provider value={dataStores?.profileStore ?? null}>
+        <PreferencesStoreContext.Provider value={preferencesStoreRef.current}>
+          <NavigationStoreContext.Provider value={navigationStoreRef.current}>
+            <MealPlanStoreContext.Provider value={dataStores?.mealPlanStore ?? null}>
+              <RecipeStoreContext.Provider value={dataStores?.recipeStore ?? null}>
+                {children}
+              </RecipeStoreContext.Provider>
+            </MealPlanStoreContext.Provider>
+          </NavigationStoreContext.Provider>
+        </PreferencesStoreContext.Provider>
+      </ProfileStoreContext.Provider>
     </AuthStoreContext.Provider>
   );
 }
 
-// Hooks for consuming stores in components
+// Hooks
 export function useAuthStore<T>(selector: (state: AuthStore) => T): T {
   const store = useContext(AuthStoreContext);
   if (!store) throw new Error('useAuthStore must be used within StoreProvider');
+  return useStore(store, selector);
+}
+
+export function useProfileStore<T>(selector: (state: ProfileStore) => T): T {
+  const store = useContext(ProfileStoreContext);
+  if (!store) throw new Error('useProfileStore requires an authenticated user');
   return useStore(store, selector);
 }
 
@@ -117,12 +141,12 @@ export function useNavigationStore<T>(selector: (state: NavigationStore) => T): 
 
 export function useMealPlanStore<T>(selector: (state: MealPlanStore) => T): T {
   const store = useContext(MealPlanStoreContext);
-  if (!store) throw new Error('useMealPlanStore must be used within StoreProvider');
+  if (!store) throw new Error('useMealPlanStore requires an authenticated user');
   return useStore(store, selector);
 }
 
 export function useRecipeStore<T>(selector: (state: RecipeStore) => T): T {
   const store = useContext(RecipeStoreContext);
-  if (!store) throw new Error('useRecipeStore must be used within StoreProvider');
+  if (!store) throw new Error('useRecipeStore requires an authenticated user');
   return useStore(store, selector);
 }

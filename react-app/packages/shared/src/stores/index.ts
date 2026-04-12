@@ -1,6 +1,9 @@
 export { createAuthStore } from './auth-store';
 export type { AuthStore, AuthState, AuthActions, AuthenticationStatus } from './auth-store';
 
+export { createProfileStore } from './profile-store';
+export type { ProfileStore, ProfileState, ProfileActions } from './profile-store';
+
 export { createPreferencesStore } from './preferences-store';
 export type { PreferencesStore, PreferencesState, PreferencesActions } from './preferences-store';
 

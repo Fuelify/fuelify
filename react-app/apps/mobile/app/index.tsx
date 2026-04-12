@@ -1,32 +1,34 @@
 import { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuthStore } from '../hooks/useStores';
+import { useAuthStore, useInitializeAuth } from '../hooks/useStores';
 import { DEBUG, DEBUG_ENTER_ROUTE } from '@fuelify/shared';
 
 // Splash screen — mirrors lib/screens/splash_screen.dart
 export default function SplashScreen() {
   const router = useRouter();
-  const checkToken = useAuthStore((s) => s.checkToken);
+  const status = useAuthStore((s) => s.status);
+
+  useInitializeAuth();
 
   useEffect(() => {
-    const init = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (status === 'loading') return;
 
+    const timer = setTimeout(() => {
       if (DEBUG) {
         router.replace(`/(dashboard)/${DEBUG_ENTER_ROUTE}` as never);
         return;
       }
 
-      const isAuthenticated = await checkToken();
-      if (isAuthenticated) {
+      if (status === 'loggedIn') {
         router.replace('/(dashboard)/plan' as never);
       } else {
         router.replace('/(auth)/login' as never);
       }
-    };
-    init();
-  }, [checkToken, router]);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [status, router]);
 
   return (
     <View style={styles.container}>

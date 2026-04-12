@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuthStore } from '../../hooks/useStores';
 import { validateEmail, validatePassword } from '@fuelify/shared';
 
 // Mirrors: lib/screens/authentication/register_screen.dart
 export default function RegisterScreen() {
   const router = useRouter();
+  const signUp = useAuthStore((s) => s.signUp);
+  const status = useAuthStore((s) => s.status);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,8 +22,12 @@ export default function RegisterScreen() {
     if (passwordResult !== 'Success') { setError(passwordResult); return; }
     if (password !== confirmPassword) { setError('Passwords do not match'); return; }
 
-    // TODO: Implement registration API call
-    router.replace('/(onboarding)/onboarding/welcome' as never);
+    const result = await signUp(email, password);
+    if (result.status) {
+      router.replace('/(onboarding)/onboarding/welcome' as never);
+    } else {
+      setError(result.message);
+    }
   };
 
   return (
@@ -30,8 +37,8 @@ export default function RegisterScreen() {
       <TextInput style={styles.input} placeholder="Email" placeholderTextColor="#888" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" />
       <TextInput style={styles.input} placeholder="Password" placeholderTextColor="#888" value={password} onChangeText={setPassword} secureTextEntry />
       <TextInput style={styles.input} placeholder="Confirm Password" placeholderTextColor="#888" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
+      <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={status === 'authenticating'}>
+        <Text style={styles.buttonText}>{status === 'authenticating' ? 'Creating account...' : 'Register'}</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={() => router.push('/(auth)/login' as never)}>
         <Text style={styles.link}>Already have an account? Login</Text>

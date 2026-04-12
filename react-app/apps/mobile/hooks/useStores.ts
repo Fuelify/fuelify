@@ -1,26 +1,23 @@
-// Platform-specific store initialization for React Native
-// DynamoDB: auth via ApiClient (login, user settings, onboarding)
-// Supabase: data via repositories (meal plans, recipes, food, reviews)
+// Store hooks for React Native — single Supabase client for auth + data
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useStore } from 'zustand';
 import {
-  // DynamoDB-backed (auth)
-  createAuthStore,
-  ApiClient,
-  type TokenStorage,
-  type TokenData,
-  // Supabase-backed (data)
+  // Supabase
   createSupabaseClient,
   MealPlanRepository,
   RecipeRepository,
-  // Platform-agnostic stores
+  ProfileRepository,
+  // Stores
+  createAuthStore,
+  createProfileStore,
   createPreferencesStore,
   createNavigationStore,
   createMealPlanStore,
   createRecipeStore,
   // Types
   type AuthStore,
+  type ProfileStore,
   type PreferencesStore,
   type NavigationStore,
   type MealPlanStore,
@@ -28,101 +25,102 @@ import {
 } from '@fuelify/shared';
 
 // ===================================================================
-// Token storage adapter for React Native
-// In production, swap with expo-secure-store calls
-// ===================================================================
-class MobileTokenStorage implements TokenStorage {
-  private store: Map<string, string> = new Map();
-
-  async storeTokens(accessToken: string, refreshToken: string, expiryTime: Date): Promise<void> {
-    // In production: await SecureStore.setItemAsync('auth_token', accessToken);
-    this.store.set('auth_token', accessToken);
-    this.store.set('refresh_token', refreshToken);
-    this.store.set('token_expiry', expiryTime.toISOString());
-  }
-
-  async readTokens(): Promise<TokenData> {
-    const accessToken = this.store.get('auth_token') ?? null;
-    const refreshToken = this.store.get('refresh_token') ?? null;
-    const expiryStr = this.store.get('token_expiry');
-    const expiryTime = expiryStr ? new Date(expiryStr) : null;
-    return { accessToken, refreshToken, expiryTime };
-  }
-
-  async deleteTokens(): Promise<void> {
-    this.store.delete('auth_token');
-    this.store.delete('refresh_token');
-    this.store.delete('token_expiry');
-  }
-}
-
-// ===================================================================
-// Supabase config — set via environment or app config
+// Single Supabase client
 // ===================================================================
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
-// TODO: Replace with actual user ID from auth store after login
-const PLACEHOLDER_USER_ID = 'current-user';
-
-// ===================================================================
-// Singleton instances
-// ===================================================================
-let tokenStorage: MobileTokenStorage;
-let apiClient: ApiClient;
-let mealPlanRepo: MealPlanRepository;
-let recipeRepo: RecipeRepository;
-
-function getDeps() {
-  if (!tokenStorage) tokenStorage = new MobileTokenStorage();
-  if (!apiClient) apiClient = new ApiClient(tokenStorage);
-  if (!mealPlanRepo) {
-    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    mealPlanRepo = new MealPlanRepository(supabase);
-    recipeRepo = new RecipeRepository(supabase);
-  }
-  return { apiClient, tokenStorage, mealPlanRepo, recipeRepo };
+let supabase: ReturnType<typeof createSupabaseClient>;
+function getSupabase() {
+  if (!supabase) supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  return supabase;
 }
 
-// Store singletons
+// ===================================================================
+// Singleton stores
+// ===================================================================
 let authStore: ReturnType<typeof createAuthStore>;
 let preferencesStore: ReturnType<typeof createPreferencesStore>;
 let navigationStore: ReturnType<typeof createNavigationStore>;
-let mealPlanStore: ReturnType<typeof createMealPlanStore>;
-let recipeStore: ReturnType<typeof createRecipeStore>;
 
-function getStores() {
-  const deps = getDeps();
-  if (!authStore) authStore = createAuthStore(deps.apiClient, deps.tokenStorage);
+function getAuthStore() {
+  if (!authStore) authStore = createAuthStore(getSupabase());
+  return authStore;
+}
+
+function getPreferencesStore() {
   if (!preferencesStore) preferencesStore = createPreferencesStore();
+  return preferencesStore;
+}
+
+function getNavigationStore() {
   if (!navigationStore) navigationStore = createNavigationStore();
-  // Supabase-backed stores
-  if (!mealPlanStore) mealPlanStore = createMealPlanStore(deps.mealPlanRepo, PLACEHOLDER_USER_ID);
-  if (!recipeStore) recipeStore = createRecipeStore(deps.recipeRepo, PLACEHOLDER_USER_ID);
-  return { authStore, preferencesStore, navigationStore, mealPlanStore, recipeStore };
+  return navigationStore;
+}
+
+// Data stores depend on userId
+let dataStores: {
+  userId: string;
+  profileStore: ReturnType<typeof createProfileStore>;
+  mealPlanStore: ReturnType<typeof createMealPlanStore>;
+  recipeStore: ReturnType<typeof createRecipeStore>;
+} | null = null;
+
+function getDataStores(userId: string) {
+  if (dataStores && dataStores.userId === userId) return dataStores;
+  const sb = getSupabase();
+  dataStores = {
+    userId,
+    profileStore: createProfileStore(new ProfileRepository(sb), userId),
+    mealPlanStore: createMealPlanStore(new MealPlanRepository(sb), userId),
+    recipeStore: createRecipeStore(new RecipeRepository(sb), userId),
+  };
+  return dataStores;
+}
+
+// ===================================================================
+// Hooks
+// ===================================================================
+
+export function useInitializeAuth() {
+  const store = useMemo(() => getAuthStore(), []);
+  useEffect(() => {
+    store.getState().initialize();
+  }, [store]);
 }
 
 export function useAuthStore<T>(selector: (state: AuthStore) => T): T {
-  const { authStore } = useMemo(() => getStores(), []);
-  return useStore(authStore, selector);
+  const store = useMemo(() => getAuthStore(), []);
+  return useStore(store, selector);
+}
+
+export function useProfileStore<T>(selector: (state: ProfileStore) => T): T {
+  const userId = useAuthStore((s) => s.userId);
+  if (!userId) throw new Error('useProfileStore requires an authenticated user');
+  const { profileStore } = useMemo(() => getDataStores(userId), [userId]);
+  return useStore(profileStore, selector);
 }
 
 export function usePreferencesStore<T>(selector: (state: PreferencesStore) => T): T {
-  const { preferencesStore } = useMemo(() => getStores(), []);
-  return useStore(preferencesStore, selector);
+  const store = useMemo(() => getPreferencesStore(), []);
+  return useStore(store, selector);
 }
 
 export function useNavigationStore<T>(selector: (state: NavigationStore) => T): T {
-  const { navigationStore } = useMemo(() => getStores(), []);
-  return useStore(navigationStore, selector);
+  const store = useMemo(() => getNavigationStore(), []);
+  return useStore(store, selector);
 }
 
 export function useMealPlanStore<T>(selector: (state: MealPlanStore) => T): T {
-  const { mealPlanStore } = useMemo(() => getStores(), []);
+  const userId = useAuthStore((s) => s.userId);
+  if (!userId) throw new Error('useMealPlanStore requires an authenticated user');
+  const { mealPlanStore } = useMemo(() => getDataStores(userId), [userId]);
   return useStore(mealPlanStore, selector);
 }
 
 export function useRecipeStore<T>(selector: (state: RecipeStore) => T): T {
-  const { recipeStore } = useMemo(() => getStores(), []);
+  const userId = useAuthStore((s) => s.userId);
+  if (!userId) throw new Error('useRecipeStore requires an authenticated user');
+  const { recipeStore } = useMemo(() => getDataStores(userId), [userId]);
   return useStore(recipeStore, selector);
 }
