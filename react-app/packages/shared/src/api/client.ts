@@ -1,5 +1,5 @@
-// Ported from: lib/providers/externals/userapi/repository.dart
-// Mirrors the UserAPI class with Dio interceptors → Axios interceptors
+// API client — DynamoDB-backed endpoints only (auth & user settings)
+// Meal plans, recipes, and food data are handled by Supabase repositories.
 
 import axios, { type AxiosInstance, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 import type { ApiEndpoint } from './endpoints';
@@ -14,10 +14,8 @@ export class ApiClient {
     this.client = axios.create();
 
     // Interceptor: inject bearer token for authenticated endpoints
-    // Mirrors the Dio InterceptorsWrapper from Flutter's UserAPI
     this.client.interceptors.request.use(async (config: InternalAxiosRequestConfig) => {
       const requiresAuth = config.headers?.['X-Requires-Auth'] === 'true';
-      // Clean up the custom header before sending
       delete config.headers['X-Requires-Auth'];
 
       if (requiresAuth) {
@@ -33,7 +31,7 @@ export class ApiClient {
     });
   }
 
-  // Generic request method — mirrors UserAPI.request()
+  // Generic request method
   async request<T = unknown>(options: {
     endpoint: ApiEndpoint;
     queryParams?: Record<string, string>;
@@ -52,7 +50,7 @@ export class ApiClient {
     });
   }
 
-  // === Convenience methods mirroring Flutter's UserAPI methods ===
+  // === DynamoDB-backed methods (auth & user settings) ===
 
   async login(credentials: { email: string; password: string; provider?: string }): Promise<AxiosResponse> {
     const { Endpoints } = await import('./endpoints');
@@ -78,49 +76,13 @@ export class ApiClient {
     return response;
   }
 
-  async getMealPlan(startDate: string, endDate: string): Promise<AxiosResponse> {
+  async updateProfile(profileData: Record<string, unknown>): Promise<AxiosResponse> {
     const { Endpoints } = await import('./endpoints');
-    const response = await this.request({
-      endpoint: Endpoints.getMealPlan,
-      queryParams: { start: startDate, end: endDate },
-    });
-    if (response.status !== 200) throw new Error('Failed to get meal plan');
-    return response;
+    return this.request({ endpoint: Endpoints.updateProfile, data: profileData });
   }
 
-  async getDayMealPlan(date: string): Promise<AxiosResponse> {
+  async updateOnboardingState(stateData: Record<string, unknown>): Promise<AxiosResponse> {
     const { Endpoints } = await import('./endpoints');
-    return this.request({
-      endpoint: Endpoints.getDayMealPlan,
-      queryParams: { date },
-    });
-  }
-
-  async addMeal(data: Record<string, unknown>): Promise<AxiosResponse> {
-    const { Endpoints } = await import('./endpoints');
-    return this.request({ endpoint: Endpoints.addMeal, data });
-  }
-
-  async deleteMeal(mealId: string): Promise<AxiosResponse> {
-    const { Endpoints } = await import('./endpoints');
-    return this.request({
-      endpoint: Endpoints.deleteMeal,
-      queryParams: { id: mealId },
-    });
-  }
-
-  async addMealFeedback(data: Record<string, unknown>): Promise<AxiosResponse> {
-    const { Endpoints } = await import('./endpoints');
-    return this.request({ endpoint: Endpoints.addMealFeedback, data });
-  }
-
-  async searchRecipes(query: Record<string, string>): Promise<AxiosResponse> {
-    const { Endpoints } = await import('./endpoints');
-    return this.request({ endpoint: Endpoints.searchRecipes, queryParams: query });
-  }
-
-  async classifyRecipe(data: Record<string, unknown>): Promise<AxiosResponse> {
-    const { Endpoints } = await import('./endpoints');
-    return this.request({ endpoint: Endpoints.classifyRecipe, data });
+    return this.request({ endpoint: Endpoints.updateOnboardingState, data: stateData });
   }
 }

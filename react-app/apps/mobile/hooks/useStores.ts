@@ -1,25 +1,36 @@
 // Platform-specific store initialization for React Native
-// Uses expo-secure-store for token storage instead of localStorage
+// DynamoDB: auth via ApiClient (login, user settings, onboarding)
+// Supabase: data via repositories (meal plans, recipes, food, reviews)
 
 import { useMemo } from 'react';
 import { useStore } from 'zustand';
 import {
+  // DynamoDB-backed (auth)
   createAuthStore,
+  ApiClient,
+  type TokenStorage,
+  type TokenData,
+  // Supabase-backed (data)
+  createSupabaseClient,
+  MealPlanRepository,
+  RecipeRepository,
+  // Platform-agnostic stores
   createPreferencesStore,
   createNavigationStore,
   createMealPlanStore,
+  createRecipeStore,
+  // Types
   type AuthStore,
   type PreferencesStore,
   type NavigationStore,
   type MealPlanStore,
-  ApiClient,
-  type TokenStorage,
-  type TokenData,
+  type RecipeStore,
 } from '@fuelify/shared';
 
-// Expo secure store adapter — implements the shared TokenStorage interface
-// In a real setup, import * as SecureStore from 'expo-secure-store'
-// For now, this is an in-memory fallback; swap with real SecureStore in production
+// ===================================================================
+// Token storage adapter for React Native
+// In production, swap with expo-secure-store calls
+// ===================================================================
 class MobileTokenStorage implements TokenStorage {
   private store: Map<string, string> = new Map();
 
@@ -45,14 +56,32 @@ class MobileTokenStorage implements TokenStorage {
   }
 }
 
+// ===================================================================
+// Supabase config — set via environment or app config
+// ===================================================================
+const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
+const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
+
+// TODO: Replace with actual user ID from auth store after login
+const PLACEHOLDER_USER_ID = 'current-user';
+
+// ===================================================================
 // Singleton instances
+// ===================================================================
 let tokenStorage: MobileTokenStorage;
 let apiClient: ApiClient;
+let mealPlanRepo: MealPlanRepository;
+let recipeRepo: RecipeRepository;
 
-function getApiClient() {
+function getDeps() {
   if (!tokenStorage) tokenStorage = new MobileTokenStorage();
   if (!apiClient) apiClient = new ApiClient(tokenStorage);
-  return { apiClient, tokenStorage };
+  if (!mealPlanRepo) {
+    const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    mealPlanRepo = new MealPlanRepository(supabase);
+    recipeRepo = new RecipeRepository(supabase);
+  }
+  return { apiClient, tokenStorage, mealPlanRepo, recipeRepo };
 }
 
 // Store singletons
@@ -60,14 +89,17 @@ let authStore: ReturnType<typeof createAuthStore>;
 let preferencesStore: ReturnType<typeof createPreferencesStore>;
 let navigationStore: ReturnType<typeof createNavigationStore>;
 let mealPlanStore: ReturnType<typeof createMealPlanStore>;
+let recipeStore: ReturnType<typeof createRecipeStore>;
 
 function getStores() {
-  const { apiClient, tokenStorage } = getApiClient();
-  if (!authStore) authStore = createAuthStore(apiClient, tokenStorage);
+  const deps = getDeps();
+  if (!authStore) authStore = createAuthStore(deps.apiClient, deps.tokenStorage);
   if (!preferencesStore) preferencesStore = createPreferencesStore();
   if (!navigationStore) navigationStore = createNavigationStore();
-  if (!mealPlanStore) mealPlanStore = createMealPlanStore(apiClient);
-  return { authStore, preferencesStore, navigationStore, mealPlanStore };
+  // Supabase-backed stores
+  if (!mealPlanStore) mealPlanStore = createMealPlanStore(deps.mealPlanRepo, PLACEHOLDER_USER_ID);
+  if (!recipeStore) recipeStore = createRecipeStore(deps.recipeRepo, PLACEHOLDER_USER_ID);
+  return { authStore, preferencesStore, navigationStore, mealPlanStore, recipeStore };
 }
 
 export function useAuthStore<T>(selector: (state: AuthStore) => T): T {
@@ -88,4 +120,9 @@ export function useNavigationStore<T>(selector: (state: NavigationStore) => T): 
 export function useMealPlanStore<T>(selector: (state: MealPlanStore) => T): T {
   const { mealPlanStore } = useMemo(() => getStores(), []);
   return useStore(mealPlanStore, selector);
+}
+
+export function useRecipeStore<T>(selector: (state: RecipeStore) => T): T {
+  const { recipeStore } = useMemo(() => getStores(), []);
+  return useStore(recipeStore, selector);
 }

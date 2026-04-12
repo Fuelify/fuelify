@@ -9,3 +9,6 @@ export type { NavigationStore, NavigationState, NavigationActions, DashboardTab 
 
 export { createMealPlanStore } from './meal-plan-store';
 export type { MealPlanStore, MealPlanState, MealPlanActions } from './meal-plan-store';
+
+export { createRecipeStore } from './recipe-store';
+export type { RecipeStore, RecipeState, RecipeActions } from './recipe-store';

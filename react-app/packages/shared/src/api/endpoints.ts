@@ -1,4 +1,5 @@
-// Ported from: lib/dependencies/endpoints.dart + lib/providers/externals/userapi/endpoints.dart
+// API endpoints — DynamoDB-backed (auth & user settings only)
+// Meal plans, recipes, and food data now go through Supabase directly.
 
 export interface ApiEndpoint {
   url: string;
@@ -24,10 +25,12 @@ export const LegacyEndpoints = {
   testToken: `${BASE_URL}/tokentest`,
   userUpdateProfile: `${BASE_URL}/user/profile/update`,
   userUpdateOnboardingState: `${BASE_URL}/user/state/onboarding`,
-  fetchFoods: `${BASE_URL}/foods/fetch?limit=10`,
 } as const;
 
-// API v1 endpoints (from providers/externals/userapi/endpoints.dart)
+// ===================================================================
+// DynamoDB-backed endpoints (auth, user account, settings, onboarding)
+// These continue to go through the existing Node/Express API → DynamoDB
+// ===================================================================
 export const Endpoints = {
   // Auth
   login: {
@@ -43,123 +46,49 @@ export const Endpoints = {
     requiresAuthentication: true,
   },
 
-  // User
+  // User account & settings (DynamoDB)
   getUser: {
     url: `${API_BASE}/user`,
     method: 'GET',
     description: '[GET] User account data',
     requiresAuthentication: true,
   },
-
-  // Meal Plan
-  getMealPlan: {
-    url: `${API_BASE}/plan`,
-    method: 'GET',
-    description: '[GET] User meal plan for a date range',
-    requiresAuthentication: true,
-  },
-  getDayMealPlan: {
-    url: `${API_BASE}/plan/day`,
-    method: 'GET',
-    description: '[GET] User meal plan for a specific date',
-    requiresAuthentication: true,
-  },
-  addMeal: {
-    url: `${API_BASE}/plan/meal`,
-    method: 'PUT',
-    description: '[PUT] Add meal to plan',
-    requiresAuthentication: true,
-  },
-  getMeal: {
-    url: `${API_BASE}/plan/meal`,
-    method: 'GET',
-    description: '[GET] Get plan meal details',
-    requiresAuthentication: true,
-  },
-  updateMeal: {
-    url: `${API_BASE}/plan/meal/update`,
+  updateProfile: {
+    url: `${BASE_URL}/user/profile/update`,
     method: 'POST',
-    description: '[POST] Update meal in calendar',
+    description: '[POST] Update user profile (DynamoDB)',
     requiresAuthentication: true,
   },
-  moveMeal: {
-    url: `${API_BASE}/plan/meal/move`,
+  updateOnboardingState: {
+    url: `${BASE_URL}/user/state/onboarding`,
     method: 'POST',
-    description: '[POST] Move meal in calendar',
-    requiresAuthentication: true,
-  },
-  deleteMeal: {
-    url: `${API_BASE}/plan/meal`,
-    method: 'DELETE',
-    description: '[DELETE] Meal from plan',
-    requiresAuthentication: true,
-  },
-  addMealFeedback: {
-    url: `${API_BASE}/plan/meal/feedback`,
-    method: 'PUT',
-    description: '[PUT] Add feedback to meal',
-    requiresAuthentication: true,
-  },
-  deleteMealFeedback: {
-    url: `${API_BASE}/plan/meal/feedback`,
-    method: 'DELETE',
-    description: '[DELETE] Delete feedback from meal',
-    requiresAuthentication: true,
-  },
-
-  // Recipes
-  getRecipe: {
-    url: `${API_BASE}/recipe`,
-    method: 'GET',
-    description: '[GET] Recipe details',
-    requiresAuthentication: true,
-  },
-  addRecipe: {
-    url: `${API_BASE}/recipe`,
-    method: 'PUT',
-    description: '[PUT] Add a new recipe',
-    requiresAuthentication: true,
-  },
-  deleteRecipe: {
-    url: `${API_BASE}/recipe`,
-    method: 'DELETE',
-    description: '[DELETE] Delete a recipe',
-    requiresAuthentication: true,
-  },
-  searchRecipes: {
-    url: `${API_BASE}/recipe/search`,
-    method: 'GET',
-    description: '[GET] Search recipes according to filtering criteria',
-    requiresAuthentication: true,
-  },
-  getSimilarRecipes: {
-    url: `${API_BASE}/recipe/similar`,
-    method: 'GET',
-    description: '[GET] Similar recipes to provided recipe',
-    requiresAuthentication: true,
-  },
-  classifyRecipe: {
-    url: `${API_BASE}/recipe/classification`,
-    method: 'PUT',
-    description: '[PUT] Recipe classification (like, dislike, favorite)',
-    requiresAuthentication: true,
-  },
-  updateRecipeClassification: {
-    url: `${API_BASE}/recipe/classification/update`,
-    method: 'POST',
-    description: '[POST] Recipe classification update',
-    requiresAuthentication: true,
-  },
-  getClassifiedRecipes: {
-    url: `${API_BASE}/recipe/classification`,
-    method: 'GET',
-    description: '[GET] Get classified recipes',
-    requiresAuthentication: true,
-  },
-  addRecipeReview: {
-    url: `${API_BASE}/recipe/review`,
-    method: 'PUT',
-    description: '[PUT] Add review on recipe',
+    description: '[POST] Update user onboarding state (DynamoDB)',
     requiresAuthentication: true,
   },
 } as const satisfies Record<string, ApiEndpoint>;
+
+// ===================================================================
+// Supabase-backed data (meal plans, recipes, food, reviews)
+// These no longer go through the API — they use the Supabase client
+// directly via MealPlanRepository and RecipeRepository.
+//
+// Migrated endpoints (for reference):
+//   GET    /api/v1/plan              → MealPlanRepository.getMealPlan()
+//   GET    /api/v1/plan/day          → MealPlanRepository.getDayMealPlan()
+//   PUT    /api/v1/plan/meal         → MealPlanRepository.addMeal()
+//   GET    /api/v1/plan/meal         → (included in getMealPlan results)
+//   POST   /api/v1/plan/meal/update  → MealPlanRepository.updateMeal()
+//   POST   /api/v1/plan/meal/move    → MealPlanRepository.moveMeal()
+//   DELETE /api/v1/plan/meal         → MealPlanRepository.deleteMeal()
+//   PUT    /api/v1/plan/meal/feedback   → MealPlanRepository.addMealFeedback()
+//   DELETE /api/v1/plan/meal/feedback   → MealPlanRepository.deleteMealFeedback()
+//   GET    /api/v1/recipe            → RecipeRepository.getRecipe()
+//   PUT    /api/v1/recipe            → RecipeRepository.addRecipe()
+//   DELETE /api/v1/recipe            → RecipeRepository.deleteRecipe()
+//   GET    /api/v1/recipe/search     → RecipeRepository.searchRecipes()
+//   GET    /api/v1/recipe/similar    → RecipeRepository.getSimilarRecipes()
+//   PUT    /api/v1/recipe/classification      → RecipeRepository.classifyRecipe()
+//   POST   /api/v1/recipe/classification/update → RecipeRepository.updateClassification()
+//   GET    /api/v1/recipe/classification       → RecipeRepository.getClassifiedRecipes()
+//   PUT    /api/v1/recipe/review     → RecipeRepository.addReview()
+// ===================================================================
