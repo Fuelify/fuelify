@@ -15,3 +15,9 @@ export type { MealPlanStore, MealPlanState, MealPlanActions } from './meal-plan-
 
 export { createRecipeStore } from './recipe-store';
 export type { RecipeStore, RecipeState, RecipeActions } from './recipe-store';
+
+export { createHouseholdStore } from './household-store';
+export type { HouseholdStore, HouseholdState, HouseholdActions } from './household-store';
+
+export { createShoppingCartStore } from './shopping-cart-store';
+export type { ShoppingCartStore, ShoppingCartState, ShoppingCartActions } from './shopping-cart-store';

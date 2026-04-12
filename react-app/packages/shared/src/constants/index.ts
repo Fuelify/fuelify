@@ -29,7 +29,7 @@ export const ROUTES = {
   registration: '/registration',
 } as const;
 
-export const DASHBOARD_ROUTES = ['home', 'plan', 'discovery', 'food', 'profile'] as const;
+export const DASHBOARD_ROUTES = ['home', 'plan', 'discovery', 'food', 'cart', 'profile'] as const;
 export const DEFAULT_DASHBOARD_ROUTE_INDEX = 1;
 
 export const ONBOARDING_ROUTES = [

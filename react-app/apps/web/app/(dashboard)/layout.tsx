@@ -5,7 +5,7 @@ import { useNavigationStore } from '../providers';
 import { DASHBOARD_ROUTES } from '@fuelify/shared';
 
 // Mirrors: lib/screens/main/dashboard/screen.dart + bottom_navigation_bar.dart
-const TAB_LABELS = ['Home', 'Plan', 'Discovery', 'Food', 'Profile'];
+const TAB_LABELS = ['Home', 'Plan', 'Discovery', 'Food', 'Cart', 'Profile'];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();

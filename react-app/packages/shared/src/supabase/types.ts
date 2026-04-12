@@ -256,12 +256,95 @@ export interface Database {
           updated_at?: string;
         };
       };
+      households: {
+        Row: {
+          id: string;
+          name: string;
+          created_by: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          created_by: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          updated_at?: string;
+        };
+      };
+      household_members: {
+        Row: {
+          id: string;
+          household_id: string;
+          user_id: string;
+          role: string;
+          joined_at: string;
+        };
+        Insert: {
+          id?: string;
+          household_id: string;
+          user_id: string;
+          role?: string;
+          joined_at?: string;
+        };
+        Update: {
+          role?: string;
+        };
+      };
+      shopping_cart_items: {
+        Row: {
+          id: string;
+          household_id: string;
+          added_by: string;
+          name: string;
+          quantity: number;
+          unit: string | null;
+          category: string | null;
+          recipe_id: string | null;
+          checked: boolean;
+          sort_order: number;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          household_id: string;
+          added_by: string;
+          name: string;
+          quantity?: number;
+          unit?: string | null;
+          category?: string | null;
+          recipe_id?: string | null;
+          checked?: boolean;
+          sort_order?: number;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          quantity?: number;
+          unit?: string | null;
+          category?: string | null;
+          recipe_id?: string | null;
+          checked?: boolean;
+          sort_order?: number;
+          notes?: string | null;
+          updated_at?: string;
+        };
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
     Enums: {
       meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
       classification_type: 'liked' | 'disliked' | 'favorited';
+      household_role: 'owner' | 'member';
     };
   };
 }
@@ -274,3 +357,6 @@ export type MealFeedbackRow = Database['public']['Tables']['meal_feedback']['Row
 export type RecipeRow = Database['public']['Tables']['recipes']['Row'];
 export type RecipeClassificationRow = Database['public']['Tables']['recipe_classifications']['Row'];
 export type RecipeReviewRow = Database['public']['Tables']['recipe_reviews']['Row'];
+export type HouseholdRow = Database['public']['Tables']['households']['Row'];
+export type HouseholdMemberRow = Database['public']['Tables']['household_members']['Row'];
+export type ShoppingCartItemRow = Database['public']['Tables']['shopping_cart_items']['Row'];
