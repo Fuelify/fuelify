@@ -7,6 +7,7 @@ const TAB_CONFIG = [
   { name: 'discovery', title: 'Discovery' },
   { name: 'food', title: 'Food' },
   { name: 'cart', title: 'Cart' },
+  { name: 'pantry', title: 'Pantry' },
   { name: 'profile', title: 'Profile' },
 ];
 

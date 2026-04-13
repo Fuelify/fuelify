@@ -10,6 +10,7 @@ import {
   ProfileRepository,
   HouseholdRepository,
   ShoppingCartRepository,
+  PantryRepository,
   // Stores
   createAuthStore,
   createProfileStore,
@@ -19,6 +20,7 @@ import {
   createRecipeStore,
   createHouseholdStore,
   createShoppingCartStore,
+  createPantryStore,
   // Types
   type AuthStore,
   type ProfileStore,
@@ -28,6 +30,7 @@ import {
   type RecipeStore,
   type HouseholdStore,
   type ShoppingCartStore,
+  type PantryStore,
 } from '@fuelify/shared';
 
 // ===================================================================
@@ -46,6 +49,7 @@ type MealPlanStoreApi = ReturnType<typeof createMealPlanStore>;
 type RecipeStoreApi = ReturnType<typeof createRecipeStore>;
 type HouseholdStoreApi = ReturnType<typeof createHouseholdStore>;
 type ShoppingCartStoreApi = ReturnType<typeof createShoppingCartStore>;
+type PantryStoreApi = ReturnType<typeof createPantryStore>;
 
 // Contexts
 const AuthStoreContext = createContext<AuthStoreApi | null>(null);
@@ -56,6 +60,7 @@ const MealPlanStoreContext = createContext<MealPlanStoreApi | null>(null);
 const RecipeStoreContext = createContext<RecipeStoreApi | null>(null);
 const HouseholdStoreContext = createContext<HouseholdStoreApi | null>(null);
 const ShoppingCartStoreContext = createContext<ShoppingCartStoreApi | null>(null);
+const PantryStoreContext = createContext<PantryStoreApi | null>(null);
 
 // Auth store is created once (no userId dependency)
 function useCreateAuthStore() {
@@ -74,6 +79,7 @@ function useCreateDataStores(userId: string | null) {
     recipeStore: RecipeStoreApi;
     householdStore: HouseholdStoreApi;
     shoppingCartStore: ShoppingCartStoreApi;
+    pantryStore: PantryStoreApi;
   } | null>(null);
 
   useEffect(() => {
@@ -86,12 +92,14 @@ function useCreateDataStores(userId: string | null) {
     const recipeRepo = new RecipeRepository(supabase);
     const householdRepo = new HouseholdRepository(supabase);
     const shoppingCartRepo = new ShoppingCartRepository(supabase);
+    const pantryRepo = new PantryRepository(supabase);
     setStores({
       profileStore: createProfileStore(profileRepo, userId),
       mealPlanStore: createMealPlanStore(mealPlanRepo, userId),
       recipeStore: createRecipeStore(recipeRepo, userId),
       householdStore: createHouseholdStore(householdRepo, userId),
       shoppingCartStore: createShoppingCartStore(shoppingCartRepo, userId),
+      pantryStore: createPantryStore(pantryRepo, userId),
     });
   }, [userId]);
 
@@ -122,7 +130,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               <RecipeStoreContext.Provider value={dataStores?.recipeStore ?? null}>
                 <HouseholdStoreContext.Provider value={dataStores?.householdStore ?? null}>
                   <ShoppingCartStoreContext.Provider value={dataStores?.shoppingCartStore ?? null}>
-                    {children}
+                    <PantryStoreContext.Provider value={dataStores?.pantryStore ?? null}>
+                      {children}
+                    </PantryStoreContext.Provider>
                   </ShoppingCartStoreContext.Provider>
                 </HouseholdStoreContext.Provider>
               </RecipeStoreContext.Provider>
@@ -180,5 +190,11 @@ export function useHouseholdStore<T>(selector: (state: HouseholdStore) => T): T 
 export function useShoppingCartStore<T>(selector: (state: ShoppingCartStore) => T): T {
   const store = useContext(ShoppingCartStoreContext);
   if (!store) throw new Error('useShoppingCartStore requires an authenticated user');
+  return useStore(store, selector);
+}
+
+export function usePantryStore<T>(selector: (state: PantryStore) => T): T {
+  const store = useContext(PantryStoreContext);
+  if (!store) throw new Error('usePantryStore requires an authenticated user');
   return useStore(store, selector);
 }

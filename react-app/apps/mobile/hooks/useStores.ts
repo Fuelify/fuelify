@@ -10,6 +10,7 @@ import {
   ProfileRepository,
   HouseholdRepository,
   ShoppingCartRepository,
+  PantryRepository,
   // Stores
   createAuthStore,
   createProfileStore,
@@ -19,6 +20,7 @@ import {
   createRecipeStore,
   createHouseholdStore,
   createShoppingCartStore,
+  createPantryStore,
   // Types
   type AuthStore,
   type ProfileStore,
@@ -28,6 +30,7 @@ import {
   type RecipeStore,
   type HouseholdStore,
   type ShoppingCartStore,
+  type PantryStore,
 } from '@fuelify/shared';
 
 // ===================================================================
@@ -72,6 +75,7 @@ let dataStores: {
   recipeStore: ReturnType<typeof createRecipeStore>;
   householdStore: ReturnType<typeof createHouseholdStore>;
   shoppingCartStore: ReturnType<typeof createShoppingCartStore>;
+  pantryStore: ReturnType<typeof createPantryStore>;
 } | null = null;
 
 function getDataStores(userId: string) {
@@ -84,6 +88,7 @@ function getDataStores(userId: string) {
     recipeStore: createRecipeStore(new RecipeRepository(sb), userId),
     householdStore: createHouseholdStore(new HouseholdRepository(sb), userId),
     shoppingCartStore: createShoppingCartStore(new ShoppingCartRepository(sb), userId),
+    pantryStore: createPantryStore(new PantryRepository(sb), userId),
   };
   return dataStores;
 }
@@ -147,4 +152,11 @@ export function useShoppingCartStore<T>(selector: (state: ShoppingCartStore) => 
   if (!userId) throw new Error('useShoppingCartStore requires an authenticated user');
   const { shoppingCartStore } = useMemo(() => getDataStores(userId), [userId]);
   return useStore(shoppingCartStore, selector);
+}
+
+export function usePantryStore<T>(selector: (state: PantryStore) => T): T {
+  const userId = useAuthStore((s) => s.userId);
+  if (!userId) throw new Error('usePantryStore requires an authenticated user');
+  const { pantryStore } = useMemo(() => getDataStores(userId), [userId]);
+  return useStore(pantryStore, selector);
 }

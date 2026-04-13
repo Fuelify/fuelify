@@ -21,3 +21,6 @@ export type { HouseholdStore, HouseholdState, HouseholdActions } from './househo
 
 export { createShoppingCartStore } from './shopping-cart-store';
 export type { ShoppingCartStore, ShoppingCartState, ShoppingCartActions } from './shopping-cart-store';
+
+export { createPantryStore } from './pantry-store';
+export type { PantryStore, PantryState, PantryActions } from './pantry-store';

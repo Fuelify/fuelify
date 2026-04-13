@@ -4,3 +4,4 @@ export * from './food';
 export * from './onboarding';
 export * from './errors';
 export * from './household';
+export * from './pantry';

@@ -295,6 +295,58 @@ export interface Database {
           role?: string;
         };
       };
+      pantry_items: {
+        Row: {
+          id: string;
+          household_id: string;
+          added_by: string;
+          name: string;
+          brand: string | null;
+          category: string | null;
+          storage_zone: string;
+          quantity: number;
+          unit: string | null;
+          remaining_pct: number;
+          status: string;
+          purchase_date: string | null;
+          expiration_date: string | null;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          household_id: string;
+          added_by: string;
+          name: string;
+          brand?: string | null;
+          category?: string | null;
+          storage_zone?: string;
+          quantity?: number;
+          unit?: string | null;
+          remaining_pct?: number;
+          status?: string;
+          purchase_date?: string | null;
+          expiration_date?: string | null;
+          notes?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          brand?: string | null;
+          category?: string | null;
+          storage_zone?: string;
+          quantity?: number;
+          unit?: string | null;
+          remaining_pct?: number;
+          status?: string;
+          purchase_date?: string | null;
+          expiration_date?: string | null;
+          notes?: string | null;
+          updated_at?: string;
+        };
+      };
       shopping_cart_items: {
         Row: {
           id: string;
@@ -345,6 +397,8 @@ export interface Database {
       meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
       classification_type: 'liked' | 'disliked' | 'favorited';
       household_role: 'owner' | 'member';
+      storage_zone: 'dry' | 'cool' | 'frozen';
+      item_status: 'sealed' | 'open' | 'expired';
     };
   };
 }
@@ -360,3 +414,4 @@ export type RecipeReviewRow = Database['public']['Tables']['recipe_reviews']['Ro
 export type HouseholdRow = Database['public']['Tables']['households']['Row'];
 export type HouseholdMemberRow = Database['public']['Tables']['household_members']['Row'];
 export type ShoppingCartItemRow = Database['public']['Tables']['shopping_cart_items']['Row'];
+export type PantryItemRow = Database['public']['Tables']['pantry_items']['Row'];

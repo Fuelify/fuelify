@@ -4,7 +4,7 @@ import { createStore } from 'zustand/vanilla';
 import { ONBOARDING_STEPS, TOTAL_ONBOARDING_STEPS } from '../models/onboarding';
 
 // Dashboard tab navigation
-export const DASHBOARD_TABS = ['home', 'plan', 'discovery', 'food', 'cart', 'profile'] as const;
+export const DASHBOARD_TABS = ['home', 'plan', 'discovery', 'food', 'cart', 'pantry', 'profile'] as const;
 export type DashboardTab = (typeof DASHBOARD_TABS)[number];
 export const DEFAULT_DASHBOARD_TAB = 1; // 'plan'
 
