@@ -160,3 +160,8 @@ export function usePantryStore<T>(selector: (state: PantryStore) => T): T {
   const { pantryStore } = useMemo(() => getDataStores(userId), [userId]);
   return useStore(pantryStore, selector);
 }
+
+/** Direct access to the Supabase client — for services (e.g. ReceiptParser). */
+export function useSupabaseClient() {
+  return useMemo(() => getSupabase(), []);
+}

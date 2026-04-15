@@ -14,9 +14,13 @@ import {
   STORAGE_ZONES,
   STORAGE_ZONE_LABELS,
   aggregatePantryItems,
+  lookupBarcode,
   type StorageZone,
   type ItemStatus,
+  type PantryItemDraft,
 } from '@fuelify/shared';
+import { BarcodeScanner } from '../../components/BarcodeScanner';
+import { ReceiptImportModal } from '../../components/ReceiptImportModal';
 
 const ZONE_TABS: Array<StorageZone | 'all'> = ['all', ...STORAGE_ZONES];
 const ZONE_TAB_LABELS: Record<string, string> = {
@@ -40,6 +44,7 @@ export default function PantryScreen() {
   const activeZone = usePantryStore((s) => s.activeZone);
   const fetchItems = usePantryStore((s) => s.fetchItems);
   const addItem = usePantryStore((s) => s.addItem);
+  const addItems = usePantryStore((s) => s.addItems);
   const updateItem = usePantryStore((s) => s.updateItem);
   const deleteItem = usePantryStore((s) => s.deleteItem);
   const markOpen = usePantryStore((s) => s.markOpen);
@@ -51,9 +56,17 @@ export default function PantryScreen() {
   // Add item modal
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
+  const [newBrand, setNewBrand] = useState('');
+  const [newCategory, setNewCategory] = useState<string | undefined>(undefined);
   const [newZone, setNewZone] = useState<StorageZone>('dry');
   const [newQuantity, setNewQuantity] = useState('1');
   const [newUnit, setNewUnit] = useState('');
+
+  // Scanner / receipt state
+  const [fabOpen, setFabOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [lookupBusy, setLookupBusy] = useState(false);
 
   useEffect(() => {
     fetchHouseholds();
@@ -76,19 +89,65 @@ export default function PantryScreen() {
   const expiredCount = items.filter((i) => i.status === 'expired').length;
   const openCount = items.filter((i) => i.status === 'open').length;
 
+  const resetAddForm = useCallback(() => {
+    setNewName('');
+    setNewBrand('');
+    setNewCategory(undefined);
+    setNewZone('dry');
+    setNewQuantity('1');
+    setNewUnit('');
+  }, []);
+
   const handleAdd = useCallback(async () => {
     if (!newName.trim() || !activeHouseholdId) return;
     await addItem(activeHouseholdId, {
       name: newName.trim(),
+      brand: newBrand.trim() || undefined,
+      category: newCategory,
       storageZone: newZone,
       quantity: parseFloat(newQuantity) || 1,
       unit: newUnit.trim() || undefined,
     });
-    setNewName('');
-    setNewQuantity('1');
-    setNewUnit('');
+    resetAddForm();
     setShowAdd(false);
-  }, [newName, newZone, newQuantity, newUnit, activeHouseholdId, addItem]);
+  }, [newName, newBrand, newCategory, newZone, newQuantity, newUnit, activeHouseholdId, addItem, resetAddForm]);
+
+  const handleBarcodeScanned = useCallback(
+    async (barcode: string) => {
+      setScannerOpen(false);
+      setLookupBusy(true);
+      try {
+        const info = await lookupBarcode(barcode);
+        if (!info) {
+          Alert.alert('Not found', `No product found for barcode ${barcode}. You can still add it manually.`);
+          resetAddForm();
+          setNewName('');
+          setShowAdd(true);
+          return;
+        }
+        resetAddForm();
+        setNewName(info.name);
+        if (info.brand) setNewBrand(info.brand);
+        if (info.category) setNewCategory(info.category);
+        if (info.quantity) setNewQuantity(String(info.quantity));
+        if (info.unit) setNewUnit(info.unit);
+        setShowAdd(true);
+      } catch (e) {
+        Alert.alert('Lookup failed', (e as Error).message);
+      } finally {
+        setLookupBusy(false);
+      }
+    },
+    [resetAddForm],
+  );
+
+  const handleReceiptImport = useCallback(
+    async (drafts: PantryItemDraft[]) => {
+      if (!activeHouseholdId) return;
+      await addItems(activeHouseholdId, drafts);
+    },
+    [activeHouseholdId, addItems],
+  );
 
   const handleClearExpired = useCallback(() => {
     if (!activeHouseholdId) return;
@@ -241,9 +300,45 @@ export default function PantryScreen() {
         )}
       />
 
-      {/* FAB — add item */}
-      <TouchableOpacity style={styles.fab} onPress={() => setShowAdd(true)}>
-        <Text style={styles.fabText}>+</Text>
+      {/* Expandable FAB — manual / barcode / receipt */}
+      {fabOpen && (
+        <>
+          <TouchableOpacity
+            style={[styles.fabSecondary, { bottom: 260 }]}
+            onPress={() => {
+              setFabOpen(false);
+              setReceiptOpen(true);
+            }}
+          >
+            <Text style={styles.fabSecondaryText}>🧾 Receipt</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.fabSecondary, { bottom: 200 }]}
+            onPress={() => {
+              setFabOpen(false);
+              setScannerOpen(true);
+            }}
+          >
+            <Text style={styles.fabSecondaryText}>📷 Barcode</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.fabSecondary, { bottom: 140 }]}
+            onPress={() => {
+              setFabOpen(false);
+              resetAddForm();
+              setShowAdd(true);
+            }}
+          >
+            <Text style={styles.fabSecondaryText}>✏️ Manual</Text>
+          </TouchableOpacity>
+        </>
+      )}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setFabOpen((v) => !v)}
+        disabled={lookupBusy}
+      >
+        <Text style={styles.fabText}>{fabOpen ? '×' : '+'}</Text>
       </TouchableOpacity>
 
       {/* Clear expired */}
@@ -267,6 +362,18 @@ export default function PantryScreen() {
               onChangeText={setNewName}
               autoFocus
             />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Brand (optional)"
+              placeholderTextColor="#888"
+              value={newBrand}
+              onChangeText={setNewBrand}
+            />
+
+            {newCategory ? (
+              <Text style={styles.categoryTag}>Category: {newCategory}</Text>
+            ) : null}
 
             {/* Zone selector */}
             <Text style={styles.label}>Storage</Text>
@@ -306,7 +413,10 @@ export default function PantryScreen() {
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => setShowAdd(false)}
+                onPress={() => {
+                  setShowAdd(false);
+                  resetAddForm();
+                }}
               >
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
@@ -321,6 +431,20 @@ export default function PantryScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Barcode scanner */}
+      <BarcodeScanner
+        visible={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScanned={handleBarcodeScanned}
+      />
+
+      {/* Receipt import */}
+      <ReceiptImportModal
+        visible={receiptOpen}
+        onClose={() => setReceiptOpen(false)}
+        onImport={handleReceiptImport}
+      />
     </View>
   );
 }
@@ -413,6 +537,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   fabText: { color: '#202020', fontSize: 28, fontWeight: '700', marginTop: -2 },
+  fabSecondary: {
+    position: 'absolute',
+    right: 20,
+    backgroundColor: '#2a2a2a',
+    borderWidth: 1,
+    borderColor: '#FFBD73',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  fabSecondaryText: { color: '#FFBD73', fontWeight: '600', fontSize: 13 },
+  categoryTag: { color: '#4DB6AC', fontSize: 12, marginBottom: 10 },
 
   clearButton: {
     position: 'absolute',

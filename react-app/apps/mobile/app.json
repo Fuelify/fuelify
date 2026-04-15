@@ -15,6 +15,21 @@
         "backgroundColor": "#202020"
       }
     },
-    "plugins": ["expo-router", "expo-secure-store"]
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Fuelify to scan barcodes and receipts."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Fuelify to pick receipt images from your library."
+        }
+      ]
+    ]
   }
 }

@@ -2,8 +2,9 @@
 // Items scoped to a household with storage zone and partial-open tracking.
 
 import type { TypedSupabaseClient } from './client';
-import type { PantryItemRow } from './types';
+import type { PantryItemRow, PantryItemInsert } from './types';
 import type { PantryItem, StorageZone, ItemStatus } from '../models/pantry';
+import type { PantryItemDraft } from '../models/external-data';
 
 function rowToItem(row: PantryItemRow & { profiles?: { first_name: string | null; last_name: string | null } | null }): PantryItem {
   const firstName = row.profiles?.first_name ?? '';
@@ -28,6 +29,24 @@ function rowToItem(row: PantryItemRow & { profiles?: { first_name: string | null
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     addedByName,
+  };
+}
+
+function draftToInsertRow(householdId: string, userId: string, draft: PantryItemDraft): PantryItemInsert {
+  return {
+    household_id: householdId,
+    added_by: userId,
+    name: draft.name,
+    brand: draft.brand ?? null,
+    category: draft.category ?? null,
+    storage_zone: draft.storageZone ?? 'dry',
+    quantity: draft.quantity ?? 1,
+    unit: draft.unit ?? null,
+    remaining_pct: draft.remainingPct ?? 100,
+    status: draft.status ?? 'sealed',
+    purchase_date: draft.purchaseDate ?? null,
+    expiration_date: draft.expirationDate ?? null,
+    notes: draft.notes ?? null,
   };
 }
 
@@ -61,41 +80,28 @@ export class PantryRepository {
   }
 
   /** Add a pantry item */
-  async addItem(householdId: string, userId: string, item: {
-    name: string;
-    brand?: string;
-    category?: string;
-    storageZone?: StorageZone;
-    quantity?: number;
-    unit?: string;
-    remainingPct?: number;
-    status?: ItemStatus;
-    purchaseDate?: string;
-    expirationDate?: string;
-    notes?: string;
-  }): Promise<PantryItem> {
+  async addItem(householdId: string, userId: string, item: PantryItemDraft): Promise<PantryItem> {
     const { data, error } = await this.supabase
       .from('pantry_items')
-      .insert({
-        household_id: householdId,
-        added_by: userId,
-        name: item.name,
-        brand: item.brand ?? null,
-        category: item.category ?? null,
-        storage_zone: item.storageZone ?? 'dry',
-        quantity: item.quantity ?? 1,
-        unit: item.unit ?? null,
-        remaining_pct: item.remainingPct ?? 100,
-        status: item.status ?? 'sealed',
-        purchase_date: item.purchaseDate ?? null,
-        expiration_date: item.expirationDate ?? null,
-        notes: item.notes ?? null,
-      })
+      .insert(draftToInsertRow(householdId, userId, item))
       .select('*, profiles(first_name, last_name)')
       .single();
 
     if (error) throw new Error(`Failed to add pantry item: ${error.message}`);
     return rowToItem(data);
+  }
+
+  /** Bulk-add pantry items (e.g. from receipt OCR import). */
+  async addItems(householdId: string, userId: string, items: PantryItemDraft[]): Promise<PantryItem[]> {
+    if (items.length === 0) return [];
+    const rows = items.map((d) => draftToInsertRow(householdId, userId, d));
+    const { data, error } = await this.supabase
+      .from('pantry_items')
+      .insert(rows)
+      .select('*, profiles(first_name, last_name)');
+
+    if (error) throw new Error(`Failed to bulk-add pantry items: ${error.message}`);
+    return (data ?? []).map(rowToItem);
   }
 
   /** Update a pantry item */

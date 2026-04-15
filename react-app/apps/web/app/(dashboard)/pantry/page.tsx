@@ -6,9 +6,13 @@ import {
   STORAGE_ZONES,
   STORAGE_ZONE_LABELS,
   aggregatePantryItems,
+  lookupBarcode,
   type StorageZone,
   type ItemStatus,
+  type PantryItemDraft,
 } from '@fuelify/shared';
+import { BarcodeScannerModal } from './BarcodeScannerModal';
+import { ReceiptImportModal } from './ReceiptImportModal';
 
 const ZONE_TABS: Array<StorageZone | 'all'> = ['all', ...STORAGE_ZONES];
 const ZONE_TAB_LABELS: Record<string, string> = {
@@ -32,6 +36,7 @@ export default function PantryPage() {
   const activeZone = usePantryStore((s) => s.activeZone);
   const fetchItems = usePantryStore((s) => s.fetchItems);
   const addItem = usePantryStore((s) => s.addItem);
+  const addItems = usePantryStore((s) => s.addItems);
   const updateItem = usePantryStore((s) => s.updateItem);
   const deleteItem = usePantryStore((s) => s.deleteItem);
   const markOpen = usePantryStore((s) => s.markOpen);
@@ -43,9 +48,17 @@ export default function PantryPage() {
   // Add form
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
+  const [newBrand, setNewBrand] = useState('');
+  const [newCategory, setNewCategory] = useState<string | undefined>(undefined);
   const [newZone, setNewZone] = useState<StorageZone>('dry');
   const [newQuantity, setNewQuantity] = useState('1');
   const [newUnit, setNewUnit] = useState('');
+
+  // Scanner / receipt
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
   // Expanded item groups
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
@@ -63,19 +76,65 @@ export default function PantryPage() {
   const expiredCount = items.filter((i) => i.status === 'expired').length;
   const openCount = items.filter((i) => i.status === 'open').length;
 
+  const resetAddForm = useCallback(() => {
+    setNewName('');
+    setNewBrand('');
+    setNewCategory(undefined);
+    setNewZone('dry');
+    setNewQuantity('1');
+    setNewUnit('');
+  }, []);
+
   const handleAdd = useCallback(async () => {
     if (!newName.trim() || !activeHouseholdId) return;
     await addItem(activeHouseholdId, {
       name: newName.trim(),
+      brand: newBrand.trim() || undefined,
+      category: newCategory,
       storageZone: newZone,
       quantity: parseFloat(newQuantity) || 1,
       unit: newUnit.trim() || undefined,
     });
-    setNewName('');
-    setNewQuantity('1');
-    setNewUnit('');
+    resetAddForm();
     setShowAdd(false);
-  }, [newName, newZone, newQuantity, newUnit, activeHouseholdId, addItem]);
+  }, [newName, newBrand, newCategory, newZone, newQuantity, newUnit, activeHouseholdId, addItem, resetAddForm]);
+
+  const handleBarcodeScanned = useCallback(
+    async (barcode: string) => {
+      setScannerOpen(false);
+      setLookupBusy(true);
+      setLookupError(null);
+      try {
+        const info = await lookupBarcode(barcode);
+        if (!info) {
+          setLookupError(`No product found for barcode ${barcode}. Add it manually.`);
+          resetAddForm();
+          setShowAdd(true);
+          return;
+        }
+        resetAddForm();
+        setNewName(info.name);
+        if (info.brand) setNewBrand(info.brand);
+        if (info.category) setNewCategory(info.category);
+        if (info.quantity) setNewQuantity(String(info.quantity));
+        if (info.unit) setNewUnit(info.unit);
+        setShowAdd(true);
+      } catch (e) {
+        setLookupError((e as Error).message);
+      } finally {
+        setLookupBusy(false);
+      }
+    },
+    [resetAddForm],
+  );
+
+  const handleReceiptImport = useCallback(
+    async (drafts: PantryItemDraft[]) => {
+      if (!activeHouseholdId) return;
+      await addItems(activeHouseholdId, drafts);
+    },
+    [activeHouseholdId, addItems],
+  );
 
   const handleClearExpired = useCallback(() => {
     if (!activeHouseholdId) return;
@@ -99,10 +158,31 @@ export default function PantryPage() {
       <div style={s.header}>
         <div style={s.headerTop}>
           <h1 style={s.title}>Pantry</h1>
-          <button style={s.addButton} onClick={() => setShowAdd(!showAdd)}>
-            {showAdd ? 'Cancel' : '+ Add Item'}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              style={s.secondaryButton}
+              onClick={() => setScannerOpen(true)}
+              disabled={lookupBusy}
+              title="Scan a product barcode"
+            >
+              📷 Scan
+            </button>
+            <button
+              style={s.secondaryButton}
+              onClick={() => setReceiptOpen(true)}
+              title="Upload a grocery receipt"
+            >
+              🧾 Receipt
+            </button>
+            <button style={s.addButton} onClick={() => setShowAdd(!showAdd)}>
+              {showAdd ? 'Cancel' : '+ Add Item'}
+            </button>
+          </div>
         </div>
+        {lookupBusy && <p style={{ color: '#aaa', fontSize: 12, marginTop: 4 }}>Looking up barcode…</p>}
+        {lookupError && (
+          <p style={{ color: '#ff6b6b', fontSize: 12, marginTop: 4 }}>{lookupError}</p>
+        )}
 
         {/* Summary */}
         <div style={s.summary}>
@@ -123,6 +203,17 @@ export default function PantryPage() {
             onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             autoFocus
           />
+          <input
+            style={s.input}
+            placeholder="Brand (optional)"
+            value={newBrand}
+            onChange={(e) => setNewBrand(e.target.value)}
+          />
+          {newCategory && (
+            <div style={{ color: '#4DB6AC', fontSize: 12, marginBottom: 8 }}>
+              Category: {newCategory}
+            </div>
+          )}
           <div style={s.formRow}>
             <div style={s.zonePicker}>
               {STORAGE_ZONES.map((z) => (
@@ -297,6 +388,18 @@ export default function PantryPage() {
           Clear {expiredCount} expired item{expiredCount !== 1 ? 's' : ''}
         </button>
       )}
+
+      <BarcodeScannerModal
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onScanned={handleBarcodeScanned}
+      />
+
+      <ReceiptImportModal
+        open={receiptOpen}
+        onClose={() => setReceiptOpen(false)}
+        onImport={handleReceiptImport}
+      />
     </div>
   );
 }
@@ -315,6 +418,16 @@ const s: Record<string, React.CSSProperties> = {
     fontWeight: 600,
     cursor: 'pointer',
     fontSize: 14,
+  },
+  secondaryButton: {
+    backgroundColor: '#2a2a2a',
+    color: '#FFBD73',
+    border: '1px solid #FFBD73',
+    borderRadius: 8,
+    padding: '8px 12px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontSize: 13,
   },
   summary: { display: 'flex', gap: 16, marginTop: 8 },
   summaryItem: { color: '#aaa', fontSize: 13 },

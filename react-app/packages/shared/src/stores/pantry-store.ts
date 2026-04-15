@@ -3,6 +3,7 @@
 import { createStore } from 'zustand/vanilla';
 import type { PantryRepository } from '../supabase/pantry-repo';
 import type { PantryItem, StorageZone, ItemStatus } from '../models/pantry';
+import type { PantryItemDraft } from '../models/external-data';
 
 export interface PantryState {
   items: PantryItem[];
@@ -14,19 +15,8 @@ export interface PantryState {
 export interface PantryActions {
   fetchItems: (householdId: string) => Promise<void>;
   setActiveZone: (zone: StorageZone | 'all') => void;
-  addItem: (householdId: string, item: {
-    name: string;
-    brand?: string;
-    category?: string;
-    storageZone?: StorageZone;
-    quantity?: number;
-    unit?: string;
-    remainingPct?: number;
-    status?: ItemStatus;
-    purchaseDate?: string;
-    expirationDate?: string;
-    notes?: string;
-  }) => Promise<void>;
+  addItem: (householdId: string, item: PantryItemDraft) => Promise<void>;
+  addItems: (householdId: string, items: PantryItemDraft[]) => Promise<PantryItem[]>;
   updateItem: (itemId: string, updates: {
     name?: string;
     brand?: string | null;
@@ -74,6 +64,17 @@ export function createPantryStore(repo: PantryRepository, userId: string) {
         set((state) => ({ items: [...state.items, newItem] }));
       } catch (err) {
         set({ error: (err as Error).message });
+      }
+    },
+
+    addItems: async (householdId: string, items) => {
+      try {
+        const newItems = await repo.addItems(householdId, userId, items);
+        set((state) => ({ items: [...state.items, ...newItems] }));
+        return newItems;
+      } catch (err) {
+        set({ error: (err as Error).message });
+        return [];
       }
     },
 

@@ -415,3 +415,4 @@ export type HouseholdRow = Database['public']['Tables']['households']['Row'];
 export type HouseholdMemberRow = Database['public']['Tables']['household_members']['Row'];
 export type ShoppingCartItemRow = Database['public']['Tables']['shopping_cart_items']['Row'];
 export type PantryItemRow = Database['public']['Tables']['pantry_items']['Row'];
+export type PantryItemInsert = Database['public']['Tables']['pantry_items']['Insert'];

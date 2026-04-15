@@ -198,3 +198,8 @@ export function usePantryStore<T>(selector: (state: PantryStore) => T): T {
   if (!store) throw new Error('usePantryStore requires an authenticated user');
   return useStore(store, selector);
 }
+
+/** Direct access to the Supabase client — for services (e.g. ReceiptParser). */
+export function useSupabase() {
+  return supabase;
+}
