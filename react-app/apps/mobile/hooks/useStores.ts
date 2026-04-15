@@ -11,6 +11,8 @@ import {
   HouseholdRepository,
   ShoppingCartRepository,
   PantryRepository,
+  // Services
+  MealSuggester,
   // Stores
   createAuthStore,
   createProfileStore,
@@ -21,6 +23,7 @@ import {
   createHouseholdStore,
   createShoppingCartStore,
   createPantryStore,
+  createMealSuggestionStore,
   // Types
   type AuthStore,
   type ProfileStore,
@@ -31,6 +34,7 @@ import {
   type HouseholdStore,
   type ShoppingCartStore,
   type PantryStore,
+  type MealSuggestionStore,
 } from '@fuelify/shared';
 
 // ===================================================================
@@ -76,6 +80,7 @@ let dataStores: {
   householdStore: ReturnType<typeof createHouseholdStore>;
   shoppingCartStore: ReturnType<typeof createShoppingCartStore>;
   pantryStore: ReturnType<typeof createPantryStore>;
+  mealSuggestionStore: ReturnType<typeof createMealSuggestionStore>;
 } | null = null;
 
 function getDataStores(userId: string) {
@@ -89,6 +94,7 @@ function getDataStores(userId: string) {
     householdStore: createHouseholdStore(new HouseholdRepository(sb), userId),
     shoppingCartStore: createShoppingCartStore(new ShoppingCartRepository(sb), userId),
     pantryStore: createPantryStore(new PantryRepository(sb), userId),
+    mealSuggestionStore: createMealSuggestionStore(new MealSuggester(sb)),
   };
   return dataStores;
 }
@@ -159,6 +165,13 @@ export function usePantryStore<T>(selector: (state: PantryStore) => T): T {
   if (!userId) throw new Error('usePantryStore requires an authenticated user');
   const { pantryStore } = useMemo(() => getDataStores(userId), [userId]);
   return useStore(pantryStore, selector);
+}
+
+export function useMealSuggestionStore<T>(selector: (state: MealSuggestionStore) => T): T {
+  const userId = useAuthStore((s) => s.userId);
+  if (!userId) throw new Error('useMealSuggestionStore requires an authenticated user');
+  const { mealSuggestionStore } = useMemo(() => getDataStores(userId), [userId]);
+  return useStore(mealSuggestionStore, selector);
 }
 
 /** Direct access to the Supabase client — for services (e.g. ReceiptParser). */

@@ -21,6 +21,7 @@ import {
 } from '@fuelify/shared';
 import { BarcodeScanner } from '../../components/BarcodeScanner';
 import { ReceiptImportModal } from '../../components/ReceiptImportModal';
+import { MealSuggestionsModal } from '../../components/MealSuggestionsModal';
 
 const ZONE_TABS: Array<StorageZone | 'all'> = ['all', ...STORAGE_ZONES];
 const ZONE_TAB_LABELS: Record<string, string> = {
@@ -66,6 +67,7 @@ export default function PantryScreen() {
   const [fabOpen, setFabOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [receiptOpen, setReceiptOpen] = useState(false);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [lookupBusy, setLookupBusy] = useState(false);
 
   useEffect(() => {
@@ -190,7 +192,16 @@ export default function PantryScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Pantry</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.title}>Pantry</Text>
+        <TouchableOpacity
+          style={[styles.suggestBtn, items.length === 0 && { opacity: 0.5 }]}
+          onPress={() => setSuggestionsOpen(true)}
+          disabled={items.length === 0}
+        >
+          <Text style={styles.suggestBtnText}>🍽️ Meal Ideas</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Summary bar */}
       <View style={styles.summaryRow}>
@@ -445,13 +456,35 @@ export default function PantryScreen() {
         onClose={() => setReceiptOpen(false)}
         onImport={handleReceiptImport}
       />
+
+      {/* AI meal suggestions */}
+      <MealSuggestionsModal
+        visible={suggestionsOpen}
+        onClose={() => setSuggestionsOpen(false)}
+        pantryItems={items}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#202020', padding: 16 },
-  title: { color: '#FFBD73', fontSize: 28, fontWeight: '700', marginBottom: 4 },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  title: { color: '#FFBD73', fontSize: 28, fontWeight: '700' },
+  suggestBtn: {
+    backgroundColor: '#2a2a2a',
+    borderWidth: 1,
+    borderColor: '#4DB6AC',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
+  suggestBtnText: { color: '#4DB6AC', fontSize: 13, fontWeight: '600' },
 
   summaryRow: { flexDirection: 'row', gap: 16, marginBottom: 12 },
   summaryText: { color: '#aaa', fontSize: 13 },

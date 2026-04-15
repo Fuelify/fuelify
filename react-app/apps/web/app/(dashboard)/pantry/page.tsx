@@ -13,6 +13,7 @@ import {
 } from '@fuelify/shared';
 import { BarcodeScannerModal } from './BarcodeScannerModal';
 import { ReceiptImportModal } from './ReceiptImportModal';
+import { MealSuggestionsModal } from './MealSuggestionsModal';
 
 const ZONE_TABS: Array<StorageZone | 'all'> = ['all', ...STORAGE_ZONES];
 const ZONE_TAB_LABELS: Record<string, string> = {
@@ -57,6 +58,7 @@ export default function PantryPage() {
   // Scanner / receipt
   const [scannerOpen, setScannerOpen] = useState(false);
   const [receiptOpen, setReceiptOpen] = useState(false);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const [lookupBusy, setLookupBusy] = useState(false);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
@@ -158,7 +160,15 @@ export default function PantryPage() {
       <div style={s.header}>
         <div style={s.headerTop}>
           <h1 style={s.title}>Pantry</h1>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <button
+              style={s.suggestButton}
+              onClick={() => setSuggestionsOpen(true)}
+              disabled={items.length === 0}
+              title="Generate AI meal suggestions from your pantry"
+            >
+              🍽️ Meal Ideas
+            </button>
             <button
               style={s.secondaryButton}
               onClick={() => setScannerOpen(true)}
@@ -400,6 +410,12 @@ export default function PantryPage() {
         onClose={() => setReceiptOpen(false)}
         onImport={handleReceiptImport}
       />
+
+      <MealSuggestionsModal
+        open={suggestionsOpen}
+        onClose={() => setSuggestionsOpen(false)}
+        pantryItems={items}
+      />
     </div>
   );
 }
@@ -423,6 +439,16 @@ const s: Record<string, React.CSSProperties> = {
     backgroundColor: '#2a2a2a',
     color: '#FFBD73',
     border: '1px solid #FFBD73',
+    borderRadius: 8,
+    padding: '8px 12px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontSize: 13,
+  },
+  suggestButton: {
+    backgroundColor: '#2a2a2a',
+    color: '#4DB6AC',
+    border: '1px solid #4DB6AC',
     borderRadius: 8,
     padding: '8px 12px',
     fontWeight: 600,

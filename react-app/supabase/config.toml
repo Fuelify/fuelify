@@ -5,3 +5,6 @@ project_id = "fuelify"
 
 [functions.parse-receipt]
 verify_jwt = true
+
+[functions.suggest-meals]
+verify_jwt = true

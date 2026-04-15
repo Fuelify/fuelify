@@ -24,3 +24,10 @@ export type { ShoppingCartStore, ShoppingCartState, ShoppingCartActions } from '
 
 export { createPantryStore } from './pantry-store';
 export type { PantryStore, PantryState, PantryActions } from './pantry-store';
+
+export { createMealSuggestionStore } from './meal-suggestion-store';
+export type {
+  MealSuggestionStore,
+  MealSuggestionState,
+  MealSuggestionActions,
+} from './meal-suggestion-store';
