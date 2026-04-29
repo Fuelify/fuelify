@@ -70,7 +70,7 @@ const MealSuggestionStoreContext = createContext<MealSuggestionStoreApi | null>(
 
 // Auth store is created once (no userId dependency)
 function useCreateAuthStore() {
-  const ref = useRef<AuthStoreApi>(null);
+  const ref = useRef<AuthStoreApi | null>(null);
   if (!ref.current) {
     ref.current = createAuthStore(supabase);
   }
@@ -120,8 +120,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const userId = useStore(authStore, (s) => s.userId);
   const dataStores = useCreateDataStores(userId);
 
-  const preferencesStoreRef = useRef<PreferencesStoreApi>(null);
-  const navigationStoreRef = useRef<NavigationStoreApi>(null);
+  const preferencesStoreRef = useRef<PreferencesStoreApi | null>(null);
+  const navigationStoreRef = useRef<NavigationStoreApi | null>(null);
   if (!preferencesStoreRef.current) preferencesStoreRef.current = createPreferencesStore();
   if (!navigationStoreRef.current) navigationStoreRef.current = createNavigationStore();
 
