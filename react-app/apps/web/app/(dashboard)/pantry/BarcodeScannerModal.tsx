@@ -103,7 +103,7 @@ export function BarcodeScannerModal({ open, onClose, onScanned }: Props) {
         const zxing = await import('@zxing/library');
         const reader = new zxing.BrowserMultiFormatReader();
         zxingReaderRef.current = reader;
-        reader.decodeFromVideoElement(video, (result) => {
+        await reader.decodeFromStream(stream, video, (result) => {
           if (result && !scannedRef.current) emit(result.getText());
         });
       } catch (e) {
