@@ -6,7 +6,7 @@ export interface Database {
     Tables: {
       profiles: {
         Row: {
-          id: string; // UUID — matches auth.users.id
+          id: string;
           first_name: string | null;
           last_name: string | null;
           phone: string | null;
@@ -75,6 +75,7 @@ export interface Database {
           onboarded?: boolean;
           onboarding_step?: number;
         };
+        Relationships: [];
       };
       meal_plans: {
         Row: {
@@ -97,6 +98,7 @@ export interface Database {
           date?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       meals: {
         Row: {
@@ -136,6 +138,7 @@ export interface Database {
           date?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       meal_feedback: {
         Row: {
@@ -158,6 +161,7 @@ export interface Database {
           rating?: number | null;
           comment?: string | null;
         };
+        Relationships: [];
       };
       recipes: {
         Row: {
@@ -208,6 +212,7 @@ export interface Database {
           calories?: number | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       recipe_classifications: {
         Row: {
@@ -230,6 +235,7 @@ export interface Database {
           classification?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       recipe_reviews: {
         Row: {
@@ -255,6 +261,7 @@ export interface Database {
           review_text?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       households: {
         Row: {
@@ -275,6 +282,7 @@ export interface Database {
           name?: string;
           updated_at?: string;
         };
+        Relationships: [];
       };
       household_members: {
         Row: {
@@ -294,6 +302,7 @@ export interface Database {
         Update: {
           role?: string;
         };
+        Relationships: [];
       };
       pantry_items: {
         Row: {
@@ -346,6 +355,7 @@ export interface Database {
           notes?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       shopping_cart_items: {
         Row: {
@@ -389,6 +399,7 @@ export interface Database {
           notes?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

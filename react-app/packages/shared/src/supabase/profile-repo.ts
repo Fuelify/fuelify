@@ -2,7 +2,9 @@
 // Manages the profiles table which extends Supabase Auth users
 
 import type { TypedSupabaseClient } from './client';
-import type { ProfileRow } from './types';
+import type { ProfileRow, Database } from './types';
+
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
 export interface UserProfile {
   id: string;
@@ -71,18 +73,18 @@ export class ProfileRepository {
 
   /** Update profile fields */
   async updateProfile(userId: string, updates: Partial<{
-    firstName: string;
-    lastName: string;
-    phone: string;
-    imageUrl: string;
-    location: string;
-    height: number;
-    weight: number;
-    birthdate: string;
-    gender: string;
-    genderDesc: string;
-    diet: string;
-    activeness: string;
+    firstName: string | null;
+    lastName: string | null;
+    phone: string | null;
+    imageUrl: string | null;
+    location: string | null;
+    height: number | null;
+    weight: number | null;
+    birthdate: string | null;
+    gender: string | null;
+    genderDesc: string | null;
+    diet: string | null;
+    activeness: string | null;
     goals: Record<string, unknown>;
     shopping: Record<string, unknown>;
     allergens: string[];
@@ -92,8 +94,7 @@ export class ProfileRepository {
     onboarded: boolean;
     onboardingStep: number;
   }>): Promise<UserProfile> {
-    // Map camelCase fields to snake_case columns
-    const dbUpdates: Record<string, unknown> = {};
+    const dbUpdates: ProfileUpdate = {};
     if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName;
     if (updates.lastName !== undefined) dbUpdates.last_name = updates.lastName;
     if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
