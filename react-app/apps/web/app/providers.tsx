@@ -38,10 +38,13 @@ import {
 } from '@fuelify/shared';
 
 // ===================================================================
-// Single Supabase client — handles auth + all data
+// Single Supabase client — handles auth + all data.
+// Placeholder values let the client object exist during Next.js
+// static generation (where env vars may be absent).  The client is
+// never *called* during SSR — all network activity is in useEffect.
 // ===================================================================
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Store types
