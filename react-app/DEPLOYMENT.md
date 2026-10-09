@@ -144,6 +144,7 @@ eas submit --platform android
 |----------|----------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous/public key |
+| `NEXT_PUBLIC_AUTH_DISABLED` | No | `true` skips login; each visitor gets an anonymous Supabase session (requires Anonymous Sign-Ins enabled in Supabase → Authentication → Providers) |
 
 ### Mobile (`apps/mobile/.env.local`)
 
@@ -151,6 +152,7 @@ eas submit --platform android
 |----------|----------|-------------|
 | `EXPO_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anonymous/public key |
+| `EXPO_PUBLIC_AUTH_DISABLED` | No | Same as `NEXT_PUBLIC_AUTH_DISABLED`, for mobile |
 
 ### Supabase Edge Functions (set via `supabase secrets set`)
 

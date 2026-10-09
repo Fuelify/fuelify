@@ -31,14 +31,25 @@ const initialState: AuthState = {
   error: null,
 };
 
-export function createAuthStore(supabase: TypedSupabaseClient) {
+export interface AuthStoreOptions {
+  // When true, the login gate is bypassed: if there is no session on startup
+  // we sign in anonymously so a real user id exists for RLS-protected data.
+  authDisabled?: boolean;
+}
+
+export function createAuthStore(supabase: TypedSupabaseClient, options: AuthStoreOptions = {}) {
   return createStore<AuthStore>()((set) => ({
     ...initialState,
 
     // Check for existing session on app startup
     initialize: async () => {
       set({ status: 'loading' });
-      const { data: { session } } = await supabase.auth.getSession();
+      let { data: { session } } = await supabase.auth.getSession();
+      if (!session && options.authDisabled) {
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (error) set({ error: error.message });
+        session = data.session;
+      }
       if (session?.user) {
         set({
           status: 'loggedIn',

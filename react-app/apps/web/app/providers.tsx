@@ -47,6 +47,10 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholde
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Login gate toggle — "true" skips login; an anonymous Supabase session
+// is created instead so RLS-protected data still works.
+export const AUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLED === 'true';
+
 // Store types
 type AuthStoreApi = ReturnType<typeof createAuthStore>;
 type ProfileStoreApi = ReturnType<typeof createProfileStore>;
@@ -75,7 +79,7 @@ const MealSuggestionStoreContext = createContext<MealSuggestionStoreApi | null>(
 function useCreateAuthStore() {
   const ref = useRef<AuthStoreApi | null>(null);
   if (!ref.current) {
-    ref.current = createAuthStore(supabase);
+    ref.current = createAuthStore(supabase, { authDisabled: AUTH_DISABLED });
   }
   return ref.current;
 }
