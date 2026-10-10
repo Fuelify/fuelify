@@ -42,6 +42,10 @@ react-app/
 - **Imports (web):** framework → `@fuelify/shared` → `@/…` (app code) → relative.
 - **Styling (web):** design tokens and component classes in `app/globals.css`;
   inline styles only for one-off layout, and never raw colours — use the tokens.
+- **Brand:** the logo lives in `assets/brand/fuelify-mark.svg`; its colours and
+  geometry are exported from `@fuelify/shared` (`BRAND_COLORS`, `LOGO_*`) and the
+  web `LogoMark`/`Logo` components render from them. Theme tokens are derived from
+  the brand colours (see `assets/brand/README.md`).
 - **Theming:** light tokens on `:root`, dark overrides on `[data-theme='dark']`.
   The preference (System / Light / Dark) lives in the shared preferences store;
   `lib/theme-constants.ts` sets `data-theme` before first paint and

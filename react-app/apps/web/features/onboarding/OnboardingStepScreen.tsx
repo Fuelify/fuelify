@@ -29,7 +29,7 @@ import {
   MAX_WEEKLY_BUDGET,
 } from '@fuelify/shared';
 import { useProfileStore } from '@/lib/stores';
-import { Icon, LoadingBlock, OptionRow, Segmented } from '@/components/ui';
+import { Icon, LoadingBlock, Logo, OptionRow, Segmented } from '@/components/ui';
 import { useOnboarding, type OnboardingDraft } from './OnboardingContext';
 import { DEVICE_IMAGES, DIET_IMAGES, WELCOME_ANIMATION } from './assets';
 
@@ -221,6 +221,7 @@ function CompletionScreen() {
 function WelcomeStep() {
   return (
     <div className="stack-lg center" style={{ paddingTop: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'center' }}><Logo size={30} /></div>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={WELCOME_ANIMATION} alt="" style={{ borderRadius: 'var(--radius-lg)', width: '100%', background: '#e8e8e8' }} />
       <p style={{ fontWeight: 700, fontSize: 20, lineHeight: 1.35 }}>

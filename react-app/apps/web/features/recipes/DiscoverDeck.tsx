@@ -99,7 +99,7 @@ export function DiscoverDeck({ recipes, diet, onOpen, onSeeSaved }: { recipes: R
 
       <div className="row" style={{ justifyContent: 'center', gap: 20, flexShrink: 0 }}>
         <RoundButton label="Not for me" icon="x" color="var(--danger)" onClick={() => decide('disliked')} />
-        <RoundButton label="Favorite" icon="star" color="var(--warning)" small onClick={() => decide('favorited')} />
+        <RoundButton label="Favorite" icon="star" color="var(--tertiary)" small onClick={() => decide('favorited')} />
         <RoundButton label="Like" icon="heart" color="var(--accent)" onClick={() => decide('liked')} />
       </div>
       <p className="tiny faint center" style={{ flexShrink: 0 }}>{deck.length} to go · tap a card for the full recipe</p>

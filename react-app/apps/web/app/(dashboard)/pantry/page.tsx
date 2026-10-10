@@ -138,7 +138,7 @@ export default function PantryPage() {
           {(pantryError || hhError) && <div className="alert">{pantryError ?? hhError}</div>}
 
           <button className="card card-button row" onClick={() => setSuggestionsOpen(true)} disabled={items.length === 0}
-            style={{ gap: 12, background: 'linear-gradient(135deg, var(--primary-soft), var(--accent-soft))' }}>
+            style={{ gap: 12, background: 'linear-gradient(135deg, var(--accent-soft), var(--primary-soft) 55%, var(--tertiary-soft))' }}>
             <span style={{ color: 'var(--primary)' }}><Icon name="sparkles" /></span>
             <div className="grow">
               <div style={{ fontWeight: 700 }}>Meal ideas from your pantry</div>

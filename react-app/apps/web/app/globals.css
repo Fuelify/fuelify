@@ -7,30 +7,37 @@
    colours — so both themes stay in sync.
    ========================================================================== */
 
+/* Brand (from the logo, assets/brand): cyan #6DE6FB · orchid #EBA3F9 · periwinkle #759EF8.
+   Dark uses them as-is on deep indigo; light uses deeper shades of the same
+   hues so text and buttons meet WCAG AA. */
+
 /* ---------- Light (default) ---------------------------------------------- */
 :root {
-  --bg: #e9edf1;               /* page behind the app column (desktop) */
-  --surface: #f6f8fa;          /* screen background */
+  --bg: #e8ebf7;               /* page behind the app column (desktop) */
+  --surface: #f6f7fd;          /* screen background */
   --surface-2: #ffffff;        /* cards, list rows */
-  --surface-3: #edf1f4;        /* inputs, chips, pressed states */
-  --border: #dde3e9;
-  --text: #0f1720;
-  --text-2: #4b5866;
-  --text-3: #7f8c99;
-  --primary: #0b8a57;          /* fresh green — passes AA with white text */
-  --primary-press: #087447;
+  --surface-3: #eceffa;        /* inputs, chips, pressed states */
+  --border: #dde1f2;
+  --text: #141938;
+  --text-2: #4b5276;
+  --text-3: #6b7292;
+  --primary: #4f63e6;          /* periwinkle, deepened — 4.9:1 with white */
+  --primary-press: #3f52cf;
   --on-primary: #ffffff;
-  --primary-soft: rgba(11, 138, 87, 0.10);
-  --accent: #2563eb;
-  --accent-soft: rgba(37, 99, 235, 0.10);
+  --primary-soft: rgba(79, 99, 230, 0.10);
+  --accent: #0e7e9c;           /* cyan, deepened */
+  --accent-soft: rgba(14, 126, 156, 0.10);
+  --tertiary: #9b3fb5;         /* orchid, deepened */
+  --tertiary-soft: rgba(155, 63, 181, 0.10);
   --danger: #d92d20;
   --danger-soft: rgba(217, 45, 32, 0.10);
-  --warning: #c27803;
+  --warning: #b86e00;
+  --brand-gradient: linear-gradient(120deg, #2fb8d8 0%, #4f63e6 55%, #b05ad0 100%);
   --tabbar-bg: #ffffff;
-  --backdrop: rgba(15, 23, 32, 0.45);
-  --shadow: 0 6px 24px rgba(15, 23, 32, 0.12);
-  --shadow-sm: 0 1px 4px rgba(15, 23, 32, 0.12);
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%234b5866' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  --backdrop: rgba(20, 25, 56, 0.45);
+  --shadow: 0 6px 24px rgba(20, 25, 56, 0.12);
+  --shadow-sm: 0 1px 4px rgba(20, 25, 56, 0.12);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%234b5276' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
   color-scheme: light;
 
   --radius-sm: 8px;
@@ -47,30 +54,33 @@
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* ---------- Dark: cool slate with a mint primary ------------------------- */
+/* ---------- Dark: deep indigo with the brand pastels --------------------- */
 [data-theme='dark'] {
-  --bg: #070b0e;
-  --surface: #0e1418;
-  --surface-2: #161e24;
-  --surface-3: #1f2a32;
-  --border: #26323b;
-  --text: #e8eef2;
-  --text-2: #a3b1bc;
-  --text-3: #6d7d89;
-  --primary: #3ddc97;
-  --primary-press: #2fc584;
-  --on-primary: #04130c;
-  --primary-soft: rgba(61, 220, 151, 0.13);
-  --accent: #60a5fa;
-  --accent-soft: rgba(96, 165, 250, 0.15);
-  --danger: #f87171;
-  --danger-soft: rgba(248, 113, 113, 0.14);
-  --warning: #fbbf24;
-  --tabbar-bg: #0b1115;
-  --backdrop: rgba(0, 0, 0, 0.6);
-  --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
-  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.4);
-  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23a3b1bc' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  --bg: #090b1a;
+  --surface: #11142a;
+  --surface-2: #181c38;
+  --surface-3: #222748;
+  --border: #2b3158;
+  --text: #e9ecfb;
+  --text-2: #a7acd0;
+  --text-3: #7d84a6;
+  --primary: #8fa8ff;          /* periwinkle, lifted for dark */
+  --primary-press: #7a95f8;
+  --on-primary: #0b1030;
+  --primary-soft: rgba(143, 168, 255, 0.15);
+  --accent: #6de6fb;           /* brand cyan */
+  --accent-soft: rgba(109, 230, 251, 0.14);
+  --tertiary: #eba3f9;         /* brand orchid */
+  --tertiary-soft: rgba(235, 163, 249, 0.14);
+  --danger: #ff7a8a;
+  --danger-soft: rgba(255, 122, 138, 0.14);
+  --warning: #ffd27a;
+  --brand-gradient: linear-gradient(120deg, #6de6fb 0%, #759ef8 55%, #eba3f9 100%);
+  --tabbar-bg: #0d1024;
+  --backdrop: rgba(4, 5, 14, 0.65);
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.45);
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23a7acd0' stroke-width='2'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
   color-scheme: dark;
 }
 
@@ -429,7 +439,7 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
 /* ---------- Progress ----------------------------------------------------- */
 
 .progress { height: 6px; border-radius: var(--radius-full); background: var(--surface-3); overflow: hidden; }
-.progress > div { height: 100%; background: var(--primary); border-radius: inherit; transition: width 0.3s ease; }
+.progress > div { height: 100%; background: var(--brand-gradient); border-radius: inherit; transition: width 0.3s ease; }
 
 /* ---------- Bottom sheet / modal ---------------------------------------- */
 
@@ -529,3 +539,12 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
 
 /* Region between a screen's header and the tab bar */
 .screen-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+
+/* ---------- Brand ------------------------------------------------------- */
+.brand-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.badge-tertiary { background: var(--tertiary-soft); color: var(--tertiary); }

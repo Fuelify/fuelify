@@ -5,7 +5,7 @@ import { PREFERENCES_STORAGE_KEY, type ResolvedTheme } from '@fuelify/shared';
 export const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 /** Browser chrome colour per theme (matches --surface). */
-export const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#f6f8fa', dark: '#0e1418' };
+export const THEME_COLORS: Record<ResolvedTheme, string> = { light: '#f6f7fd', dark: '#11142a' };
 
 /**
  * Runs before React hydrates (inlined in <head>) so the first paint already

@@ -20,7 +20,7 @@ export default function SplashPage() {
   return (
     <div className="screen">
       <div className="center-fill">
-        <Logo />
+        <Logo stacked size={34} />
         <p className="muted">Fuel your life with better nutrition</p>
         <div style={{ marginTop: 24 }}><Spinner /></div>
         {dataStoresReady && <RouteByProfile />}

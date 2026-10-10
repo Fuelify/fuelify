@@ -23,13 +23,15 @@ const FOOD_EMOJI: [RegExp, string][] = [
 
 export const DEFAULT_FOOD_EMOJI = '🍽️';
 
+// Brand-adjacent pairs (cyan / periwinkle / orchid family plus two warm
+// complements) so generated food art sits comfortably next to the logo.
 const GRADIENTS: [string, string][] = [
-  ['#ff9a5a', '#ff6b6b'],
-  ['#4db6ac', '#2e7d74'],
-  ['#ffbd73', '#e8873a'],
-  ['#7c83fd', '#4b52c7'],
-  ['#9bd16b', '#4f9a3a'],
-  ['#f78fb3', '#c44569'],
+  ['#6DE6FB', '#3FA9E8'],
+  ['#759EF8', '#5B6BE8'],
+  ['#EBA3F9', '#B76BE6'],
+  ['#8EE6C8', '#3FB8A5'],
+  ['#FFB49A', '#F27A8C'],
+  ['#FFD58A', '#F59E6B'],
 ];
 
 function hash(s: string): number {
