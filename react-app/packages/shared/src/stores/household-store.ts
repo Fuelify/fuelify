@@ -16,6 +16,8 @@ export interface HouseholdActions {
   fetchHouseholds: () => Promise<void>;
   setActiveHousehold: (id: string) => void;
   createHousehold: (name: string) => Promise<Household>;
+  /** Load households, create a default one if the user has none; resolves to the active household id. */
+  ensureHousehold: () => Promise<string | null>;
   updateHousehold: (householdId: string, name: string) => Promise<void>;
   deleteHousehold: (householdId: string) => Promise<void>;
   fetchMembers: () => Promise<void>;
@@ -25,7 +27,12 @@ export interface HouseholdActions {
 
 export type HouseholdStore = HouseholdState & HouseholdActions;
 
+export const DEFAULT_HOUSEHOLD_NAME = 'My Household';
+
 export function createHouseholdStore(repo: HouseholdRepository, userId: string) {
+  // Shared so concurrent callers (e.g. Home + Pantry mounting) don't create two households
+  let ensuring: Promise<string | null> | null = null;
+
   return createStore<HouseholdStore>()((set, get) => ({
     households: [],
     activeHouseholdId: null,
@@ -74,6 +81,19 @@ export function createHouseholdStore(repo: HouseholdRepository, userId: string) 
         set({ error: (err as Error).message });
         throw err;
       }
+    },
+
+    ensureHousehold: () => {
+      if (!ensuring) {
+        ensuring = (async () => {
+          await get().fetchHouseholds();
+          if (get().households.length === 0 && !get().error) {
+            await get().createHousehold(DEFAULT_HOUSEHOLD_NAME).catch(() => undefined);
+          }
+          return get().activeHouseholdId;
+        })().finally(() => { ensuring = null; });
+      }
+      return ensuring;
     },
 
     updateHousehold: async (householdId: string, name: string) => {

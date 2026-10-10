@@ -1,7 +1,7 @@
 // Ported from: lib/constants.dart
 
 // Debug settings
-export const DEBUG = true;
+export const DEBUG = false; // true skips the login redirect on mobile (dev only)
 export const DEBUG_ENTER_ROUTE = 'plan'; // enter route following splash screen
 
 // Theme colors (hex values from Flutter Color objects)

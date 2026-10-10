@@ -1,0 +1,1343 @@
+[
+  {
+    "title": "Greek Chicken Bowls",
+    "description": "Lemon-oregano chicken over herbed rice with cucumber, tomato and tzatziki.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Omnivore",
+    "calories": 520,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "2 chicken breasts",
+      "1 cup long-grain rice",
+      "1 lemon",
+      "2 tsp dried oregano",
+      "1 cucumber",
+      "2 tomatoes",
+      "1/2 red onion",
+      "1/2 cup tzatziki",
+      "Olive oil, salt, pepper"
+    ],
+    "steps": [
+      "Marinate chicken in lemon juice, oregano, olive oil, salt and pepper for 15 minutes.",
+      "Cook rice according to package directions.",
+      "Grill or pan-sear chicken 6–7 minutes per side, then rest and slice.",
+      "Dice cucumber, tomatoes and onion.",
+      "Build bowls with rice, chicken and vegetables; top with tzatziki."
+    ]
+  },
+  {
+    "title": "Salmon Teriyaki with Greens",
+    "description": "Glazed salmon fillets with garlicky bok choy and jasmine rice.",
+    "cuisine": "Japanese",
+    "diet_type": "Pescatarian",
+    "calories": 560,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 20,
+    "servings": 4,
+    "ingredients": [
+      "4 salmon fillets",
+      "1/3 cup teriyaki sauce",
+      "1 tbsp honey",
+      "2 heads bok choy",
+      "2 cloves garlic",
+      "1 cup jasmine rice",
+      "Sesame seeds",
+      "Spring onion"
+    ],
+    "steps": [
+      "Cook the rice.",
+      "Whisk teriyaki sauce with honey.",
+      "Sear salmon skin-side down 4 minutes, flip, brush with glaze and cook 3 more minutes.",
+      "Stir-fry bok choy with garlic for 3 minutes.",
+      "Serve salmon over rice with greens; garnish with sesame and spring onion."
+    ]
+  },
+  {
+    "title": "Chickpea Coconut Curry",
+    "description": "A creamy, warming curry that comes together in one pot.",
+    "cuisine": "Indian",
+    "diet_type": "Vegan",
+    "calories": 480,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "2 cans chickpeas",
+      "1 can coconut milk",
+      "1 can diced tomatoes",
+      "1 onion",
+      "3 cloves garlic",
+      "1 tbsp ginger",
+      "2 tbsp curry powder",
+      "2 cups spinach",
+      "Rice or naan to serve"
+    ],
+    "steps": [
+      "Sauté onion until soft, then add garlic, ginger and curry powder for 1 minute.",
+      "Add tomatoes, coconut milk and chickpeas; simmer 15 minutes.",
+      "Stir in spinach until wilted.",
+      "Season and serve with rice or naan."
+    ]
+  },
+  {
+    "title": "Turkey Taco Lettuce Wraps",
+    "description": "Light, crunchy tacos with seasoned ground turkey.",
+    "cuisine": "Mexican",
+    "diet_type": "Omnivore",
+    "calories": 380,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 12,
+    "servings": 4,
+    "ingredients": [
+      "1 lb ground turkey",
+      "1 tbsp taco seasoning",
+      "1 head butter lettuce",
+      "1 cup pico de gallo",
+      "1 avocado",
+      "1/2 cup shredded cheese",
+      "1 lime"
+    ],
+    "steps": [
+      "Brown turkey with taco seasoning and a splash of water.",
+      "Separate lettuce leaves into cups.",
+      "Fill with turkey, pico de gallo, avocado and cheese.",
+      "Finish with a squeeze of lime."
+    ]
+  },
+  {
+    "title": "Mediterranean Quinoa Salad",
+    "description": "Bright quinoa salad with feta, olives and a lemon vinaigrette.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Vegetarian",
+    "calories": 410,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "1 cup quinoa",
+      "1 cucumber",
+      "1 cup cherry tomatoes",
+      "1/2 cup kalamata olives",
+      "1/2 cup feta",
+      "1/4 cup parsley",
+      "1 lemon",
+      "3 tbsp olive oil"
+    ],
+    "steps": [
+      "Cook quinoa and let it cool.",
+      "Chop cucumber, tomatoes, olives and parsley.",
+      "Whisk lemon juice with olive oil, salt and pepper.",
+      "Toss everything together and top with feta."
+    ]
+  },
+  {
+    "title": "Overnight Oats with Berries",
+    "description": "Make-ahead breakfast with oats, chia and fresh berries.",
+    "cuisine": "American",
+    "diet_type": "Vegetarian",
+    "calories": 350,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 0,
+    "servings": 1,
+    "ingredients": [
+      "1/2 cup rolled oats",
+      "1/2 cup milk or oat milk",
+      "1/4 cup Greek yogurt",
+      "1 tbsp chia seeds",
+      "1 tsp maple syrup",
+      "1/2 cup mixed berries"
+    ],
+    "steps": [
+      "Stir oats, milk, yogurt, chia and maple syrup together in a jar.",
+      "Refrigerate overnight.",
+      "Top with berries in the morning."
+    ]
+  },
+  {
+    "title": "Beef and Broccoli Stir-Fry",
+    "description": "Takeout-style beef and broccoli in a savory garlic sauce.",
+    "cuisine": "Chinese",
+    "diet_type": "Omnivore",
+    "calories": 540,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "1 lb flank steak",
+      "4 cups broccoli florets",
+      "3 tbsp soy sauce",
+      "1 tbsp oyster sauce",
+      "1 tbsp cornstarch",
+      "2 cloves garlic",
+      "1 tsp ginger",
+      "Rice to serve"
+    ],
+    "steps": [
+      "Slice steak thinly against the grain and toss with 1 tbsp soy sauce and cornstarch.",
+      "Sear beef in batches over high heat; set aside.",
+      "Stir-fry broccoli 3 minutes with garlic and ginger.",
+      "Return beef, add remaining soy and oyster sauce, toss 1 minute.",
+      "Serve over rice."
+    ]
+  },
+  {
+    "title": "Black Bean Sweet Potato Tacos",
+    "description": "Roasted sweet potato and smoky black beans in warm tortillas.",
+    "cuisine": "Mexican",
+    "diet_type": "Vegan",
+    "calories": 430,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "2 sweet potatoes",
+      "1 can black beans",
+      "1 tsp smoked paprika",
+      "1 tsp cumin",
+      "8 corn tortillas",
+      "1 avocado",
+      "1/4 cup cilantro",
+      "1 lime"
+    ],
+    "steps": [
+      "Dice sweet potatoes, toss with oil, paprika and cumin; roast at 425°F for 25 minutes.",
+      "Warm black beans with a pinch of cumin.",
+      "Warm tortillas.",
+      "Fill with sweet potato, beans, avocado and cilantro; add lime."
+    ]
+  },
+  {
+    "title": "Shrimp Scampi Zoodles",
+    "description": "Garlic-butter shrimp tossed with zucchini noodles.",
+    "cuisine": "Italian",
+    "diet_type": "Pescatarian",
+    "calories": 320,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 10,
+    "servings": 4,
+    "ingredients": [
+      "1 lb shrimp",
+      "4 zucchini, spiralized",
+      "4 cloves garlic",
+      "2 tbsp butter",
+      "1 lemon",
+      "1/4 tsp chili flakes",
+      "Parsley",
+      "Parmesan"
+    ],
+    "steps": [
+      "Melt butter and sauté garlic with chili flakes for 1 minute.",
+      "Add shrimp and cook 2 minutes per side.",
+      "Add zucchini noodles and lemon juice; toss 2 minutes.",
+      "Finish with parsley and parmesan."
+    ]
+  },
+  {
+    "title": "Lentil Bolognese",
+    "description": "Hearty plant-based bolognese over whole-wheat pasta.",
+    "cuisine": "Italian",
+    "diet_type": "Vegan",
+    "calories": 460,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 40,
+    "servings": 6,
+    "ingredients": [
+      "1 cup brown lentils",
+      "1 onion",
+      "2 carrots",
+      "2 celery stalks",
+      "3 cloves garlic",
+      "1 can crushed tomatoes",
+      "2 tbsp tomato paste",
+      "12 oz whole-wheat spaghetti",
+      "Italian seasoning"
+    ],
+    "steps": [
+      "Finely dice onion, carrot and celery; sauté 8 minutes.",
+      "Add garlic and tomato paste for 1 minute.",
+      "Add lentils, tomatoes, seasoning and 2 cups water; simmer 30 minutes.",
+      "Cook pasta and toss with the sauce."
+    ]
+  },
+  {
+    "title": "Egg & Veggie Breakfast Scramble",
+    "description": "Protein-packed scramble with peppers, spinach and feta.",
+    "cuisine": "American",
+    "diet_type": "Vegetarian",
+    "calories": 330,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 10,
+    "servings": 2,
+    "ingredients": [
+      "4 eggs",
+      "1 bell pepper",
+      "1 cup spinach",
+      "1/4 cup feta",
+      "1/4 onion",
+      "Whole-grain toast"
+    ],
+    "steps": [
+      "Sauté onion and pepper until soft.",
+      "Add spinach until wilted.",
+      "Pour in whisked eggs and stir gently until just set.",
+      "Top with feta and serve with toast."
+    ]
+  },
+  {
+    "title": "Sheet-Pan Lemon Herb Chicken",
+    "description": "Chicken thighs roasted with potatoes and green beans on one pan.",
+    "cuisine": "American",
+    "diet_type": "Omnivore",
+    "calories": 590,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 45,
+    "servings": 4,
+    "ingredients": [
+      "6 chicken thighs",
+      "1 lb baby potatoes",
+      "8 oz green beans",
+      "1 lemon",
+      "3 cloves garlic",
+      "1 tbsp rosemary",
+      "Olive oil, salt, pepper"
+    ],
+    "steps": [
+      "Heat oven to 425°F.",
+      "Toss halved potatoes with oil, salt and rosemary; roast 15 minutes.",
+      "Add chicken rubbed with garlic, lemon zest and oil; roast 20 minutes.",
+      "Add green beans and lemon slices; roast 10 more minutes."
+    ]
+  },
+  {
+    "title": "Tofu Pad Thai",
+    "description": "Sweet, tangy rice noodles with crispy tofu and peanuts.",
+    "cuisine": "Thai",
+    "diet_type": "Vegan",
+    "calories": 510,
+    "prep_time_minutes": 20,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "8 oz rice noodles",
+      "14 oz firm tofu",
+      "3 tbsp tamari",
+      "2 tbsp lime juice",
+      "2 tbsp brown sugar",
+      "1 cup bean sprouts",
+      "3 spring onions",
+      "1/4 cup peanuts"
+    ],
+    "steps": [
+      "Soak noodles in hot water until pliable.",
+      "Press and cube tofu; pan-fry until golden.",
+      "Whisk tamari, lime juice and sugar.",
+      "Toss noodles with sauce, tofu and sprouts over high heat for 2 minutes.",
+      "Top with spring onions and crushed peanuts."
+    ]
+  },
+  {
+    "title": "Tuna Poke Bowl",
+    "description": "Fresh sushi-grade tuna with rice, edamame and avocado.",
+    "cuisine": "Japanese",
+    "diet_type": "Pescatarian",
+    "calories": 610,
+    "prep_time_minutes": 20,
+    "cook_time_minutes": 20,
+    "servings": 2,
+    "ingredients": [
+      "12 oz sushi-grade tuna",
+      "2 tbsp soy sauce",
+      "1 tsp sesame oil",
+      "2 cups sushi rice",
+      "1 cup edamame",
+      "1 avocado",
+      "1 cucumber",
+      "Pickled ginger, nori"
+    ],
+    "steps": [
+      "Cook and cool the rice.",
+      "Cube tuna and toss with soy sauce and sesame oil.",
+      "Slice avocado and cucumber.",
+      "Assemble bowls with rice, tuna, edamame, avocado and cucumber; garnish with ginger and nori."
+    ]
+  },
+  {
+    "title": "Caprese Stuffed Portobellos",
+    "description": "Roasted mushrooms filled with tomato, mozzarella and basil.",
+    "cuisine": "Italian",
+    "diet_type": "Vegetarian",
+    "calories": 240,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "4 portobello caps",
+      "1 cup cherry tomatoes",
+      "4 oz fresh mozzarella",
+      "Fresh basil",
+      "2 tbsp balsamic glaze",
+      "Olive oil"
+    ],
+    "steps": [
+      "Heat oven to 400°F; brush mushrooms with oil.",
+      "Fill with halved tomatoes and mozzarella.",
+      "Roast 15 minutes.",
+      "Top with basil and balsamic glaze."
+    ]
+  },
+  {
+    "title": "Rainbow Raw Veggie Wraps",
+    "description": "No-cook collard wraps with hummus and crunchy vegetables.",
+    "cuisine": "American",
+    "diet_type": "Raw",
+    "calories": 290,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "4 large collard leaves",
+      "1/2 cup hummus",
+      "1 carrot",
+      "1 red pepper",
+      "1/2 red cabbage",
+      "1 avocado",
+      "Sprouts"
+    ],
+    "steps": [
+      "Trim collard stems so leaves lie flat.",
+      "Spread hummus down the center.",
+      "Layer julienned vegetables, avocado and sprouts.",
+      "Roll tightly like a burrito and slice in half."
+    ]
+  },
+  {
+    "title": "Chicken Fajita Sheet Pan",
+    "description": "Smoky chicken, peppers and onions roasted together and piled into warm tortillas.",
+    "cuisine": "Mexican",
+    "diet_type": "Omnivore",
+    "calories": 490,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "1.5 lb chicken breast, sliced",
+      "3 bell peppers",
+      "1 red onion",
+      "2 tbsp olive oil",
+      "1 tbsp fajita seasoning",
+      "8 flour tortillas",
+      "1 lime",
+      "Sour cream and salsa"
+    ],
+    "steps": [
+      "Heat oven to 425°F.",
+      "Toss chicken, sliced peppers and onion with oil and seasoning on a sheet pan.",
+      "Roast 20–25 minutes until the chicken is cooked through.",
+      "Squeeze lime over the pan and serve in warm tortillas with sour cream and salsa."
+    ]
+  },
+  {
+    "title": "Turkey Meatballs with Marinara",
+    "description": "Tender herbed turkey meatballs simmered in a quick tomato sauce.",
+    "cuisine": "Italian",
+    "diet_type": "Omnivore",
+    "calories": 450,
+    "prep_time_minutes": 20,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "1 lb ground turkey",
+      "1/3 cup breadcrumbs",
+      "1 egg",
+      "1/4 cup parmesan",
+      "2 cloves garlic",
+      "1 tsp Italian seasoning",
+      "24 oz marinara",
+      "Fresh basil"
+    ],
+    "steps": [
+      "Mix turkey, breadcrumbs, egg, parmesan, garlic and seasoning; roll into 16 balls.",
+      "Brown meatballs in an oiled skillet, about 6 minutes.",
+      "Add marinara, cover and simmer 15 minutes.",
+      "Top with basil; serve over pasta or with crusty bread."
+    ]
+  },
+  {
+    "title": "Korean Beef Rice Bowls",
+    "description": "Sweet-savory ground beef with garlic and ginger over rice with quick-pickled cucumbers.",
+    "cuisine": "Korean",
+    "diet_type": "Omnivore",
+    "calories": 560,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "1 lb lean ground beef",
+      "3 tbsp soy sauce",
+      "2 tbsp brown sugar",
+      "1 tbsp sesame oil",
+      "3 cloves garlic",
+      "1 tsp ginger",
+      "2 cups cooked rice",
+      "1 cucumber",
+      "Rice vinegar",
+      "Spring onions"
+    ],
+    "steps": [
+      "Toss sliced cucumber with a splash of rice vinegar and salt.",
+      "Brown beef with garlic and ginger.",
+      "Stir in soy sauce, sugar and sesame oil; simmer 2 minutes.",
+      "Serve over rice with cucumbers and spring onions."
+    ]
+  },
+  {
+    "title": "Chicken Tikka Masala",
+    "description": "Charred yogurt-marinated chicken in a creamy spiced tomato sauce.",
+    "cuisine": "Indian",
+    "diet_type": "Omnivore",
+    "calories": 580,
+    "prep_time_minutes": 20,
+    "cook_time_minutes": 30,
+    "servings": 4,
+    "ingredients": [
+      "1.5 lb chicken thighs",
+      "1/2 cup plain yogurt",
+      "2 tbsp tikka masala paste",
+      "1 onion",
+      "3 cloves garlic",
+      "1 can crushed tomatoes",
+      "1/2 cup cream",
+      "Basmati rice",
+      "Cilantro"
+    ],
+    "steps": [
+      "Marinate chicken in yogurt and 1 tbsp paste for 15 minutes.",
+      "Sear chicken until charred; set aside.",
+      "Soften onion and garlic, add remaining paste and tomatoes; simmer 10 minutes.",
+      "Stir in cream and chicken; simmer 8 minutes. Serve with rice and cilantro."
+    ]
+  },
+  {
+    "title": "Pork Carnitas Bowls",
+    "description": "Crispy citrus-braised pork with black beans, rice and pico de gallo.",
+    "cuisine": "Mexican",
+    "diet_type": "Omnivore",
+    "calories": 620,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 120,
+    "servings": 6,
+    "ingredients": [
+      "3 lb pork shoulder",
+      "1 orange",
+      "2 limes",
+      "1 onion",
+      "4 cloves garlic",
+      "2 tsp cumin",
+      "1 tsp oregano",
+      "Rice and black beans",
+      "Pico de gallo"
+    ],
+    "steps": [
+      "Season pork with cumin, oregano, salt and pepper.",
+      "Braise with orange and lime juice, onion and garlic, covered, at 325°F for 2 hours.",
+      "Shred, then crisp under the broiler for 5 minutes.",
+      "Serve over rice and beans with pico de gallo."
+    ]
+  },
+  {
+    "title": "Chicken Caesar Wraps",
+    "description": "Grilled chicken, crisp romaine and parmesan in a creamy Caesar wrap.",
+    "cuisine": "American",
+    "diet_type": "Omnivore",
+    "calories": 470,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 12,
+    "servings": 4,
+    "ingredients": [
+      "2 chicken breasts",
+      "1 head romaine",
+      "1/3 cup Caesar dressing",
+      "1/4 cup parmesan",
+      "4 large tortillas",
+      "Lemon"
+    ],
+    "steps": [
+      "Season and grill chicken 6 minutes per side; slice.",
+      "Toss chopped romaine with dressing, parmesan and a squeeze of lemon.",
+      "Fill tortillas with salad and chicken; roll tightly and halve."
+    ]
+  },
+  {
+    "title": "Beef and Vegetable Chili",
+    "description": "Hearty weeknight chili loaded with beans and vegetables.",
+    "cuisine": "American",
+    "diet_type": "Omnivore",
+    "calories": 510,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 40,
+    "servings": 6,
+    "ingredients": [
+      "1 lb lean ground beef",
+      "1 onion",
+      "1 bell pepper",
+      "1 zucchini",
+      "2 cans kidney beans",
+      "1 can crushed tomatoes",
+      "2 tbsp chili powder",
+      "1 tsp cumin",
+      "Cheddar and sour cream"
+    ],
+    "steps": [
+      "Brown beef with diced onion and pepper.",
+      "Add zucchini, spices, tomatoes and beans with 1 cup water.",
+      "Simmer 30 minutes, stirring occasionally.",
+      "Top with cheddar and sour cream."
+    ]
+  },
+  {
+    "title": "Lemon Garlic Chicken Orzo",
+    "description": "One-pot orzo with chicken, spinach and a bright lemon finish.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Omnivore",
+    "calories": 530,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "1.25 lb chicken breast, cubed",
+      "1 1/2 cups orzo",
+      "3 cups chicken broth",
+      "3 cloves garlic",
+      "2 cups spinach",
+      "1 lemon",
+      "1/4 cup parmesan"
+    ],
+    "steps": [
+      "Brown chicken in olive oil; add garlic for 30 seconds.",
+      "Add orzo and broth; simmer, stirring, 10–12 minutes.",
+      "Stir in spinach, lemon zest and juice, and parmesan."
+    ]
+  },
+  {
+    "title": "Breakfast Burritos",
+    "description": "Make-ahead burritos with eggs, sausage, potatoes and cheese.",
+    "cuisine": "Mexican",
+    "diet_type": "Omnivore",
+    "calories": 520,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 20,
+    "servings": 6,
+    "ingredients": [
+      "8 eggs",
+      "1/2 lb breakfast sausage",
+      "2 cups diced potatoes",
+      "1 cup shredded cheddar",
+      "6 large tortillas",
+      "Salsa"
+    ],
+    "steps": [
+      "Crisp potatoes in a skillet, about 12 minutes; set aside.",
+      "Brown sausage, then scramble in the eggs.",
+      "Fill tortillas with potatoes, eggs, sausage and cheese; roll.",
+      "Serve with salsa, or wrap and freeze for busy mornings."
+    ]
+  },
+  {
+    "title": "Thai Basil Chicken",
+    "description": "Fast stir-fry of chicken, chilies and holy basil over jasmine rice.",
+    "cuisine": "Thai",
+    "diet_type": "Omnivore",
+    "calories": 480,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 10,
+    "servings": 4,
+    "ingredients": [
+      "1 lb ground chicken",
+      "4 cloves garlic",
+      "2 Thai chilies",
+      "2 tbsp oyster sauce",
+      "1 tbsp soy sauce",
+      "1 tsp sugar",
+      "1 cup Thai basil",
+      "Jasmine rice",
+      "Fried eggs (optional)"
+    ],
+    "steps": [
+      "Stir-fry garlic and chilies 30 seconds.",
+      "Add chicken and cook until browned.",
+      "Add sauces and sugar; toss in basil until wilted.",
+      "Serve over rice, topped with a fried egg if you like."
+    ]
+  },
+  {
+    "title": "Lemon Herb Baked Cod",
+    "description": "Flaky cod baked with lemon, garlic and herbs alongside roasted asparagus.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Pescatarian",
+    "calories": 310,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "4 cod fillets",
+      "1 lb asparagus",
+      "2 tbsp butter, melted",
+      "2 cloves garlic",
+      "1 lemon",
+      "2 tbsp parsley",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Heat oven to 400°F.",
+      "Arrange cod and asparagus on a sheet pan.",
+      "Brush with butter mixed with garlic, lemon zest and parsley.",
+      "Bake 12–15 minutes; finish with lemon juice."
+    ]
+  },
+  {
+    "title": "Fish Tacos with Lime Slaw",
+    "description": "Crispy seasoned white fish with a tangy cabbage slaw.",
+    "cuisine": "Mexican",
+    "diet_type": "Pescatarian",
+    "calories": 440,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 10,
+    "servings": 4,
+    "ingredients": [
+      "1 lb tilapia or cod",
+      "1 tsp chili powder",
+      "1 tsp cumin",
+      "8 corn tortillas",
+      "3 cups shredded cabbage",
+      "1/4 cup Greek yogurt",
+      "2 limes",
+      "Cilantro"
+    ],
+    "steps": [
+      "Toss cabbage with yogurt, lime juice and salt.",
+      "Season fish with spices and sear 3 minutes per side; flake.",
+      "Warm tortillas and fill with fish and slaw; top with cilantro."
+    ]
+  },
+  {
+    "title": "Garlic Butter Shrimp & Rice",
+    "description": "Juicy shrimp in garlic butter over fluffy rice with green beans.",
+    "cuisine": "American",
+    "diet_type": "Pescatarian",
+    "calories": 470,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "1 lb shrimp",
+      "3 tbsp butter",
+      "4 cloves garlic",
+      "1/4 tsp red pepper flakes",
+      "1 lemon",
+      "2 cups cooked rice",
+      "8 oz green beans"
+    ],
+    "steps": [
+      "Steam green beans 5 minutes.",
+      "Melt butter, add garlic and pepper flakes.",
+      "Cook shrimp 2 minutes per side; finish with lemon.",
+      "Serve over rice with green beans."
+    ]
+  },
+  {
+    "title": "Mediterranean Tuna Salad",
+    "description": "No-mayo tuna salad with white beans, olives and herbs.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Pescatarian",
+    "calories": 360,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "2 cans tuna in olive oil",
+      "1 can cannellini beans",
+      "1/4 cup kalamata olives",
+      "1/4 red onion",
+      "1 cup cherry tomatoes",
+      "Parsley",
+      "1 lemon"
+    ],
+    "steps": [
+      "Drain tuna and beans.",
+      "Combine with chopped olives, onion, tomatoes and parsley.",
+      "Dress with lemon juice and a drizzle of the tuna oil; season."
+    ]
+  },
+  {
+    "title": "Miso Glazed Salmon",
+    "description": "Caramelized miso salmon with sesame broccoli.",
+    "cuisine": "Japanese",
+    "diet_type": "Pescatarian",
+    "calories": 520,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 15,
+    "servings": 4,
+    "ingredients": [
+      "4 salmon fillets",
+      "2 tbsp white miso",
+      "1 tbsp honey",
+      "1 tbsp rice vinegar",
+      "1 tsp soy sauce",
+      "1 head broccoli",
+      "Sesame seeds"
+    ],
+    "steps": [
+      "Whisk miso, honey, vinegar and soy sauce.",
+      "Brush over salmon; broil 8–10 minutes until caramelized.",
+      "Roast broccoli at 425°F for 15 minutes; sprinkle with sesame."
+    ]
+  },
+  {
+    "title": "Shrimp Pad See Ew",
+    "description": "Wide rice noodles stir-fried with shrimp, Chinese broccoli and egg.",
+    "cuisine": "Thai",
+    "diet_type": "Pescatarian",
+    "calories": 540,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 10,
+    "servings": 4,
+    "ingredients": [
+      "8 oz wide rice noodles",
+      "12 oz shrimp",
+      "2 eggs",
+      "4 cups Chinese broccoli",
+      "3 tbsp dark soy sauce",
+      "1 tbsp oyster sauce",
+      "1 tsp sugar",
+      "2 cloves garlic"
+    ],
+    "steps": [
+      "Soak noodles until pliable.",
+      "Sear shrimp with garlic; push aside and scramble eggs.",
+      "Add broccoli and noodles with sauces and sugar.",
+      "Toss over high heat 2–3 minutes until glossy."
+    ]
+  },
+  {
+    "title": "Smoked Salmon Bagel Board",
+    "description": "Bagels with smoked salmon, herbed cream cheese and fresh toppings.",
+    "cuisine": "American",
+    "diet_type": "Pescatarian",
+    "calories": 430,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 4,
+    "ingredients": [
+      "4 whole-grain bagels",
+      "8 oz smoked salmon",
+      "1/2 cup cream cheese",
+      "1 tbsp dill",
+      "Capers",
+      "Red onion",
+      "Cucumber",
+      "Lemon"
+    ],
+    "steps": [
+      "Stir dill into cream cheese.",
+      "Toast bagels.",
+      "Spread cream cheese and layer salmon, cucumber, onion and capers.",
+      "Finish with lemon and black pepper."
+    ]
+  },
+  {
+    "title": "Spinach & Ricotta Stuffed Shells",
+    "description": "Jumbo pasta shells filled with ricotta and spinach, baked in marinara.",
+    "cuisine": "Italian",
+    "diet_type": "Vegetarian",
+    "calories": 520,
+    "prep_time_minutes": 20,
+    "cook_time_minutes": 30,
+    "servings": 6,
+    "ingredients": [
+      "20 jumbo pasta shells",
+      "15 oz ricotta",
+      "2 cups spinach, chopped",
+      "1 egg",
+      "1 cup mozzarella",
+      "1/2 cup parmesan",
+      "24 oz marinara"
+    ],
+    "steps": [
+      "Boil shells until just al dente.",
+      "Mix ricotta, spinach, egg and half the cheeses.",
+      "Fill shells and arrange over marinara in a baking dish.",
+      "Top with remaining cheese; bake at 375°F for 25 minutes."
+    ]
+  },
+  {
+    "title": "Veggie Fried Rice",
+    "description": "Day-old rice fried with eggs, peas, carrots and soy.",
+    "cuisine": "Chinese",
+    "diet_type": "Vegetarian",
+    "calories": 420,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 10,
+    "servings": 4,
+    "ingredients": [
+      "3 cups cold cooked rice",
+      "3 eggs",
+      "1 cup peas and carrots",
+      "3 spring onions",
+      "2 cloves garlic",
+      "3 tbsp soy sauce",
+      "1 tsp sesame oil"
+    ],
+    "steps": [
+      "Scramble eggs in a hot wok; set aside.",
+      "Stir-fry garlic and vegetables 2 minutes.",
+      "Add rice and soy sauce; fry until hot and slightly crisp.",
+      "Fold in eggs, spring onions and sesame oil."
+    ]
+  },
+  {
+    "title": "Shakshuka",
+    "description": "Eggs poached in a spiced tomato and pepper sauce.",
+    "cuisine": "Middle Eastern",
+    "diet_type": "Vegetarian",
+    "calories": 320,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "6 eggs",
+      "1 can crushed tomatoes",
+      "1 red bell pepper",
+      "1 onion",
+      "3 cloves garlic",
+      "1 tsp cumin",
+      "1 tsp smoked paprika",
+      "Feta",
+      "Crusty bread"
+    ],
+    "steps": [
+      "Soften onion and pepper; add garlic and spices.",
+      "Add tomatoes and simmer 10 minutes.",
+      "Make wells and crack in eggs; cover and cook 6–8 minutes.",
+      "Crumble feta on top; serve with bread."
+    ]
+  },
+  {
+    "title": "Margherita Flatbread",
+    "description": "Crisp flatbread with tomato, fresh mozzarella and basil.",
+    "cuisine": "Italian",
+    "diet_type": "Vegetarian",
+    "calories": 460,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 12,
+    "servings": 2,
+    "ingredients": [
+      "2 naan or flatbreads",
+      "1/2 cup pizza sauce",
+      "6 oz fresh mozzarella",
+      "1 cup cherry tomatoes",
+      "Fresh basil",
+      "Olive oil"
+    ],
+    "steps": [
+      "Heat oven to 450°F.",
+      "Spread sauce over flatbreads; top with mozzarella and halved tomatoes.",
+      "Bake 10–12 minutes until bubbling.",
+      "Finish with basil and olive oil."
+    ]
+  },
+  {
+    "title": "Greek Yogurt Parfait",
+    "description": "Layers of Greek yogurt, granola, berries and honey.",
+    "cuisine": "American",
+    "diet_type": "Vegetarian",
+    "calories": 320,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 0,
+    "servings": 1,
+    "ingredients": [
+      "1 cup Greek yogurt",
+      "1/3 cup granola",
+      "1/2 cup mixed berries",
+      "1 tbsp honey",
+      "1 tbsp chia seeds"
+    ],
+    "steps": [
+      "Layer yogurt, berries and granola in a glass.",
+      "Drizzle with honey and sprinkle with chia."
+    ]
+  },
+  {
+    "title": "Black Bean Quesadillas",
+    "description": "Cheesy quesadillas with black beans, corn and peppers.",
+    "cuisine": "Mexican",
+    "diet_type": "Vegetarian",
+    "calories": 480,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 10,
+    "servings": 4,
+    "ingredients": [
+      "1 can black beans",
+      "1 cup corn",
+      "1 bell pepper",
+      "1 1/2 cups shredded cheese",
+      "1 tsp cumin",
+      "8 tortillas",
+      "Salsa and guacamole"
+    ],
+    "steps": [
+      "Sauté pepper and corn with cumin; stir in mashed beans.",
+      "Fill tortillas with beans and cheese; fold.",
+      "Cook in a dry skillet 3 minutes per side until golden.",
+      "Cut into wedges; serve with salsa and guacamole."
+    ]
+  },
+  {
+    "title": "Mushroom Risotto",
+    "description": "Creamy arborio rice with sautéed mushrooms and parmesan.",
+    "cuisine": "Italian",
+    "diet_type": "Vegetarian",
+    "calories": 510,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 30,
+    "servings": 4,
+    "ingredients": [
+      "1 1/2 cups arborio rice",
+      "12 oz mushrooms",
+      "1 shallot",
+      "5 cups vegetable broth, warm",
+      "1/2 cup white wine (optional)",
+      "1/2 cup parmesan",
+      "2 tbsp butter",
+      "Thyme"
+    ],
+    "steps": [
+      "Sauté mushrooms until golden; set aside.",
+      "Soften shallot, add rice and toast 1 minute; add wine.",
+      "Add broth a ladle at a time, stirring, for about 20 minutes.",
+      "Stir in mushrooms, butter, parmesan and thyme."
+    ]
+  },
+  {
+    "title": "Caprese Pasta Salad",
+    "description": "Pasta tossed with tomatoes, mozzarella, basil and balsamic.",
+    "cuisine": "Italian",
+    "diet_type": "Vegetarian",
+    "calories": 430,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 10,
+    "servings": 6,
+    "ingredients": [
+      "12 oz rotini",
+      "2 cups cherry tomatoes",
+      "8 oz mozzarella pearls",
+      "1 cup basil",
+      "3 tbsp olive oil",
+      "2 tbsp balsamic glaze"
+    ],
+    "steps": [
+      "Cook pasta, rinse under cold water and drain.",
+      "Toss with tomatoes, mozzarella, basil and olive oil.",
+      "Season and drizzle with balsamic glaze."
+    ]
+  },
+  {
+    "title": "Vegan Buddha Bowl",
+    "description": "Roasted chickpeas and sweet potato over quinoa with tahini dressing.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 540,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 30,
+    "servings": 4,
+    "ingredients": [
+      "1 can chickpeas",
+      "1 large sweet potato",
+      "1 cup quinoa",
+      "2 cups kale",
+      "1 avocado",
+      "1/4 cup tahini",
+      "1 lemon",
+      "1 tsp smoked paprika"
+    ],
+    "steps": [
+      "Roast cubed sweet potato and chickpeas with paprika at 425°F for 25 minutes.",
+      "Cook quinoa.",
+      "Massage kale with a little lemon and salt.",
+      "Whisk tahini, lemon and water; assemble bowls and drizzle."
+    ]
+  },
+  {
+    "title": "Red Lentil Dal",
+    "description": "Silky spiced lentils finished with a sizzling cumin tadka.",
+    "cuisine": "Indian",
+    "diet_type": "Vegan",
+    "calories": 400,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "1 1/2 cups red lentils",
+      "1 onion",
+      "3 cloves garlic",
+      "1 tbsp ginger",
+      "1 tsp turmeric",
+      "1 can coconut milk",
+      "2 tsp cumin seeds",
+      "Cilantro",
+      "Rice or naan"
+    ],
+    "steps": [
+      "Simmer lentils with turmeric in 4 cups water for 15 minutes.",
+      "Sauté onion, garlic and ginger; add to lentils with coconut milk.",
+      "Sizzle cumin seeds in oil and pour over the dal.",
+      "Top with cilantro; serve with rice."
+    ]
+  },
+  {
+    "title": "Peanut Noodle Stir-Fry",
+    "description": "Noodles and crunchy vegetables in a creamy peanut-lime sauce.",
+    "cuisine": "Thai",
+    "diet_type": "Vegan",
+    "calories": 560,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 10,
+    "servings": 4,
+    "ingredients": [
+      "8 oz rice or soba noodles",
+      "1/3 cup peanut butter",
+      "3 tbsp soy sauce",
+      "2 tbsp lime juice",
+      "1 tbsp maple syrup",
+      "1 red bell pepper",
+      "2 carrots",
+      "2 cups snap peas",
+      "Crushed peanuts"
+    ],
+    "steps": [
+      "Cook noodles; rinse.",
+      "Whisk peanut butter, soy sauce, lime, maple and warm water.",
+      "Stir-fry sliced vegetables 3 minutes.",
+      "Toss with noodles and sauce; top with peanuts."
+    ]
+  },
+  {
+    "title": "Tofu Scramble",
+    "description": "Turmeric-spiced tofu scramble with peppers and spinach.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 290,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 10,
+    "servings": 2,
+    "ingredients": [
+      "14 oz firm tofu",
+      "1/2 tsp turmeric",
+      "2 tbsp nutritional yeast",
+      "1/2 bell pepper",
+      "1 cup spinach",
+      "1/4 onion",
+      "Salt and black pepper"
+    ],
+    "steps": [
+      "Sauté onion and pepper until soft.",
+      "Crumble in tofu with turmeric and nutritional yeast.",
+      "Cook 5 minutes, then fold in spinach until wilted."
+    ]
+  },
+  {
+    "title": "Minestrone Soup",
+    "description": "Classic Italian vegetable soup with beans and pasta.",
+    "cuisine": "Italian",
+    "diet_type": "Vegan",
+    "calories": 330,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 30,
+    "servings": 6,
+    "ingredients": [
+      "1 onion",
+      "2 carrots",
+      "2 celery stalks",
+      "1 zucchini",
+      "1 can diced tomatoes",
+      "1 can cannellini beans",
+      "6 cups vegetable broth",
+      "1 cup small pasta",
+      "2 cups spinach"
+    ],
+    "steps": [
+      "Sauté onion, carrot and celery 8 minutes.",
+      "Add zucchini, tomatoes, beans and broth; simmer 15 minutes.",
+      "Add pasta and cook until tender.",
+      "Stir in spinach; season."
+    ]
+  },
+  {
+    "title": "Chickpea Salad Sandwiches",
+    "description": "Smashed chickpeas with crunchy celery and a lemony dressing.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 410,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 4,
+    "ingredients": [
+      "2 cans chickpeas",
+      "2 celery stalks",
+      "1/4 red onion",
+      "3 tbsp vegan mayo",
+      "1 tbsp Dijon",
+      "1 lemon",
+      "8 slices whole-grain bread",
+      "Lettuce and tomato"
+    ],
+    "steps": [
+      "Mash chickpeas with a fork.",
+      "Mix in diced celery and onion, mayo, Dijon and lemon.",
+      "Build sandwiches with lettuce and tomato."
+    ]
+  },
+  {
+    "title": "Stuffed Bell Peppers",
+    "description": "Peppers filled with rice, black beans, corn and salsa.",
+    "cuisine": "Mexican",
+    "diet_type": "Vegan",
+    "calories": 380,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 35,
+    "servings": 4,
+    "ingredients": [
+      "4 bell peppers",
+      "1 cup cooked rice",
+      "1 can black beans",
+      "1 cup corn",
+      "1 cup salsa",
+      "1 tsp cumin",
+      "Avocado"
+    ],
+    "steps": [
+      "Heat oven to 375°F; halve and seed the peppers.",
+      "Mix rice, beans, corn, salsa and cumin.",
+      "Fill peppers, cover with foil and bake 30 minutes.",
+      "Top with sliced avocado."
+    ]
+  },
+  {
+    "title": "Coconut Chia Pudding",
+    "description": "Make-ahead chia pudding with coconut milk and mango.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 300,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "1/4 cup chia seeds",
+      "1 cup coconut milk",
+      "1 tbsp maple syrup",
+      "1/2 tsp vanilla",
+      "1 mango"
+    ],
+    "steps": [
+      "Whisk chia, coconut milk, maple and vanilla.",
+      "Refrigerate at least 4 hours or overnight.",
+      "Top with diced mango."
+    ]
+  },
+  {
+    "title": "Zucchini Noodles with Pesto",
+    "description": "Spiralized zucchini tossed with basil-walnut pesto and tomatoes.",
+    "cuisine": "Italian",
+    "diet_type": "Raw",
+    "calories": 310,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "3 zucchini, spiralized",
+      "2 cups basil",
+      "1/3 cup walnuts",
+      "1 clove garlic",
+      "1/3 cup olive oil",
+      "1 lemon",
+      "1 cup cherry tomatoes"
+    ],
+    "steps": [
+      "Blend basil, walnuts, garlic, olive oil and lemon into a pesto.",
+      "Toss zucchini noodles with pesto.",
+      "Top with halved tomatoes and season."
+    ]
+  },
+  {
+    "title": "Thai Mango Salad",
+    "description": "Crunchy mango and vegetable salad with a lime-chili dressing.",
+    "cuisine": "Thai",
+    "diet_type": "Raw",
+    "calories": 260,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "2 firm mangoes",
+      "1 red bell pepper",
+      "1 cup shredded red cabbage",
+      "1 carrot",
+      "1/4 cup cilantro",
+      "2 limes",
+      "1 tbsp maple syrup",
+      "1 Thai chili",
+      "Cashews"
+    ],
+    "steps": [
+      "Julienne mango, pepper and carrot.",
+      "Whisk lime juice, maple and minced chili.",
+      "Toss with cabbage and cilantro; top with cashews."
+    ]
+  },
+  {
+    "title": "Green Power Smoothie Bowl",
+    "description": "Thick spinach, banana and mango smoothie bowl with crunchy toppings.",
+    "cuisine": "American",
+    "diet_type": "Raw",
+    "calories": 340,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 1,
+    "ingredients": [
+      "1 frozen banana",
+      "1/2 cup frozen mango",
+      "1 cup spinach",
+      "1/2 cup almond milk",
+      "1 tbsp almond butter",
+      "Toppings: berries, hemp seeds, sliced kiwi"
+    ],
+    "steps": [
+      "Blend banana, mango, spinach, almond milk and almond butter until thick.",
+      "Pour into a bowl and add toppings."
+    ]
+  },
+  {
+    "title": "Raw Energy Bites",
+    "description": "No-bake date and nut bites for an easy snack.",
+    "cuisine": "American",
+    "diet_type": "Raw",
+    "calories": 180,
+    "prep_time_minutes": 15,
+    "cook_time_minutes": 0,
+    "servings": 12,
+    "ingredients": [
+      "1 cup pitted dates",
+      "1 cup almonds",
+      "2 tbsp cacao powder",
+      "2 tbsp chia seeds",
+      "1 tbsp almond butter",
+      "Pinch of sea salt"
+    ],
+    "steps": [
+      "Pulse almonds in a food processor until coarse.",
+      "Add dates, cacao, chia, almond butter and salt; blend until sticky.",
+      "Roll into 12 balls and chill 30 minutes."
+    ]
+  }
+]

@@ -13,6 +13,8 @@ export interface RecipeState {
 }
 
 export interface RecipeActions {
+  /** Load the full recipe catalog into `recipes` (used by Discover). */
+  loadCatalog: () => Promise<void>;
   searchRecipes: (filters: { query?: string; cuisine?: string; dietType?: string; maxCalories?: number }) => Promise<void>;
   getRecipe: (recipeId: string) => Promise<void>;
   getSimilarRecipes: (recipeId: string) => Promise<void>;
@@ -27,12 +29,22 @@ export interface RecipeActions {
 export type RecipeStore = RecipeState & RecipeActions;
 
 export function createRecipeStore(repo: RecipeRepository, userId: string) {
-  return createStore<RecipeStore>()((set) => ({
+  return createStore<RecipeStore>()((set, get) => ({
     recipes: [],
     currentRecipe: null,
     classifications: [],
     isLoading: false,
     error: null,
+
+    loadCatalog: async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const recipes = await repo.listAllRecipes();
+        set({ recipes, isLoading: false });
+      } catch (err) {
+        set({ isLoading: false, error: (err as Error).message });
+      }
+    },
 
     searchRecipes: async (filters) => {
       set({ isLoading: true, error: null });
@@ -83,10 +95,14 @@ export function createRecipeStore(repo: RecipeRepository, userId: string) {
     },
 
     classifyRecipe: async (recipeId: string, classification) => {
+      // Optimistic: reflect the choice locally right away, roll back on failure
+      const previous = get().classifications;
+      const others = previous.filter((c) => c.recipeId !== recipeId);
+      set({ classifications: [{ id: `local-${recipeId}`, recipeId, classification }, ...others] });
       try {
         await repo.classifyRecipe(userId, recipeId, classification);
       } catch (err) {
-        set({ error: (err as Error).message });
+        set({ classifications: previous, error: (err as Error).message });
       }
     },
 

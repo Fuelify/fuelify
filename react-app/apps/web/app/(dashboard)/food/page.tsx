@@ -1,11 +1,12 @@
 'use client';
 
-// Mirrors: lib/screens/main/food/screen.dart
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { LoadingBlock } from '@/components/ui';
+
+// The Flutter "Food" tab is now the Saved view inside Discover.
 export default function FoodPage() {
-  return (
-    <div>
-      <h1>Food</h1>
-      <p>Food tracking screen — TODO: port from Flutter FoodScreen</p>
-    </div>
-  );
+  const router = useRouter();
+  useEffect(() => { router.replace('/discovery?view=saved'); }, [router]);
+  return <LoadingBlock />;
 }
