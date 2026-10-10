@@ -10,6 +10,8 @@ export interface AuthState {
   status: AuthenticationStatus;
   userId: string | null;
   email: string | null;
+  /** True for the anonymous session created when the login gate is disabled */
+  isAnonymous: boolean;
   error: string | null;
 }
 
@@ -28,6 +30,7 @@ const initialState: AuthState = {
   status: 'loading',
   userId: null,
   email: null,
+  isAnonymous: false,
   error: null,
 };
 
@@ -37,8 +40,17 @@ export interface AuthStoreOptions {
   authDisabled?: boolean;
 }
 
+function sessionState(user: { id: string; email?: string | null; is_anonymous?: boolean }) {
+  return {
+    status: 'loggedIn' as const,
+    userId: user.id,
+    email: user.email || null,
+    isAnonymous: user.is_anonymous ?? false,
+  };
+}
+
 export function createAuthStore(supabase: TypedSupabaseClient, options: AuthStoreOptions = {}) {
-  return createStore<AuthStore>()((set) => ({
+  return createStore<AuthStore>()((set, get) => ({
     ...initialState,
 
     // Check for existing session on app startup
@@ -51,31 +63,35 @@ export function createAuthStore(supabase: TypedSupabaseClient, options: AuthStor
         session = data.session;
       }
       if (session?.user) {
-        set({
-          status: 'loggedIn',
-          userId: session.user.id,
-          email: session.user.email ?? null,
-          error: null,
-        });
+        set({ ...sessionState(session.user), error: null });
       } else {
-        set({ status: 'loggedOut', userId: null, email: null });
+        set({ status: 'loggedOut', userId: null, email: null, isAnonymous: false });
       }
 
       // Listen for auth state changes (token refresh, sign out from another tab, etc.)
       supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
-          set({
-            status: 'loggedIn',
-            userId: session.user.id,
-            email: session.user.email ?? null,
-          });
+          set(sessionState(session.user));
         } else {
-          set({ status: 'loggedOut', userId: null, email: null });
+          set({ status: 'loggedOut', userId: null, email: null, isAnonymous: false });
         }
       });
     },
 
     signUp: async (email: string, password: string) => {
+      // An anonymous user keeps their id (and all their data) by attaching
+      // an email + password to the existing account instead of signing up anew.
+      if (get().isAnonymous) {
+        set({ error: null });
+        const { data, error } = await supabase.auth.updateUser({ email, password });
+        if (error) {
+          set({ error: error.message });
+          return { status: false, message: error.message };
+        }
+        if (data.user) set(sessionState(data.user));
+        return { status: true, message: 'Account created — check your email to confirm it' };
+      }
+
       set({ status: 'authenticating', error: null });
       const { data, error } = await supabase.auth.signUp({ email, password });
 
@@ -84,40 +100,34 @@ export function createAuthStore(supabase: TypedSupabaseClient, options: AuthStor
         return { status: false, message: error.message };
       }
 
-      if (data.user) {
-        set({
-          status: 'loggedIn',
-          userId: data.user.id,
-          email: data.user.email ?? null,
-          error: null,
-        });
-      }
+      if (data.user) set({ ...sessionState(data.user), error: null });
       return { status: true, message: 'Account created successfully' };
     },
 
     signIn: async (email: string, password: string) => {
+      const previousStatus = get().status;
       set({ status: 'authenticating', error: null });
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        set({ status: 'loggedOut', error: error.message });
+        // A failed sign-in leaves any existing (e.g. anonymous) session intact
+        set({ status: previousStatus === 'loggedIn' ? 'loggedIn' : 'loggedOut', error: error.message });
         return { status: false, message: error.message };
       }
 
-      if (data.user) {
-        set({
-          status: 'loggedIn',
-          userId: data.user.id,
-          email: data.user.email ?? null,
-          error: null,
-        });
-      }
+      if (data.user) set({ ...sessionState(data.user), error: null });
       return { status: true, message: 'Successful' };
     },
 
     signOut: async () => {
       await supabase.auth.signOut();
       set({ ...initialState, status: 'loggedOut' });
+      // With the login gate disabled, immediately start a fresh anonymous session
+      if (options.authDisabled) {
+        const { data, error } = await supabase.auth.signInAnonymously();
+        if (error) set({ error: error.message });
+        else if (data.user) set(sessionState(data.user));
+      }
     },
 
     resetPassword: async (email: string) => {

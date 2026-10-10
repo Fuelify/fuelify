@@ -12,7 +12,8 @@ export interface ProfileState {
 
 export interface ProfileActions {
   fetchProfile: () => Promise<void>;
-  updateProfile: (updates: Partial<UserProfile>) => Promise<void>;
+  /** Resolves true on success; failures are also recorded in `error`. */
+  updateProfile: (updates: Partial<UserProfile>) => Promise<boolean>;
   completeOnboarding: () => Promise<void>;
   toggleDarkMode: () => Promise<void>;
   setUnits: (units: string) => Promise<void>;
@@ -42,8 +43,10 @@ export function createProfileStore(repo: ProfileRepository, userId: string) {
       try {
         const profile = await repo.updateProfile(userId, updates);
         set({ profile, isLoading: false });
+        return true;
       } catch (err) {
         set({ isLoading: false, error: (err as Error).message });
+        return false;
       }
     },
 

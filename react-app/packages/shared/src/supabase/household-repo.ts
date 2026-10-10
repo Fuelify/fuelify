@@ -54,13 +54,21 @@ export class HouseholdRepository {
 
   /** Create a new household (trigger auto-adds creator as owner) */
   async createHousehold(userId: string, name: string): Promise<Household> {
-    const { data, error } = await this.supabase
+    // Insert without RETURNING: the SELECT policy needs membership, and the
+    // owner membership row is only added by the AFTER INSERT trigger, so a
+    // RETURNING clause would be rejected by RLS. Read the row back afterwards.
+    const id = crypto.randomUUID();
+    const { error } = await this.supabase
       .from('households')
-      .insert({ name, created_by: userId })
-      .select()
-      .single();
-
+      .insert({ id, name, created_by: userId });
     if (error) throw new Error(`Failed to create household: ${error.message}`);
+
+    const { data, error: readError } = await this.supabase
+      .from('households')
+      .select('*')
+      .eq('id', id)
+      .single();
+    if (readError) throw new Error(`Failed to load new household: ${readError.message}`);
     return rowToHousehold(data);
   }
 
