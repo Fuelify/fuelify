@@ -74,6 +74,7 @@ const HouseholdStoreContext = createContext<HouseholdStoreApi | null>(null);
 const ShoppingCartStoreContext = createContext<ShoppingCartStoreApi | null>(null);
 const PantryStoreContext = createContext<PantryStoreApi | null>(null);
 const MealSuggestionStoreContext = createContext<MealSuggestionStoreApi | null>(null);
+const DataStoresReadyContext = createContext(false);
 
 // Auth store is created once (no userId dependency)
 function useCreateAuthStore() {
@@ -139,6 +140,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthStoreContext.Provider value={authStore}>
+      <DataStoresReadyContext.Provider value={dataStores !== null}>
       <ProfileStoreContext.Provider value={dataStores?.profileStore ?? null}>
         <PreferencesStoreContext.Provider value={preferencesStoreRef.current}>
           <NavigationStoreContext.Provider value={navigationStoreRef.current}>
@@ -158,11 +160,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           </NavigationStoreContext.Provider>
         </PreferencesStoreContext.Provider>
       </ProfileStoreContext.Provider>
+      </DataStoresReadyContext.Provider>
     </AuthStoreContext.Provider>
   );
 }
 
 // Hooks
+
+/** True once a user is signed in and the per-user data stores exist. */
+export function useDataStoresReady(): boolean {
+  return useContext(DataStoresReadyContext);
+}
+
 export function useAuthStore<T>(selector: (state: AuthStore) => T): T {
   const store = useContext(AuthStoreContext);
   if (!store) throw new Error('useAuthStore must be used within StoreProvider');

@@ -1,7 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useNavigationStore } from '../providers';
+import { AUTH_DISABLED, useAuthStore, useDataStoresReady, useNavigationStore } from '../providers';
 import { DASHBOARD_ROUTES } from '@fuelify/shared';
 
 // Mirrors: lib/screens/main/dashboard/screen.dart + bottom_navigation_bar.dart
@@ -11,6 +12,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const pathname = usePathname();
   const setDashboardTab = useNavigationStore((s) => s.setDashboardTab);
+  const authStatus = useAuthStore((s) => s.status);
+  const dataStoresReady = useDataStoresReady();
+
+  // Dashboard pages need a signed-in user; send logged-out visitors to login
+  // unless the login gate is disabled.
+  useEffect(() => {
+    if (authStatus === 'loggedOut' && !AUTH_DISABLED) router.replace('/login');
+  }, [authStatus, router]);
 
   const currentTabIndex = DASHBOARD_ROUTES.findIndex((r) => pathname === `/${r}`);
 
@@ -23,7 +32,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       {/* Main content */}
       <main style={{ flex: 1, padding: 16 }}>
-        {children}
+        {/* Data stores only exist once a user is signed in (never during
+            static prerendering), so hold page content until then. */}
+        {dataStoresReady ? children : <p style={{ color: '#999' }}>Loading…</p>}
       </main>
 
       {/* Bottom navigation bar */}
