@@ -1,11 +1,211 @@
 'use client';
 
-// Mirrors: lib/screens/main/profile/screen.dart
+import { useEffect, useState, type ReactNode } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore } from '../../providers';
+import { Icon, PageHeader, Segmented, Sheet, initials } from '../../components/ui';
+import { formatHeight, formatWeight, weeklyLabel } from '../../(onboarding)/options';
+import { fromISODate } from '../../lib/dates';
+
+// The Flutter Profile tab was a placeholder; this surfaces the profile and
+// onboarding answers, units, household and account actions.
 export default function ProfilePage() {
+  const router = useRouter();
+  const profile = useProfileStore((s) => s.profile);
+  const fetchProfile = useProfileStore((s) => s.fetchProfile);
+  const updateProfile = useProfileStore((s) => s.updateProfile);
+  const setUnits = useProfileStore((s) => s.setUnits);
+  const email = useAuthStore((s) => s.email);
+  const isAnonymous = useAuthStore((s) => s.isAnonymous);
+  const signOut = useAuthStore((s) => s.signOut);
+  const households = useHouseholdStore((s) => s.households);
+  const activeHouseholdId = useHouseholdStore((s) => s.activeHouseholdId);
+  const members = useHouseholdStore((s) => s.members);
+  const ensureHousehold = useHouseholdStore((s) => s.ensureHousehold);
+
+  const [editOpen, setEditOpen] = useState(false);
+
+  useEffect(() => {
+    fetchProfile();
+    ensureHousehold();
+  }, [fetchProfile, ensureHousehold]);
+
+  const units = profile?.units === 'Metric' ? 'Metric' : 'Imperial';
+  const goals = (profile?.goals ?? {}) as Record<string, unknown>;
+  const shopping = (profile?.shopping ?? {}) as Record<string, unknown>;
+  const habits = (goals.habits ?? {}) as Record<string, string>;
+  const household = households.find((h) => h.id === activeHouseholdId);
+  const fullName = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ');
+  const age = profile?.birthdate ? Math.floor((Date.now() - fromISODate(profile.birthdate).getTime()) / 31557600000) : null;
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace(AUTH_DISABLED ? '/' : '/login');
+  };
+
   return (
-    <div>
-      <h1>Profile</h1>
-      <p>User profile screen — TODO: port from Flutter ProfileScreen</p>
+    <>
+      <PageHeader title="Profile" />
+      <div className="screen-scroll">
+        <div className="screen-pad stack" style={{ paddingTop: 4, paddingBottom: 32 }}>
+          {/* Identity */}
+          <div className="card row" style={{ gap: 14 }}>
+            <div className="avatar avatar-lg">{initials(profile?.firstName, profile?.lastName)}</div>
+            <div className="grow">
+              <div className="h2 truncate">{fullName || 'Your profile'}</div>
+              <div className="small muted truncate">{isAnonymous ? 'Guest account' : email ?? ''}</div>
+              {profile?.location && <div className="small faint truncate">{profile.location}</div>}
+            </div>
+            <button className="icon-btn icon-btn-filled" aria-label="Edit profile" onClick={() => setEditOpen(true)}>
+              <Icon name="edit" size={18} />
+            </button>
+          </div>
+
+          {isAnonymous && (
+            <Link href="/registration" className="card row" style={{ background: 'var(--primary-soft)', borderColor: 'var(--primary)', gap: 12 }}>
+              <span style={{ color: 'var(--primary)' }}><Icon name="user" /></span>
+              <div className="grow">
+                <div style={{ fontWeight: 700 }}>Create an account</div>
+                <div className="small muted">You&apos;re using a guest account. Add an email to keep your data across devices.</div>
+              </div>
+              <Icon name="chevronRight" />
+            </Link>
+          )}
+
+          {/* Settings */}
+          <div className="section-title"><span>Preferences</span></div>
+          <div className="card stack-sm">
+            <span className="label">Units</span>
+            <Segmented
+              options={[{ value: 'Imperial', label: 'Imperial' }, { value: 'Metric', label: 'Metric' }]}
+              value={units}
+              onChange={(v) => setUnits(v)}
+            />
+          </div>
+
+          {/* Onboarding answers */}
+          <div className="section-title">
+            <span>Your answers</span>
+            <Link href="/onboarding/profile" className="small" style={{ color: 'var(--primary)', textTransform: 'none', letterSpacing: 0 }}>
+              {profile?.onboarded ? 'Update' : 'Finish setup'}
+            </Link>
+          </div>
+          <div className="list">
+            <Row label="Height" value={profile?.height ? formatHeight(profile.height, units) : null} />
+            <Row label="Age" value={age !== null ? `${age}` : null} />
+            <Row label="Gender" value={profile?.gender === 'Prefer to self describe' ? profile.genderDesc : profile?.gender} />
+            <Row label="Diet" value={profile?.diet} />
+            <Row label="Allergens" value={profile?.allergens?.length ? profile.allergens.join(', ') : profile?.onboarded ? 'None' : null} />
+            <Row label="Primary goal" value={goals.primary as string} />
+            <Row label="Weight" value={profile?.weight ? formatWeight(profile.weight, units) : null} />
+            <Row label="Goal weight" value={typeof goals.targetWeight === 'number' ? formatWeight(goals.targetWeight, units) : null} />
+            <Row label="Weekly goal" value={typeof goals.weekly === 'number' ? weeklyLabel(goals.weekly, units) : null} />
+            <Row label="Activity" value={profile?.activeness} />
+            <Row label="Calorie-sensitive" value={habits.calorieSensitive ? (habits.calorieSensitive.startsWith('Yes') ? 'Yes' : 'No') : null} />
+            <Row label="Choosy eater" value={habits.choosyEater} />
+            <Row label="Grocery budget" value={typeof shopping.budget === 'number' ? `$${shopping.budget}/week` : null} />
+          </div>
+
+          {/* Household */}
+          <div className="section-title">
+            <span>Household</span>
+            <Link href="/cart" className="small" style={{ color: 'var(--primary)', textTransform: 'none', letterSpacing: 0 }}>Manage</Link>
+          </div>
+          <div className="card row" style={{ gap: 12 }}>
+            <span style={{ color: 'var(--primary)' }}><Icon name="users" /></span>
+            <div className="grow">
+              <div style={{ fontWeight: 700 }}>{household?.name ?? '—'}</div>
+              <div className="small muted">{members.length} member{members.length === 1 ? '' : 's'} share the cart and pantry</div>
+            </div>
+          </div>
+
+          {/* Account */}
+          <div className="section-title"><span>Account</span></div>
+          <div className="list">
+            {!isAnonymous && (
+              <button className="list-row" onClick={handleSignOut} style={{ color: 'var(--danger)' }}>
+                <Icon name="logOut" size={20} /> <span className="grow">Sign out</span>
+              </button>
+            )}
+            {isAnonymous && (
+              <Link href="/login" className="list-row">
+                <Icon name="logOut" size={20} /> <span className="grow">Log in to an existing account</span>
+                <Icon name="chevronRight" size={18} />
+              </Link>
+            )}
+          </div>
+          <p className="tiny faint center" style={{ marginTop: 8 }}>Fuelify · {profile?.plan ?? 'Free'} plan</p>
+        </div>
+      </div>
+
+      <EditProfileSheet
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        initial={{ firstName: profile?.firstName ?? '', lastName: profile?.lastName ?? '', location: profile?.location ?? '' }}
+        onSave={async (v) => {
+          const ok = await updateProfile({ firstName: v.firstName.trim() || null, lastName: v.lastName.trim() || null, location: v.location.trim() || null });
+          if (ok) setEditOpen(false);
+        }}
+      />
+    </>
+  );
+}
+
+function Row({ label, value }: { label: string; value: ReactNode | null | undefined }) {
+  return (
+    <div className="list-row" style={{ minHeight: 46 }}>
+      <span className="small muted" style={{ width: 130, flexShrink: 0 }}>{label}</span>
+      <span className="grow" style={{ fontWeight: 600, color: value ? undefined : 'var(--text-3)' }}>{value || 'Not set'}</span>
     </div>
+  );
+}
+
+function EditProfileSheet({
+  open,
+  onClose,
+  initial,
+  onSave,
+}: {
+  open: boolean;
+  onClose: () => void;
+  initial: { firstName: string; lastName: string; location: string };
+  onSave: (v: { firstName: string; lastName: string; location: string }) => Promise<void>;
+}) {
+  const [v, setV] = useState(initial);
+  const [busy, setBusy] = useState(false);
+  // Reset when the sheet opens
+  useEffect(() => {
+    if (open) setV(initial);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title="Edit profile"
+      footer={
+        <button className="btn btn-primary btn-block" disabled={busy}
+          onClick={async () => { setBusy(true); await onSave(v); setBusy(false); }}>
+          {busy ? 'Saving…' : 'Save'}
+        </button>
+      }
+    >
+      <div className="stack">
+        <div className="field">
+          <label htmlFor="ep-first">First name</label>
+          <input id="ep-first" className="input" value={v.firstName} onChange={(e) => setV({ ...v, firstName: e.target.value })} />
+        </div>
+        <div className="field">
+          <label htmlFor="ep-last">Last name</label>
+          <input id="ep-last" className="input" value={v.lastName} onChange={(e) => setV({ ...v, lastName: e.target.value })} />
+        </div>
+        <div className="field">
+          <label htmlFor="ep-loc">Location</label>
+          <input id="ep-loc" className="input" value={v.location} onChange={(e) => setV({ ...v, location: e.target.value })} />
+        </div>
+      </div>
+    </Sheet>
   );
 }

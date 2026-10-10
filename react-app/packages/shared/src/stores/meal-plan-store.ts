@@ -25,8 +25,10 @@ export interface MealPlanActions {
 
 export type MealPlanStore = MealPlanState & MealPlanActions;
 
+/** Today's date in the user's local time zone (toISOString would give the UTC date). */
 function todayString(): string {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
 export function createMealPlanStore(repo: MealPlanRepository, userId: string) {
