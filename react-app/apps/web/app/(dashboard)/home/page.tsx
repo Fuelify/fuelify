@@ -4,7 +4,7 @@ import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { daysUntil, formatLong, greeting, initialsOf, sortByMealType, todayISO } from '@fuelify/shared';
 import { useHouseholdStore, useMealPlanStore, usePantryStore, useProfileStore, useShoppingCartStore } from '@/lib/stores';
-import { FoodTile, Icon, type IconName } from '@/components/ui';
+import { FoodTile, Icon, LogoMark, type IconName } from '@/components/ui';
 
 // The Flutter Home tab was a placeholder; this is a daily overview built from
 // the data the app already tracks (plan, pantry, cart, onboarding status).
@@ -51,9 +51,10 @@ export default function HomePage() {
   return (
     <div className="screen-scroll">
       <header className="page-header" style={{ paddingBottom: 4 }}>
+        <LogoMark size={32} />
         <div className="grow">
           <p className="small muted">{formatLong(today)}</p>
-          <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em' }}>
             {greeting()}{name ? `, ${name}` : ''}
           </h1>
         </div>

@@ -60,7 +60,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             </Link>
           )}
           <div className="stack-sm center">
-            <Logo size={40} />
+            <div style={{ display: 'flex', justifyContent: 'center' }}><Logo stacked size={30} /></div>
             <p className="muted">
               {isRegister
                 ? isAnonymous

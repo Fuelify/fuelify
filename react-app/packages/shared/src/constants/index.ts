@@ -4,14 +4,7 @@
 export const DEBUG = false; // true skips the login redirect on mobile (dev only)
 export const DEBUG_ENTER_ROUTE = 'plan'; // enter route following splash screen
 
-// Theme colors (hex values from Flutter Color objects)
-export const COLORS = {
-  background: '#202020',     // kBackgroundColor - Color(0xFF202020)
-  primary: '#FFBD73',        // kPrimaryColor - Color(0xFFFFBD73)
-  primaryTheme: '#9E9E9E',   // primaryThemeColor - Colors.grey
-  selected: '#4DB6AC',       // selectedColor - Colors.teal.shade300
-  unselected: '#FFFFFF',     // unselectedColor - Colors.white
-} as const;
+// Brand colours live in ./brand (BRAND_COLORS); the old Flutter COLORS were retired.
 
 // Unit options
 export const UNIT_OPTIONS = ['Imperial', 'Metric'] as const;
@@ -47,3 +40,4 @@ export const ONBOARDING_ROUTES = [
   'onboarding/device-connections',
   'onboarding/submission',
 ] as const;
+export * from './brand';

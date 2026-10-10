@@ -38,7 +38,7 @@ export function SavedRecipes({ recipes, onOpen, onDiscover }: { recipes: Recipe[
                     {[recipe.cuisine, recipe.calories != null ? `${recipe.calories} kcal` : null, totalTimeMinutes(recipe) ? `${totalTimeMinutes(recipe)} min` : null].filter(Boolean).join(' · ')}
                   </div>
                 </div>
-                <span style={{ color: kind === 'favorited' ? 'var(--warning)' : 'var(--accent)' }}>
+                <span style={{ color: kind === 'favorited' ? 'var(--tertiary)' : 'var(--accent)' }}>
                   <Icon name={kind === 'favorited' ? 'star' : 'heart'} filled size={20} />
                 </span>
               </button>
