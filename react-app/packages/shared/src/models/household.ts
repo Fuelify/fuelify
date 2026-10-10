@@ -56,3 +56,25 @@ export const CART_CATEGORIES = [
 ] as const;
 
 export type CartCategory = (typeof CART_CATEGORIES)[number];
+
+// ---------------------------------------------------------------------------
+// Household rules shared by every client
+// ---------------------------------------------------------------------------
+
+/** Owners manage the household; members can only view it and leave. */
+export function isOwner(members: HouseholdMember[], userId: string | null | undefined): boolean {
+  return !!userId && members.some((m) => m.userId === userId && m.role === 'owner');
+}
+
+/** Owners first, then by join date — the order member lists are shown in. */
+export function sortMembers(members: HouseholdMember[]): HouseholdMember[] {
+  return [...members].sort((a, b) => Number(b.role === 'owner') - Number(a.role === 'owner') || a.joinedAt.localeCompare(b.joinedAt));
+}
+
+/** Friendly text for errors raised by add_household_member_by_email. */
+export function householdInviteErrorMessage(raw: string): string {
+  if (raw.includes('user_not_found')) return "No Fuelify account uses that email yet. Ask them to sign up first, then add them.";
+  if (raw.includes('already_member')) return 'That person is already in this household.';
+  if (raw.includes('not_household_owner')) return 'Only the household owner can add members.';
+  return raw;
+}

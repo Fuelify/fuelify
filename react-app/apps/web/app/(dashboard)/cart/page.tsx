@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { initialsOf } from '@fuelify/shared';
+import Link from 'next/link';
 import type { CartItem } from '@fuelify/shared';
 import { useAuthStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '@/lib/stores';
-import { EmptyState, Icon, LoadingBlock, PageHeader, Sheet } from '@/components/ui';
+import { EmptyState, Icon, LoadingBlock, PageHeader } from '@/components/ui';
 
 // Shared household shopping list. Checked items can be moved straight into the pantry.
 export default function CartPage() {
@@ -26,7 +26,6 @@ export default function CartPage() {
   const addPantryItems = usePantryStore((s) => s.addItems);
 
   const [newItem, setNewItem] = useState('');
-  const [householdOpen, setHouseholdOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
 
@@ -69,9 +68,9 @@ export default function CartPage() {
         title="Cart"
         sub={household ? household.name : undefined}
         right={
-          <button className="icon-btn icon-btn-filled" aria-label="Household" onClick={() => setHouseholdOpen(true)}>
+          <Link href="/household" className="icon-btn icon-btn-filled" aria-label="Manage household">
             <Icon name="users" size={20} />
-          </button>
+          </Link>
         }
       />
 
@@ -128,7 +127,6 @@ export default function CartPage() {
         </div>
       </div>
 
-      <HouseholdSheet open={householdOpen} onClose={() => setHouseholdOpen(false)} />
     </>
   );
 }
@@ -162,83 +160,5 @@ function CartRow({ item, userId, onToggle, onDelete }: { item: CartItem; userId:
         <Icon name="trash" size={18} />
       </button>
     </div>
-  );
-}
-
-function HouseholdSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const userId = useAuthStore((s) => s.userId);
-  const households = useHouseholdStore((s) => s.households);
-  const activeHouseholdId = useHouseholdStore((s) => s.activeHouseholdId);
-  const members = useHouseholdStore((s) => s.members);
-  const setActiveHousehold = useHouseholdStore((s) => s.setActiveHousehold);
-  const updateHousehold = useHouseholdStore((s) => s.updateHousehold);
-  const createHousehold = useHouseholdStore((s) => s.createHousehold);
-
-  const household = households.find((h) => h.id === activeHouseholdId);
-  const [name, setName] = useState('');
-  const [newName, setNewName] = useState('');
-
-  useEffect(() => {
-    if (open) setName(household?.name ?? '');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  return (
-    <Sheet open={open} onClose={onClose} title="Household">
-      <div className="stack-lg">
-        <p className="small muted">Everyone in a household shares the same cart and pantry.</p>
-
-        <div className="field">
-          <label htmlFor="hh-name">Name</label>
-          <div className="row">
-            <input id="hh-name" className="input" value={name} onChange={(e) => setName(e.target.value)} />
-            <button className="btn btn-secondary" disabled={!name.trim() || name === household?.name}
-              onClick={() => activeHouseholdId && updateHousehold(activeHouseholdId, name.trim())}>
-              Save
-            </button>
-          </div>
-        </div>
-
-        <div className="stack-sm">
-          <span className="label">Members</span>
-          <div className="list">
-            {members.map((m) => (
-              <div key={m.id} className="list-row">
-                <div className="avatar" style={{ width: 32, height: 32, fontSize: 13 }}>{initialsOf(m.firstName, m.lastName) || '🙂'}</div>
-                <span className="grow truncate">
-                  {[m.firstName, m.lastName].filter(Boolean).join(' ') || (m.userId === userId ? 'You' : 'Member')}
-                  {m.userId === userId && m.firstName ? ' (you)' : ''}
-                </span>
-                <span className={`badge ${m.role === 'owner' ? 'badge-primary' : ''}`}>{m.role}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {households.length > 1 && (
-          <div className="stack-sm">
-            <span className="label">Switch household</span>
-            <div className="chips">
-              {households.map((h) => (
-                <button key={h.id} className="chip" aria-pressed={h.id === activeHouseholdId} onClick={() => setActiveHousehold(h.id)}>
-                  {h.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="field">
-          <label htmlFor="hh-new">Create another household</label>
-          <div className="row">
-            <input id="hh-new" className="input" placeholder="e.g. Beach house" value={newName} onChange={(e) => setNewName(e.target.value)} />
-            <button className="btn btn-secondary" disabled={!newName.trim()}
-              onClick={async () => { await createHousehold(newName.trim()).catch(() => undefined); setNewName(''); }}>
-              Create
-            </button>
-          </div>
-        </div>
-      </div>
-    </Sheet>
   );
 }

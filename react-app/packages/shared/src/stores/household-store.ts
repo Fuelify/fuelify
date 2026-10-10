@@ -23,6 +23,10 @@ export interface HouseholdActions {
   fetchMembers: () => Promise<void>;
   addMember: (userId: string, role?: HouseholdRole) => Promise<void>;
   removeMember: (userId: string) => Promise<void>;
+  /** Owner adds an existing user by email. Resolves to an error message, or null on success. */
+  addMemberByEmail: (email: string) => Promise<string | null>;
+  /** Current user leaves the active household and switches to another (creating one if needed). */
+  leaveHousehold: () => Promise<void>;
 }
 
 export type HouseholdStore = HouseholdState & HouseholdActions;
@@ -140,6 +144,30 @@ export function createHouseholdStore(repo: HouseholdRepository, userId: string) 
       try {
         const member = await repo.addMember(hhId, memberUserId, role);
         set((state) => ({ members: [...state.members, member] }));
+      } catch (err) {
+        set({ error: (err as Error).message });
+      }
+    },
+
+    addMemberByEmail: async (email: string) => {
+      const hhId = get().activeHouseholdId;
+      if (!hhId) return 'No household selected.';
+      try {
+        const member = await repo.addMemberByEmail(hhId, email);
+        set((state) => ({ members: [...state.members, member] }));
+        return null;
+      } catch (err) {
+        return (err as Error).message;
+      }
+    },
+
+    leaveHousehold: async () => {
+      const hhId = get().activeHouseholdId;
+      if (!hhId) return;
+      try {
+        await repo.removeMember(hhId, userId);
+        set({ activeHouseholdId: null, members: [] });
+        await get().ensureHousehold();
       } catch (err) {
         set({ error: (err as Error).message });
       }
