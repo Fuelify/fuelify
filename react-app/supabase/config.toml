@@ -12,3 +12,7 @@ verify_jwt = true
 [auth]
 # Needed for NEXT_PUBLIC_AUTH_DISABLED / EXPO_PUBLIC_AUTH_DISABLED (ungated mode)
 enable_anonymous_sign_ins = true
+
+[db.seed]
+# Catalog data loaded by `supabase db reset` (generated from seed/recipes.json)
+sql_paths = ["./seed/recipes.sql"]

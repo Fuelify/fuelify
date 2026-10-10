@@ -13,7 +13,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "seed:recipes": "node supabase/seed/generate-recipe-seed.mjs > supabase/seed/recipes.sql"
   },
   "devDependencies": {
     "turbo": "^2.1.0",

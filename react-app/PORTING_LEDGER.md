@@ -67,6 +67,7 @@ those are built out here around the data the app already stores.
 | E3 | Web layout: `app/` routes only, `features/<domain>/`, `components/ui/` primitives, `@/` imports | ☑ |
 | E4 | Unit tests (Vitest) for the shared utilities and models; `npm test` via Turbo | ☑ |
 | E5 | `ARCHITECTURE.md` documents layers, rules and commands | ☑ |
+| E7 | Discover catalog expanded to 53 recipes (Omnivore 14, Vegetarian 12, Vegan 12, Pescatarian 10, Raw 5) from `supabase/seed/recipes.json`; Discover loads the full catalog via paged `loadCatalog()` | ☑ |
 | E6 | Login re-enabled (`NEXT_PUBLIC_AUTH_DISABLED=false`); two accounts seeded and sharing "Minier Household" (Ethan owner, Teagan member) | ☑ |
 
 ## Out of scope for this pass

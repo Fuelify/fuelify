@@ -31,7 +31,7 @@ function Discovery() {
   const classifications = useRecipeStore((s) => s.classifications);
   const isLoading = useRecipeStore((s) => s.isLoading);
   const error = useRecipeStore((s) => s.error);
-  const searchRecipes = useRecipeStore((s) => s.searchRecipes);
+  const loadCatalog = useRecipeStore((s) => s.loadCatalog);
   const getClassifiedRecipes = useRecipeStore((s) => s.getClassifiedRecipes);
   const profile = useProfileStore((s) => s.profile);
   const fetchProfile = useProfileStore((s) => s.fetchProfile);
@@ -40,7 +40,7 @@ function Discovery() {
   const [detail, setDetail] = useState<Recipe | null>(null);
 
   useEffect(() => {
-    Promise.all([searchRecipes({}), getClassifiedRecipes(), profile ? null : fetchProfile()]).finally(() => setLoaded(true));
+    Promise.all([loadCatalog(), getClassifiedRecipes(), profile ? null : fetchProfile()]).finally(() => setLoaded(true));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -65,7 +65,7 @@ function Discovery() {
       ) : recipes.length === 0 ? (
         <div className="center-fill">
           <EmptyState icon="compass" title="No recipes yet">
-            The recipe catalog is empty. Apply the starter recipes migration (supabase/migrations/00004) to fill it.
+            The recipe catalog is empty. Run supabase/seed/recipes.sql (see supabase/seed/README.md) to load it.
           </EmptyState>
         </div>
       ) : view === 'discover' ? (

@@ -13,6 +13,8 @@ export interface RecipeState {
 }
 
 export interface RecipeActions {
+  /** Load the full recipe catalog into `recipes` (used by Discover). */
+  loadCatalog: () => Promise<void>;
   searchRecipes: (filters: { query?: string; cuisine?: string; dietType?: string; maxCalories?: number }) => Promise<void>;
   getRecipe: (recipeId: string) => Promise<void>;
   getSimilarRecipes: (recipeId: string) => Promise<void>;
@@ -33,6 +35,16 @@ export function createRecipeStore(repo: RecipeRepository, userId: string) {
     classifications: [],
     isLoading: false,
     error: null,
+
+    loadCatalog: async () => {
+      set({ isLoading: true, error: null });
+      try {
+        const recipes = await repo.listAllRecipes();
+        set({ recipes, isLoading: false });
+      } catch (err) {
+        set({ isLoading: false, error: (err as Error).message });
+      }
+    },
 
     searchRecipes: async (filters) => {
       set({ isLoading: true, error: null });

@@ -20,7 +20,10 @@ react-app/
 │  ├─ components/ui/       design-system primitives (Sheet, Icon, controls, …)
 │  └─ lib/stores.tsx       React bindings: providers + typed selector hooks
 ├─ apps/mobile/            Expo; same shared core, bound in hooks/useStores.ts
-└─ supabase/               migrations + edge functions
+└─ supabase/
+   ├─ migrations/          schema (append-only)
+   ├─ seed/                catalog data: recipes.json → recipes.sql (generated)
+   └─ functions/           edge functions
 ```
 
 ## Rules
@@ -47,6 +50,7 @@ react-app/
 | `npm run typecheck` | type-check every package |
 | `npm test` | unit tests (Vitest, shared package) |
 | `npm run build:web` | production build of the web app |
+| `npm run seed:recipes` | regenerate `supabase/seed/recipes.sql` from `recipes.json` |
 
 ## Environment
 

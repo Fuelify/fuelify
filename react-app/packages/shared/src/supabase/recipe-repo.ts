@@ -85,6 +85,22 @@ export class RecipeRepository {
     return rowToRecipe(data);
   }
 
+  /** Every recipe, fetched in pages so the catalog isn't capped by a single request's row limit. */
+  async listAllRecipes(pageSize = 500): Promise<Recipe[]> {
+    const all: Recipe[] = [];
+    for (let from = 0; ; from += pageSize) {
+      const { data, error } = await this.supabase
+        .from('recipes')
+        .select('*')
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true })
+        .range(from, from + pageSize - 1);
+      if (error) throw new Error(`Failed to load recipes: ${error.message}`);
+      all.push(...(data ?? []).map(rowToRecipe));
+      if (!data || data.length < pageSize) return all;
+    }
+  }
+
   /** Search recipes with optional filters */
   async searchRecipes(filters: {
     query?: string;
