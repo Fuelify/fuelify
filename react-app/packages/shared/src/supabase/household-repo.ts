@@ -4,7 +4,7 @@
 import type { TypedSupabaseClient } from './client';
 import { fetchDisplayProfiles, type DisplayProfile } from './profile-names';
 import type { HouseholdRow, HouseholdMemberRow } from './types';
-import type { Household, HouseholdMember, HouseholdRole } from '../models/household';
+import { householdInviteErrorMessage, type Household, type HouseholdMember, type HouseholdRole } from '../models/household';
 
 function rowToHousehold(row: HouseholdRow): Household {
   return {
@@ -121,6 +121,18 @@ export class HouseholdRepository {
     if (error) throw new Error(`Failed to add household member: ${error.message}`);
     const profiles = await fetchDisplayProfiles(this.supabase, [data.user_id]);
     return rowToMember(data, profiles.get(data.user_id));
+  }
+
+  /**
+   * Add an existing user by email (owner only). The lookup runs server-side in
+   * add_household_member_by_email because clients can't read auth.users.
+   */
+  async addMemberByEmail(householdId: string, email: string): Promise<HouseholdMember> {
+    const { data, error } = await this.supabase.rpc('add_household_member_by_email', { hh_id: householdId, member_email: email });
+    if (error) throw new Error(householdInviteErrorMessage(error.message));
+    const row = data as HouseholdMemberRow;
+    const profiles = await fetchDisplayProfiles(this.supabase, [row.user_id]);
+    return rowToMember(row, profiles.get(row.user_id));
   }
 
   /** Remove a member from a household */

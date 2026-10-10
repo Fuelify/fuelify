@@ -403,7 +403,12 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      add_household_member_by_email: {
+        Args: { hh_id: string; member_email: string };
+        Returns: Database['public']['Tables']['household_members']['Row'];
+      };
+    };
     Enums: {
       meal_type: 'breakfast' | 'lunch' | 'dinner' | 'snack';
       classification_type: 'liked' | 'disliked' | 'favorited';

@@ -109,7 +109,7 @@ export default function ProfilePage() {
           {/* Household */}
           <div className="section-title">
             <span>Household</span>
-            <Link href="/cart" className="small" style={{ color: 'var(--primary)', textTransform: 'none', letterSpacing: 0 }}>Manage</Link>
+            <Link href="/household" className="small" style={{ color: 'var(--primary)', textTransform: 'none', letterSpacing: 0 }}>Manage</Link>
           </div>
           <div className="card row" style={{ gap: 12 }}>
             <span style={{ color: 'var(--primary)' }}><Icon name="users" /></span>
