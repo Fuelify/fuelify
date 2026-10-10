@@ -1,6 +1,7 @@
-<!-- Fuelify mark: woven heart of rounded strokes with a leaf. Colours: cyan #6DE6FB, orchid #EBA3F9, periwinkle #759EF8. -->
+<!-- Fuelify mark (primary): woven heart of rounded strokes with a double leaf. Colours: cyan #6DE6FB, orchid #EBA3F9, periwinkle #759EF8. -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="45 17 345 345" fill="none" stroke-linecap="round" stroke-width="37" role="img" aria-label="Fuelify">
-  <path d="M163 22 C 205 24, 230 62, 218 104 C 180 98, 158 64, 163 22 Z" fill="#6DE6FB" stroke="none"/>
+  <path d="M163 33 C 205 35, 230 73, 218 115 C 180 109, 158 75, 163 33 Z" fill="#6DE6FB" stroke="none"/>
+  <path d="M232 108 C 228 81, 249 66, 275 65 C 277 91, 258 106, 232 108 Z" fill="#759EF8" stroke="none"/>
   <path d="M101 155 L189 242" stroke="#6DE6FB"/>
   <path d="M141 126 L187 172" stroke="#EBA3F9"/>
   <path d="M296 126 L217 205" stroke="#EBA3F9"/>

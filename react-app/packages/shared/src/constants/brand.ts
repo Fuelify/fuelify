@@ -1,4 +1,4 @@
-// Fuelify brand palette, sampled from the logo (assets/brand/fuelify-mark.svg).
+// Fuelify brand palette, sampled from the logo (assets/brand/fuelify-mark.svg, design #2).
 // Themes in each app derive from these; see assets/brand/README.md.
 
 export const BRAND_COLORS = {
@@ -15,7 +15,11 @@ export type BrandColor = keyof typeof BRAND_COLORS;
  */
 export const LOGO_VIEWBOX = { x: 45, y: 17, width: 345, height: 345 } as const;
 export const LOGO_STROKE_WIDTH = 37;
-export const LOGO_LEAF_PATH = 'M163 22 C 205 24, 230 62, 218 104 C 180 98, 158 64, 163 22 Z';
+/** Filled leaf shapes drawn first (primary mark: design #2, the double leaf). */
+export const LOGO_LEAVES: readonly { path: string; color: BrandColor }[] = [
+  { path: 'M163 33 C 205 35, 230 73, 218 115 C 180 109, 158 75, 163 33 Z', color: 'cyan' },
+  { path: 'M232 108 C 228 81, 249 66, 275 65 C 277 91, 258 106, 232 108 Z', color: 'periwinkle' },
+];
 /** Rounded strokes in paint order: [x1, y1, x2, y2, colour]. Zero-length strokes render as dots. */
 export const LOGO_STROKES: readonly (readonly [number, number, number, number, BrandColor])[] = [
   [101, 155, 189, 242, 'cyan'],

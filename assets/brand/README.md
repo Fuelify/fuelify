@@ -1,6 +1,7 @@
 # Fuelify brand
 
-- `fuelify-mark.svg` — the logo mark (design #1), rebuilt as a vector from the Canva original.
+- `fuelify-mark.svg` — **primary** logo mark (design #2, double leaf), rebuilt as a vector from the Canva original.
+- `fuelify-mark-v1.svg` — design #1 (single leaf), kept for reference.
 - Brand colours (also exported from `@fuelify/shared` as `BRAND_COLORS`):
 
 | Name | Hex | Use |
