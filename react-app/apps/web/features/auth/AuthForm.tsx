@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { validateEmail, validatePassword } from '@fuelify/shared';
+import { validateEmail, validatePassword, validateRequired } from '@fuelify/shared';
 import { AUTH_DISABLED, useAuthStore } from '@/lib/stores';
 import { Icon, Logo } from '@/components/ui';
 
@@ -31,7 +31,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
     const emailCheck = validateEmail(email);
     if (emailCheck !== 'Success') return setError(emailCheck);
-    const passwordCheck = validatePassword(password);
+    // Strength rules apply when choosing a password, not when entering an existing one
+    const passwordCheck = isRegister ? validatePassword(password) : validateRequired(password, 'Password');
     if (passwordCheck !== 'Success') return setError(passwordCheck);
     if (isRegister && password !== confirm) return setError('Passwords do not match');
 
@@ -81,7 +82,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             <div className="field">
               <label htmlFor="password">Password</label>
               <input id="password" className="input" type="password" autoComplete={isRegister ? 'new-password' : 'current-password'}
-                placeholder="At least 8 characters" value={password} onChange={(e) => setPassword(e.target.value)} />
+                placeholder={isRegister ? 'At least 8 characters' : undefined} value={password} onChange={(e) => setPassword(e.target.value)} />
             </div>
             {isRegister && (
               <div className="field">
