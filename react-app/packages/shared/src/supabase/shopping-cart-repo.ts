@@ -2,14 +2,11 @@
 // Cart items are scoped to a household so all members share the same list.
 
 import type { TypedSupabaseClient } from './client';
+import { withAddedByNames } from './profile-names';
 import type { ShoppingCartItemRow } from './types';
 import type { CartItem } from '../models/household';
 
-function rowToCartItem(row: ShoppingCartItemRow & { profiles?: { first_name: string | null; last_name: string | null } | null }): CartItem {
-  const firstName = row.profiles?.first_name ?? '';
-  const lastName = row.profiles?.last_name ?? '';
-  const addedByName = [firstName, lastName].filter(Boolean).join(' ') || null;
-
+function rowToCartItem(row: ShoppingCartItemRow): CartItem {
   return {
     id: row.id,
     householdId: row.household_id,
@@ -24,7 +21,7 @@ function rowToCartItem(row: ShoppingCartItemRow & { profiles?: { first_name: str
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    addedByName,
+    addedByName: null,
   };
 }
 
@@ -35,14 +32,14 @@ export class ShoppingCartRepository {
   async getItems(householdId: string): Promise<CartItem[]> {
     const { data, error } = await this.supabase
       .from('shopping_cart_items')
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .eq('household_id', householdId)
       .order('checked')
       .order('sort_order')
       .order('created_at');
 
     if (error) throw new Error(`Failed to fetch cart items: ${error.message}`);
-    return (data ?? []).map(rowToCartItem);
+    return withAddedByNames(this.supabase, (data ?? []).map(rowToCartItem));
   }
 
   /** Add an item to the cart */
@@ -66,11 +63,11 @@ export class ShoppingCartRepository {
         recipe_id: item.recipeId ?? null,
         notes: item.notes ?? null,
       })
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .single();
 
     if (error) throw new Error(`Failed to add cart item: ${error.message}`);
-    return rowToCartItem(data);
+    return (await withAddedByNames(this.supabase, [rowToCartItem(data)]))[0];
   }
 
   /** Update a cart item */
@@ -95,11 +92,11 @@ export class ShoppingCartRepository {
         ...(updates.notes !== undefined && { notes: updates.notes }),
       })
       .eq('id', itemId)
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .single();
 
     if (error) throw new Error(`Failed to update cart item: ${error.message}`);
-    return rowToCartItem(data);
+    return (await withAddedByNames(this.supabase, [rowToCartItem(data)]))[0];
   }
 
   /** Toggle the checked state of a cart item */

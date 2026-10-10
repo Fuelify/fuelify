@@ -23,3 +23,5 @@ export type { Recipe, RecipeClassification, RecipeReview } from './recipe-repo';
 export { HouseholdRepository } from './household-repo';
 export { ShoppingCartRepository } from './shopping-cart-repo';
 export { PantryRepository } from './pantry-repo';
+export { displayName, fetchDisplayProfiles, withAddedByNames } from './profile-names';
+export type { DisplayProfile } from './profile-names';

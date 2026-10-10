@@ -57,6 +57,12 @@ export function createAuthStore(supabase: TypedSupabaseClient, options: AuthStor
     initialize: async () => {
       set({ status: 'loading' });
       let { data: { session } } = await supabase.auth.getSession();
+      // Guest (anonymous) sessions only make sense while the login gate is off.
+      // A guest session left over from that mode must not stand in for a login.
+      if (session?.user.is_anonymous && !options.authDisabled) {
+        await supabase.auth.signOut();
+        session = null;
+      }
       if (!session && options.authDisabled) {
         const { data, error } = await supabase.auth.signInAnonymously();
         if (error) set({ error: error.message });
