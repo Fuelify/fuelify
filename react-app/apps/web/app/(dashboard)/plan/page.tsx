@@ -1,11 +1,21 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { MealPlanMeal } from '@fuelify/shared';
-import { useMealPlanStore } from '../../providers';
-import { FoodTile, Icon, PageHeader } from '../../components/ui';
-import { MEAL_TYPES, MealSheet, type MealType } from '../../components/MealSheet';
-import { addDays, formatLong, formatMonth, fromISODate, startOfWeek, todayISO, weekDays } from '../../lib/dates';
+import {
+  MEAL_TYPES,
+  type MealPlanMeal,
+  type MealType,
+  addDays,
+  formatLong,
+  formatMonth,
+  fromISODate,
+  startOfWeek,
+  todayISO,
+  weekDays,
+} from '@fuelify/shared';
+import { useMealPlanStore } from '@/lib/stores';
+import { FoodTile, Icon, PageHeader } from '@/components/ui';
+import { MealSheet } from '@/features/meals/MealSheet';
 
 // Mirrors: lib/screens/main/plan/screen.dart — week strip (MON–SUN) over a day view.
 // Swipe the day view (or use the arrows) to move between days / weeks.

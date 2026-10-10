@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { initialsOf } from '@fuelify/shared';
 import type { CartItem } from '@fuelify/shared';
-import { useAuthStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '../../providers';
-import { EmptyState, Icon, LoadingBlock, PageHeader, Sheet, initials } from '../../components/ui';
+import { useAuthStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '@/lib/stores';
+import { EmptyState, Icon, LoadingBlock, PageHeader, Sheet } from '@/components/ui';
 
 // Shared household shopping list. Checked items can be moved straight into the pantry.
 export default function CartPage() {
@@ -203,7 +204,7 @@ function HouseholdSheet({ open, onClose }: { open: boolean; onClose: () => void 
           <div className="list">
             {members.map((m) => (
               <div key={m.id} className="list-row">
-                <div className="avatar" style={{ width: 32, height: 32, fontSize: 13 }}>{initials(m.firstName, m.lastName)}</div>
+                <div className="avatar" style={{ width: 32, height: 32, fontSize: 13 }}>{initialsOf(m.firstName, m.lastName) || '🙂'}</div>
                 <span className="grow truncate">
                   {[m.firstName, m.lastName].filter(Boolean).join(' ') || (m.userId === userId ? 'You' : 'Member')}
                   {m.userId === userId && m.firstName ? ' (you)' : ''}

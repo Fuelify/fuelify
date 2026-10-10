@@ -12,7 +12,8 @@
     "build:web": "turbo run build --filter=@fuelify/web",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "test": "turbo run test"
   },
   "devDependencies": {
     "turbo": "^2.1.0",

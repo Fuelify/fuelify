@@ -3,19 +3,17 @@
 import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ONBOARDING_STEPS, type UserProfile } from '@fuelify/shared';
-import { useProfileStore } from '../providers';
-import { Icon, LoadingBlock, OptionRow, Segmented } from '../components/ui';
-import { useOnboarding, type OnboardingDraft } from './onboarding-context';
 import {
+  ONBOARDING_STEPS,
+  type UserProfile,
   ACTIVITY_OPTIONS,
   ALLERGEN_OPTIONS,
-  CALORIE_OPTIONS,
-  CHOOSY_OPTIONS,
+  CALORIE_SENSITIVE_OPTIONS,
+  CHOOSY_EATER_OPTIONS,
   DEVICE_OPTIONS,
   DIET_OPTIONS,
   GENDER_OPTIONS,
-  GOAL_OPTIONS,
+  HEALTH_GOAL_OPTIONS,
   PRICE_IMPACT_OPTIONS,
   SHOPPING_TENDENCY_OPTIONS,
   WEEKLY_WEIGHT_OPTIONS,
@@ -24,8 +22,16 @@ import {
   formatWeight,
   kgToDisplay,
   displayToKg,
-  weeklyLabel,
-} from './options';
+  weeklyWeightLabel,
+  readGoals,
+  readShopping,
+  DEFAULT_WEEKLY_BUDGET,
+  MAX_WEEKLY_BUDGET,
+} from '@fuelify/shared';
+import { useProfileStore } from '@/lib/stores';
+import { Icon, LoadingBlock, OptionRow, Segmented } from '@/components/ui';
+import { useOnboarding, type OnboardingDraft } from './OnboardingContext';
+import { DEVICE_IMAGES, DIET_IMAGES, WELCOME_ANIMATION } from './assets';
 
 // Ports every screen in lib/screens/onboarding/* onto one shared step layout.
 
@@ -41,9 +47,9 @@ interface StepDef {
   Body: (props: { draft: OnboardingDraft }) => ReactNode;
 }
 
-const goals = (d: OnboardingDraft) => (d.goals ?? {}) as Record<string, unknown>;
-const shopping = (d: OnboardingDraft) => (d.shopping ?? {}) as Record<string, unknown>;
-const habits = (d: OnboardingDraft) => (goals(d).habits ?? {}) as Record<string, string>;
+const goals = (d: OnboardingDraft) => readGoals(d);
+const shopping = (d: OnboardingDraft) => readShopping(d);
+const habits = (d: OnboardingDraft) => goals(d).habits ?? {};
 
 const STEPS: Record<StepKey, StepDef> = {
   welcome: { fields: [], cta: "Let's Do It!", Body: WelcomeStep },
@@ -83,7 +89,7 @@ const STEPS: Record<StepKey, StepDef> = {
     title: 'What are your health goals?',
     subtitle: 'Choose all that apply.',
     fields: ['goals'],
-    isComplete: (d) => ((goals(d).all as string[] | undefined) ?? []).length > 0,
+    isComplete: (d) => (goals(d).all ?? []).length > 0,
     Body: HealthGoalsStep,
   },
   'primary-goal': {
@@ -216,7 +222,7 @@ function WelcomeStep() {
   return (
     <div className="stack-lg center" style={{ paddingTop: 8 }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/onboarding/welcome.gif" alt="" style={{ borderRadius: 'var(--radius-lg)', width: '100%', background: '#e8e8e8' }} />
+      <img src={WELCOME_ANIMATION} alt="" style={{ borderRadius: 'var(--radius-lg)', width: '100%', background: '#e8e8e8' }} />
       <p style={{ fontWeight: 700, fontSize: 20, lineHeight: 1.35 }}>
         Welcome to Fuelify! To get started we need to collect some information so we can best serve you and your goals.
       </p>
@@ -254,7 +260,7 @@ function ProfileStep({ draft }: { draft: OnboardingDraft }) {
 function PersonalStep({ draft }: { draft: OnboardingDraft }) {
   const { update } = useOnboarding();
   const units = draft.units === 'Metric' ? 'Metric' : 'Imperial';
-  const { feet, inches } = cmToFeetInches(draft.height ?? null);
+  const { feet, inches } = draft.height ? cmToFeetInches(draft.height) : { feet: 5, inches: 6 };
   const today = new Date().toISOString().split('T')[0];
 
   return (
@@ -322,21 +328,22 @@ function DietStep({ draft }: { draft: OnboardingDraft }) {
   return (
     <div className="grid-2">
       {DIET_OPTIONS.map((d) => {
-        const selected = draft.diet === d.title;
+        const selected = draft.diet === d;
+        const image = DIET_IMAGES[d];
         return (
-          <button key={d.title} type="button" aria-pressed={selected} onClick={() => update({ diet: d.title })}
+          <button key={d} type="button" aria-pressed={selected} onClick={() => update({ diet: d })}
             className="card card-button"
             style={{ padding: 0, overflow: 'hidden', borderWidth: 2, borderColor: selected ? 'var(--primary)' : 'var(--border)', position: 'relative' }}>
             <div style={{ aspectRatio: '4 / 3', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 44 }}>
-              {d.image ? (
+              {image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={d.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                <img src={image} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               ) : (
                 <span aria-hidden="true">🍽️</span>
               )}
             </div>
             <div className="row-between" style={{ padding: '10px 12px', background: selected ? 'var(--primary-soft)' : undefined }}>
-              <span style={{ fontWeight: 700 }}>{d.title}</span>
+              <span style={{ fontWeight: 700 }}>{d}</span>
               {selected && <span style={{ color: 'var(--primary)' }}><Icon name="check" size={18} /></span>}
             </div>
           </button>
@@ -367,12 +374,12 @@ function HabitsStep({ draft }: { draft: OnboardingDraft }) {
   return (
     <div className="stack-lg">
       <Question title="Would you consider yourself a calorie-sensitive person?">
-        {CALORIE_OPTIONS.map((o) => (
+        {CALORIE_SENSITIVE_OPTIONS.map((o) => (
           <OptionRow key={o} radio title={o} selected={h.calorieSensitive === o} onClick={() => set({ calorieSensitive: o })} />
         ))}
       </Question>
       <Question title="Would you consider yourself a choosy eater?">
-        {CHOOSY_OPTIONS.map((o) => (
+        {CHOOSY_EATER_OPTIONS.map((o) => (
           <OptionRow key={o} radio title={o} selected={h.choosyEater === o} onClick={() => set({ choosyEater: o })} />
         ))}
       </Question>
@@ -382,11 +389,11 @@ function HabitsStep({ draft }: { draft: OnboardingDraft }) {
 
 function HealthGoalsStep({ draft }: { draft: OnboardingDraft }) {
   const { updateJson } = useOnboarding();
-  const all = (goals(draft).all as string[] | undefined) ?? [];
+  const all = goals(draft).all ?? [];
   const toggle = (g: string) => updateJson('goals', { all: all.includes(g) ? all.filter((x) => x !== g) : [...all, g] });
   return (
     <div className="stack-sm">
-      {GOAL_OPTIONS.map((g) => (
+      {HEALTH_GOAL_OPTIONS.map((g) => (
         <OptionRow key={g} title={g} selected={all.includes(g)} onClick={() => toggle(g)} />
       ))}
     </div>
@@ -395,9 +402,9 @@ function HealthGoalsStep({ draft }: { draft: OnboardingDraft }) {
 
 function PrimaryGoalStep({ draft }: { draft: OnboardingDraft }) {
   const { updateJson } = useOnboarding();
-  const chosen = (goals(draft).all as string[] | undefined) ?? [];
+  const chosen = goals(draft).all ?? [];
   // Offer the goals picked on the previous step first
-  const ordered = [...GOAL_OPTIONS].sort((a, b) => Number(chosen.includes(b)) - Number(chosen.includes(a)));
+  const ordered = [...HEALTH_GOAL_OPTIONS].sort((a, b) => Number(chosen.includes(b)) - Number(chosen.includes(a)));
   return (
     <div className="stack-sm">
       {ordered.map((g) => (
@@ -411,8 +418,7 @@ function WeightStep({ draft }: { draft: OnboardingDraft }) {
   const { update, updateJson } = useOnboarding();
   const units = draft.units === 'Metric' ? 'Metric' : 'Imperial';
   const unitLabel = units === 'Metric' ? 'kg' : 'lbs';
-  const target = goals(draft).targetWeight as number | undefined;
-  const weekly = goals(draft).weekly as number | undefined;
+  const { targetWeight: target, weekly } = goals(draft);
 
   return (
     <div className="stack-lg">
@@ -440,7 +446,7 @@ function WeightStep({ draft }: { draft: OnboardingDraft }) {
       </Question>
       <Question title="What is your weekly weight goal?">
         {WEEKLY_WEIGHT_OPTIONS.map((lbs) => (
-          <OptionRow key={lbs} radio title={weeklyLabel(lbs, units)} selected={weekly === lbs}
+          <OptionRow key={lbs} radio title={weeklyWeightLabel(lbs, units)} selected={weekly === lbs}
             onClick={() => updateJson('goals', { weekly: lbs })} />
         ))}
       </Question>
@@ -451,7 +457,7 @@ function WeightStep({ draft }: { draft: OnboardingDraft }) {
 function ShoppingStep({ draft }: { draft: OnboardingDraft }) {
   const { updateJson } = useOnboarding();
   const s = shopping(draft);
-  const budget = typeof s.budget === 'number' ? s.budget : 100;
+  const budget = s.budget ?? DEFAULT_WEEKLY_BUDGET;
   return (
     <div className="stack-lg">
       <Question title="Are you a price-sensitive shopper?">
@@ -469,9 +475,9 @@ function ShoppingStep({ draft }: { draft: OnboardingDraft }) {
           <div className="row-between">
             <span className="muted small">$0</span>
             <span style={{ fontWeight: 800, fontSize: 22, color: 'var(--primary)' }}>${budget}<span className="small muted">/week</span></span>
-            <span className="muted small">$500</span>
+            <span className="muted small">${MAX_WEEKLY_BUDGET}</span>
           </div>
-          <input type="range" min={0} max={500} step={5} value={budget} aria-label="Weekly grocery budget"
+          <input type="range" min={0} max={MAX_WEEKLY_BUDGET} step={5} value={budget} aria-label="Weekly grocery budget"
             onChange={(e) => updateJson('shopping', { budget: Number(e.target.value) })} />
         </div>
       </Question>
@@ -506,7 +512,7 @@ function DevicesStep() {
       {DEVICE_OPTIONS.map((d) => (
         <div key={d.name} className="card row" style={{ gap: 14 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={d.image} alt="" style={{ width: 64, height: 64, objectFit: 'contain', borderRadius: 10, background: '#fff' }} />
+          <img src={DEVICE_IMAGES[d.id]} alt="" style={{ width: 64, height: 64, objectFit: 'contain', borderRadius: 10, background: '#fff' }} />
           <div className="grow">
             <div style={{ fontWeight: 700 }}>{d.name}</div>
             <div className="small muted">{d.body}</div>
@@ -528,11 +534,11 @@ function SubmissionStep({ draft }: { draft: OnboardingDraft }) {
     ['Name', [draft.firstName, draft.lastName].filter(Boolean).join(' ') || '—'],
     ['Diet', draft.diet ?? '—'],
     ['Allergens', draft.allergens?.length ? draft.allergens.join(', ') : 'None'],
-    ['Primary goal', (g.primary as string) ?? '—'],
+    ['Primary goal', g.primary ?? '—'],
     ['Weight', draft.weight ? formatWeight(draft.weight, units) : '—'],
-    ['Weekly goal', g.weekly !== undefined ? weeklyLabel(g.weekly as number, units) : '—'],
+    ['Weekly goal', g.weekly !== undefined ? weeklyWeightLabel(g.weekly, units) : '—'],
     ['Activity', draft.activeness ?? '—'],
-    ['Weekly budget', typeof shopping(draft).budget === 'number' ? `$${shopping(draft).budget}` : '—'],
+    ['Weekly budget', shopping(draft).budget !== undefined ? `$${shopping(draft).budget}` : '—'],
   ];
   return (
     <div className="stack-lg">

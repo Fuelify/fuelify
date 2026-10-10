@@ -1,8 +1,8 @@
 'use client';
 
-import { useDataStoresReady } from '../providers';
-import { LoadingBlock } from '../components/ui';
-import { OnboardingProvider } from './onboarding-context';
+import { useDataStoresReady } from '@/lib/stores';
+import { LoadingBlock } from '@/components/ui';
+import { OnboardingProvider } from '@/features/onboarding/OnboardingContext';
 
 // Mirrors: lib/screens/onboarding/screen.dart — shell around every onboarding step.
 // Each step renders its own header (back + progress), scrolling body and footer button.

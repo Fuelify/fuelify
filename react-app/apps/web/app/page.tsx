@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { AUTH_DISABLED, useAuthStore, useDataStoresReady, useProfileStore } from './providers';
-import { Logo, Spinner } from './components/ui';
+import { AUTH_DISABLED, useAuthStore, useDataStoresReady, useProfileStore } from '@/lib/stores';
+import { Logo, Spinner } from '@/components/ui';
 
 // Splash screen — mirrors lib/screens/splash_screen.dart
 // Waits for the auth session, then routes: logged out → login,

@@ -1,18 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import type { MealPlanMeal } from '@fuelify/shared';
-import { useMealPlanStore } from '../providers';
-import { Segmented, Sheet } from './ui';
+import { MEAL_TYPES, type MealPlanMeal, type MealType } from '@fuelify/shared';
+import { useMealPlanStore } from '@/lib/stores';
+import { Segmented, Sheet } from '@/components/ui';
 
-export const MEAL_TYPES = [
-  { value: 'breakfast', label: 'Breakfast', emoji: '🌅' },
-  { value: 'lunch', label: 'Lunch', emoji: '🥪' },
-  { value: 'dinner', label: 'Dinner', emoji: '🍽️' },
-  { value: 'snack', label: 'Snack', emoji: '🍎' },
-] as const;
-
-export type MealType = (typeof MEAL_TYPES)[number]['value'];
+// Re-exported so feature code can import meal types alongside the sheet
+export { MEAL_TYPES, type MealType };
 
 /** Add or edit a planned meal. Pass `meal` to edit, or `preset` to add. */
 export function MealSheet({

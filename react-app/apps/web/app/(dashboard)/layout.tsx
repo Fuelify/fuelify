@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { AUTH_DISABLED, useAuthStore, useDataStoresReady } from '../providers';
-import { Icon, LoadingBlock, type IconName } from '../components/ui';
+import { AUTH_DISABLED, useAuthStore, useDataStoresReady } from '@/lib/stores';
+import { Icon, LoadingBlock, type IconName } from '@/components/ui';
 
 // Mirrors: lib/screens/main/dashboard/screen.dart + bottom_navigation_bar.dart
 // The tab bar is part of a full-viewport flex column, so it is always on screen;

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoadingBlock } from '../../components/ui';
+import { LoadingBlock } from '@/components/ui';
 
 // The Flutter "Food" tab is now the Saved view inside Discover.
 export default function FoodPage() {

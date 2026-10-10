@@ -1,5 +1,5 @@
 import { ONBOARDING_STEPS } from '@fuelify/shared';
-import { OnboardingStepScreen } from '../../steps';
+import { OnboardingStepScreen } from '@/features/onboarding/OnboardingStepScreen';
 
 // One route for all 13 onboarding steps — see ../../steps.tsx
 export function generateStaticParams() {

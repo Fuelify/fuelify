@@ -12,13 +12,13 @@ import {
   type PantryItemDraft,
   type PantryItemTotal,
   type StorageZone,
+  daysUntil,
 } from '@fuelify/shared';
-import { useHouseholdStore, usePantryStore } from '../../providers';
-import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet } from '../../components/ui';
-import { daysUntil } from '../../lib/dates';
-import { BarcodeScannerModal } from './BarcodeScannerModal';
-import { ReceiptImportModal } from './ReceiptImportModal';
-import { MealSuggestionsModal } from './MealSuggestionsModal';
+import { useHouseholdStore, usePantryStore } from '@/lib/stores';
+import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet } from '@/components/ui';
+import { BarcodeScannerSheet } from '@/features/pantry/BarcodeScannerSheet';
+import { ReceiptImportSheet } from '@/features/pantry/ReceiptImportSheet';
+import { MealIdeasSheet } from '@/features/pantry/MealIdeasSheet';
 
 const ZONE_ICON: Record<StorageZone, string> = { dry: '🥫', cool: '🧊', frozen: '❄️' };
 const STATUS_BADGE: Record<ItemStatus, string> = { sealed: 'badge-accent', open: 'badge-primary', expired: 'badge-danger' };
@@ -198,9 +198,9 @@ export default function PantryPage() {
         onClose={() => setGroupName(null)}
         onAddAnother={(t) => { setGroupName(null); openAdd({ name: t.items[0].name, brand: t.items[0].brand ?? undefined, category: t.items[0].category ?? undefined, unit: t.unit ?? undefined, storageZone: t.items[0].storageZone, quantity: 1 }); }}
       />
-      <BarcodeScannerModal open={scannerOpen} onClose={() => setScannerOpen(false)} onScanned={handleBarcodeScanned} />
-      <ReceiptImportModal open={receiptOpen} onClose={() => setReceiptOpen(false)} onImport={handleReceiptImport} />
-      <MealSuggestionsModal open={suggestionsOpen} onClose={() => setSuggestionsOpen(false)} pantryItems={items} />
+      <BarcodeScannerSheet open={scannerOpen} onClose={() => setScannerOpen(false)} onScanned={handleBarcodeScanned} />
+      <ReceiptImportSheet open={receiptOpen} onClose={() => setReceiptOpen(false)} onImport={handleReceiptImport} />
+      <MealIdeasSheet open={suggestionsOpen} onClose={() => setSuggestionsOpen(false)} pantryItems={items} />
     </>
   );
 }

@@ -4,8 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { validateEmail, validatePassword } from '@fuelify/shared';
-import { AUTH_DISABLED, useAuthStore } from '../providers';
-import { Icon, Logo } from './ui';
+import { AUTH_DISABLED, useAuthStore } from '@/lib/stores';
+import { Icon, Logo } from '@/components/ui';
 
 // Mirrors: lib/screens/authentication/login_screen.dart + register_screen.dart
 export function AuthForm({ mode }: { mode: 'login' | 'register' }) {

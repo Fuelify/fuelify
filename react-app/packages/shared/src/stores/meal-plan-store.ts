@@ -3,6 +3,7 @@
 
 import { createStore } from 'zustand/vanilla';
 import type { MealPlanRepository, MealPlanMeal } from '../supabase/meal-plan-repo';
+import { todayISO } from '../utils/dates';
 
 export interface MealPlanState {
   meals: Record<string, MealPlanMeal[]>; // keyed by date string (YYYY-MM-DD)
@@ -25,18 +26,13 @@ export interface MealPlanActions {
 
 export type MealPlanStore = MealPlanState & MealPlanActions;
 
-/** Today's date in the user's local time zone (toISOString would give the UTC date). */
-function todayString(): string {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-}
 
 export function createMealPlanStore(repo: MealPlanRepository, userId: string) {
   return createStore<MealPlanStore>()((set, get) => ({
     meals: {},
     isLoading: false,
     error: null,
-    selectedDate: todayString(),
+    selectedDate: todayISO(),
 
     fetchMealPlan: async (startDate: string, endDate: string) => {
       set({ isLoading: true, error: null });

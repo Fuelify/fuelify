@@ -31,3 +31,6 @@ export type {
   MealSuggestionState,
   MealSuggestionActions,
 } from './meal-suggestion-store';
+
+export { createUserStores } from './app-stores';
+export type { UserStores } from './app-stores';

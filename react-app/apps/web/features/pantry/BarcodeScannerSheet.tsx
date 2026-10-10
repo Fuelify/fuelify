@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Icon, Sheet } from '../../components/ui';
+import { Icon, Sheet } from '@/components/ui';
 
 interface Props {
   open: boolean;
@@ -16,7 +16,7 @@ interface NativeBarcodeDetector {
   detect: (src: CanvasImageSource) => Promise<Array<{ rawValue: string }>>;
 }
 
-export function BarcodeScannerModal({ open, onClose, onScanned }: Props) {
+export function BarcodeScannerSheet({ open, onClose, onScanned }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const zxingReaderRef = useRef<unknown>(null);

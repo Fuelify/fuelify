@@ -2,10 +2,9 @@
 
 import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { useHouseholdStore, useMealPlanStore, usePantryStore, useProfileStore, useShoppingCartStore } from '../../providers';
-import { FoodTile, Icon, initials, type IconName } from '../../components/ui';
-import { MEAL_TYPES } from '../../components/MealSheet';
-import { daysUntil, formatLong, greeting, todayISO } from '../../lib/dates';
+import { daysUntil, formatLong, greeting, initialsOf, sortByMealType, todayISO } from '@fuelify/shared';
+import { useHouseholdStore, useMealPlanStore, usePantryStore, useProfileStore, useShoppingCartStore } from '@/lib/stores';
+import { FoodTile, Icon, type IconName } from '@/components/ui';
 
 // The Flutter Home tab was a placeholder; this is a daily overview built from
 // the data the app already tracks (plan, pantry, cart, onboarding status).
@@ -34,10 +33,7 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const todayMeals = useMemo(() => {
-    const order = MEAL_TYPES.map((t) => t.value as string);
-    return [...(meals[today] ?? [])].sort((a, b) => order.indexOf(a.mealType) - order.indexOf(b.mealType));
-  }, [meals, today]);
+  const todayMeals = useMemo(() => sortByMealType(meals[today] ?? []), [meals, today]);
 
   const expiringSoon = useMemo(
     () =>
@@ -62,7 +58,7 @@ export default function HomePage() {
           </h1>
         </div>
         <Link href="/profile" className="avatar" aria-label="Profile">
-          {initials(profile?.firstName, profile?.lastName)}
+          {initialsOf(profile?.firstName, profile?.lastName) || '🙂'}
         </Link>
       </header>
 

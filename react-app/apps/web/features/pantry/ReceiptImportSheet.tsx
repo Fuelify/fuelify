@@ -11,8 +11,8 @@ import {
   type ReceiptParseResult,
   type StorageZone,
 } from '@fuelify/shared';
-import { useSupabase } from '../../providers';
-import { Icon, Sheet, Spinner } from '../../components/ui';
+import { useSupabase } from '@/lib/stores';
+import { Icon, Sheet, Spinner } from '@/components/ui';
 
 interface Props {
   open: boolean;
@@ -38,7 +38,7 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
-export function ReceiptImportModal({ open, onClose, onImport }: Props) {
+export function ReceiptImportSheet({ open, onClose, onImport }: Props) {
   const supabase = useSupabase();
   const parser = useMemo(() => new ReceiptParser(supabase), [supabase]);
 

@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import type { Recipe } from '@fuelify/shared';
-import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '../providers';
-import { Icon, Sheet, foodEmoji, foodGradient } from './ui';
-import { MealSheet } from './MealSheet';
-import { todayISO } from '../lib/dates';
+import { type Recipe, todayISO, foodEmoji, totalTimeMinutes } from '@fuelify/shared';
+import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
+import { Icon, Sheet, foodBackground } from '@/components/ui';
+import { MealSheet } from '@/features/meals/MealSheet';
 
 /** Recipe detail: ingredients, steps, like/favorite, add to plan, add ingredients to cart. */
 export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClose: () => void }) {
@@ -53,7 +52,7 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
       >
         {recipe && (
           <div className="stack-lg">
-            <div style={{ height: 140, borderRadius: 'var(--radius)', background: foodGradient(recipe.title), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 72 }} aria-hidden="true">
+            <div style={{ height: 140, borderRadius: 'var(--radius)', background: foodBackground(recipe.title), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 72 }} aria-hidden="true">
               {foodEmoji(recipe.title)}
             </div>
             <p className="muted">{recipe.description}</p>
@@ -103,7 +102,7 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
 }
 
 export function RecipeMeta({ recipe }: { recipe: Recipe }) {
-  const time = (recipe.prepTimeMinutes ?? 0) + (recipe.cookTimeMinutes ?? 0);
+  const time = totalTimeMinutes(recipe);
   return (
     <div className="chips">
       {time > 0 && <span className="badge"><Icon name="clock" size={12} />&nbsp;{time} min</span>}

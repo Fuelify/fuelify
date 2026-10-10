@@ -4,12 +4,11 @@
 // expandable cards. Prioritizes partially-opened items. Ideas can be added to
 // the plan, and their missing ingredients to the cart.
 
+import { type MealSuggestion, type PantryItem, todayISO, foodEmoji, toMealType } from '@fuelify/shared';
 import { useCallback, useState } from 'react';
-import type { MealSuggestion, PantryItem } from '@fuelify/shared';
-import { useHouseholdStore, useMealSuggestionStore, useShoppingCartStore } from '../../providers';
-import { Icon, Sheet, Spinner, foodEmoji, foodGradient } from '../../components/ui';
-import { MealSheet, type MealType } from '../../components/MealSheet';
-import { todayISO } from '../../lib/dates';
+import { useHouseholdStore, useMealSuggestionStore, useShoppingCartStore } from '@/lib/stores';
+import { Icon, Sheet, Spinner, foodBackground } from '@/components/ui';
+import { MealSheet } from '@/features/meals/MealSheet';
 
 interface Props {
   open: boolean;
@@ -19,7 +18,7 @@ interface Props {
 
 const MEAL_TYPES = ['Any', 'Breakfast', 'Lunch', 'Dinner', 'Snack'] as const;
 
-export function MealSuggestionsModal({ open, onClose, pantryItems }: Props) {
+export function MealIdeasSheet({ open, onClose, pantryItems }: Props) {
   const suggestions = useMealSuggestionStore((s) => s.suggestions);
   const prioritizedItems = useMealSuggestionStore((s) => s.prioritizedItems);
   const isGenerating = useMealSuggestionStore((s) => s.isGenerating);
@@ -124,11 +123,6 @@ export function MealSuggestionsModal({ open, onClose, pantryItems }: Props) {
   );
 }
 
-function toMealType(t?: string): MealType | undefined {
-  const v = t?.toLowerCase();
-  return v === 'breakfast' || v === 'lunch' || v === 'dinner' || v === 'snack' ? v : undefined;
-}
-
 function SuggestionCard({
   suggestion,
   expanded,
@@ -162,7 +156,7 @@ function SuggestionCard({
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       <button className="row" onClick={onToggle} style={{ width: '100%', padding: 14, gap: 12, alignItems: 'flex-start', textAlign: 'left' }}>
-        <div className="food-tile" style={{ background: foodGradient(suggestion.title) }} aria-hidden="true">{foodEmoji(suggestion.title)}</div>
+        <div className="food-tile" style={{ background: foodBackground(suggestion.title) }} aria-hidden="true">{foodEmoji(suggestion.title)}</div>
         <div className="grow stack-sm" style={{ gap: 4 }}>
           <div style={{ fontWeight: 700 }}>{suggestion.title}</div>
           <div className="small muted">{suggestion.description}</div>

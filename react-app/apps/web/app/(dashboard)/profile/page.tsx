@@ -3,10 +3,9 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore } from '../../providers';
-import { Icon, PageHeader, Segmented, Sheet, initials } from '../../components/ui';
-import { formatHeight, formatWeight, weeklyLabel } from '../../(onboarding)/options';
-import { fromISODate } from '../../lib/dates';
+import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem } from '@fuelify/shared';
+import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore } from '@/lib/stores';
+import { Icon, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
 // onboarding answers, units, household and account actions.
@@ -31,13 +30,13 @@ export default function ProfilePage() {
     ensureHousehold();
   }, [fetchProfile, ensureHousehold]);
 
-  const units = profile?.units === 'Metric' ? 'Metric' : 'Imperial';
-  const goals = (profile?.goals ?? {}) as Record<string, unknown>;
-  const shopping = (profile?.shopping ?? {}) as Record<string, unknown>;
-  const habits = (goals.habits ?? {}) as Record<string, string>;
+  const units = toUnitSystem(profile?.units);
+  const goals = readGoals(profile);
+  const shopping = readShopping(profile);
+  const habits = goals.habits ?? {};
   const household = households.find((h) => h.id === activeHouseholdId);
   const fullName = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ');
-  const age = profile?.birthdate ? Math.floor((Date.now() - fromISODate(profile.birthdate).getTime()) / 31557600000) : null;
+  const age = profile?.birthdate ? ageFromBirthdate(profile.birthdate) : null;
 
   const handleSignOut = async () => {
     await signOut();
@@ -51,7 +50,7 @@ export default function ProfilePage() {
         <div className="screen-pad stack" style={{ paddingTop: 4, paddingBottom: 32 }}>
           {/* Identity */}
           <div className="card row" style={{ gap: 14 }}>
-            <div className="avatar avatar-lg">{initials(profile?.firstName, profile?.lastName)}</div>
+            <Avatar size="lg" first={profile?.firstName} last={profile?.lastName} />
             <div className="grow">
               <div className="h2 truncate">{fullName || 'Your profile'}</div>
               <div className="small muted truncate">{isAnonymous ? 'Guest account' : email ?? ''}</div>
@@ -97,14 +96,14 @@ export default function ProfilePage() {
             <Row label="Gender" value={profile?.gender === 'Prefer to self describe' ? profile.genderDesc : profile?.gender} />
             <Row label="Diet" value={profile?.diet} />
             <Row label="Allergens" value={profile?.allergens?.length ? profile.allergens.join(', ') : profile?.onboarded ? 'None' : null} />
-            <Row label="Primary goal" value={goals.primary as string} />
+            <Row label="Primary goal" value={goals.primary} />
             <Row label="Weight" value={profile?.weight ? formatWeight(profile.weight, units) : null} />
-            <Row label="Goal weight" value={typeof goals.targetWeight === 'number' ? formatWeight(goals.targetWeight, units) : null} />
-            <Row label="Weekly goal" value={typeof goals.weekly === 'number' ? weeklyLabel(goals.weekly, units) : null} />
+            <Row label="Goal weight" value={goals.targetWeight ? formatWeight(goals.targetWeight, units) : null} />
+            <Row label="Weekly goal" value={goals.weekly !== undefined ? weeklyWeightLabel(goals.weekly, units) : null} />
             <Row label="Activity" value={profile?.activeness} />
             <Row label="Calorie-sensitive" value={habits.calorieSensitive ? (habits.calorieSensitive.startsWith('Yes') ? 'Yes' : 'No') : null} />
             <Row label="Choosy eater" value={habits.choosyEater} />
-            <Row label="Grocery budget" value={typeof shopping.budget === 'number' ? `$${shopping.budget}/week` : null} />
+            <Row label="Grocery budget" value={shopping.budget !== undefined ? `$${shopping.budget}/week` : null} />
           </div>
 
           {/* Household */}

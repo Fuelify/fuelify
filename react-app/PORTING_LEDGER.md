@@ -17,7 +17,7 @@ those are built out here around the data the app already stores.
 | A4 | App shell: full-viewport layout (`100dvh`), bottom nav fixed and always visible (no scrolling to reach it), content scrolls above it, safe-area insets, active-tab state from the URL | ☑ |
 | A5 | Restyle splash, login and registration | ☑ |
 | A6 | Routing: new (not onboarded) users go to onboarding, onboarded users go to Plan; `/food` folds into Discover → Saved | ☑ |
-| A7 | Eating-habits answers stored in `profiles.goals.habits` (no schema change). Starter recipes are in migration 00004 — **needs applying to Supabase** (the apply was cancelled from this session) | ◐ |
+| A7 | Eating-habits answers stored in `profiles.goals.habits` (no schema change). 16 starter recipes from migration 00004 applied to Supabase | ☑ |
 
 ## B. Onboarding (parity with `lib/screens/onboarding/*`)
 
@@ -57,6 +57,17 @@ those are built out here around the data the app already stores.
 | D1 | `turbo run typecheck` + `next build` pass | ☑ |
 | D2 | Mobile-viewport (390×844) Playwright run against a stubbed Supabase: every tab, onboarding steps, sheets, swipe, add-meal, onboarding save and splash routing. Tab bar sits flush at the viewport bottom with 0px page scroll on every tab; no console errors | ☑ |
 | D3 | Deploy to Vercel; check the production build | ◐ |
+
+## E. Architecture & data
+
+| # | Item | Status |
+|---|------|--------|
+| E1 | Shared core: dates, units, food visuals, recipe ranking, meal types, onboarding options and typed profile-JSON readers moved from the web app into `@fuelify/shared` | ☑ |
+| E2 | One composition root (`createUserStores`) used by both web (`lib/stores.tsx`) and mobile (`hooks/useStores.ts`) | ☑ |
+| E3 | Web layout: `app/` routes only, `features/<domain>/`, `components/ui/` primitives, `@/` imports | ☑ |
+| E4 | Unit tests (Vitest) for the shared utilities and models; `npm test` via Turbo | ☑ |
+| E5 | `ARCHITECTURE.md` documents layers, rules and commands | ☑ |
+| E6 | Login re-enabled (`NEXT_PUBLIC_AUTH_DISABLED=false`); two accounts seeded and sharing "Minier Household" (Ethan owner, Teagan member) | ☑ |
 
 ## Out of scope for this pass
 

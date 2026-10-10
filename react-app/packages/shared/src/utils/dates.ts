@@ -1,4 +1,5 @@
-// Local-time date helpers (YYYY-MM-DD strings, as stored in Postgres DATE columns)
+// Local-time date helpers for YYYY-MM-DD strings (Postgres DATE columns).
+// Always local time: toISOString() would give the UTC date and shift evenings to tomorrow.
 
 export function toISODate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -39,11 +40,21 @@ export function formatMonth(s: string): string {
   return fromISODate(s).toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 }
 
-export function daysUntil(s: string): number {
-  return Math.round((fromISODate(s).getTime() - fromISODate(todayISO()).getTime()) / 86400000);
+/** Whole days from today until the date (negative when in the past). */
+export function daysUntil(s: string, today: string = todayISO()): number {
+  return Math.round((fromISODate(s).getTime() - fromISODate(today).getTime()) / 86400000);
 }
 
-export function greeting(): string {
-  const h = new Date().getHours();
+/** Age in whole years on `today` for a YYYY-MM-DD birth date. */
+export function ageFromBirthdate(birthdate: string, today: Date = new Date()): number {
+  const b = fromISODate(birthdate);
+  let age = today.getFullYear() - b.getFullYear();
+  const m = today.getMonth() - b.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < b.getDate())) age--;
+  return age;
+}
+
+export function greeting(now: Date = new Date()): string {
+  const h = now.getHours();
   return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
 }

@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import type { UserProfile } from '@fuelify/shared';
-import { useProfileStore } from '../providers';
+import { useProfileStore } from '@/lib/stores';
 
 /** Answers collected across the onboarding steps (a working copy of the profile). */
 export type OnboardingDraft = Partial<UserProfile>;
