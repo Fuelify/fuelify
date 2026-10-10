@@ -1,6 +1,6 @@
 import {
   BRAND_COLORS,
-  LOGO_LEAF_PATH,
+  LOGO_LEAVES,
   LOGO_STROKES,
   LOGO_STROKE_WIDTH,
   LOGO_VIEWBOX,
@@ -42,7 +42,9 @@ export function LogoMark({ size = 40, title = 'Fuelify' }: { size?: number; titl
       strokeWidth={LOGO_STROKE_WIDTH}
       style={{ flexShrink: 0 }}
     >
-      <path d={LOGO_LEAF_PATH} fill={BRAND_COLORS.cyan} />
+      {LOGO_LEAVES.map((leaf, i) => (
+        <path key={`leaf-${i}`} d={leaf.path} fill={BRAND_COLORS[leaf.color]} />
+      ))}
       {LOGO_STROKES.map(([x1, y1, x2, y2, color], i) => (
         <path key={i} d={`M${x1} ${y1} L${x2} ${y2}`} stroke={BRAND_COLORS[color]} />
       ))}
