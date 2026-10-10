@@ -41,7 +41,11 @@ react-app/
 - **Local dates.** Use the `utils/dates` helpers; `toISOString()` gives the UTC date.
 - **Imports (web):** framework → `@fuelify/shared` → `@/…` (app code) → relative.
 - **Styling (web):** design tokens and component classes in `app/globals.css`;
-  inline styles only for one-off layout.
+  inline styles only for one-off layout, and never raw colours — use the tokens.
+- **Theming:** light tokens on `:root`, dark overrides on `[data-theme='dark']`.
+  The preference (System / Light / Dark) lives in the shared preferences store;
+  `lib/theme-constants.ts` sets `data-theme` before first paint and
+  `lib/theme.tsx` keeps it in sync with the store and the OS.
 
 ## Commands (from `react-app/`)
 

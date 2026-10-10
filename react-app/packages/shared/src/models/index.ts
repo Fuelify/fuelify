@@ -8,3 +8,4 @@ export * from './pantry';
 export * from './external-data';
 export * from './meal-suggestion';
 export * from './profile-answers';
+export * from './theme';

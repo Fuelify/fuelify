@@ -1,58 +1,73 @@
-// Ported from: lib/providers/dark_mode.dart
+// Device-level preferences (not synced to the profile): appearance and units.
+// Ported from lib/providers/dark_mode.dart, extended with a 'system' option.
 
 import { createStore } from 'zustand/vanilla';
+import { isThemePreference, type ThemePreference } from '../models/theme';
 
 export interface PreferencesState {
-  isDarkMode: boolean;
+  theme: ThemePreference;
   units: 'Imperial' | 'Metric';
 }
 
 export interface PreferencesActions {
-  toggleDarkMode: () => void;
+  setTheme: (theme: ThemePreference) => void;
   setUnits: (units: 'Imperial' | 'Metric') => void;
   loadPreferences: () => void;
-  savePreferences: () => void;
 }
 
 export type PreferencesStore = PreferencesState & PreferencesActions;
 
-const STORAGE_KEY = 'fuelify_preferences';
+/** Key-value persistence (localStorage on web; an adapter on native). */
+export interface PreferencesStorage {
+  getItem: (key: string) => string | null;
+  setItem: (key: string, value: string) => void;
+}
 
-export function createPreferencesStore() {
+export const PREFERENCES_STORAGE_KEY = 'fuelify_preferences';
+
+function defaultStorage(): PreferencesStorage | null {
+  try {
+    return typeof window !== 'undefined' && window.localStorage ? window.localStorage : null;
+  } catch {
+    return null; // storage blocked (private mode, sandboxed iframe)
+  }
+}
+
+export function createPreferencesStore(storage: PreferencesStorage | null = defaultStorage()) {
+  const save = (state: PreferencesState) => {
+    try {
+      storage?.setItem(PREFERENCES_STORAGE_KEY, JSON.stringify({ theme: state.theme, units: state.units }));
+    } catch {
+      // Persisting is best-effort
+    }
+  };
+
   return createStore<PreferencesStore>()((set, get) => ({
-    isDarkMode: false,
+    theme: 'system',
     units: 'Imperial',
 
-    toggleDarkMode: () => {
-      set((state) => ({ isDarkMode: !state.isDarkMode }));
-      get().savePreferences();
+    setTheme: (theme) => {
+      set({ theme });
+      save(get());
     },
 
-    setUnits: (units: 'Imperial' | 'Metric') => {
+    setUnits: (units) => {
       set({ units });
-      get().savePreferences();
+      save(get());
     },
 
     loadPreferences: () => {
-      if (typeof window === 'undefined') return;
       try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          set({
-            isDarkMode: parsed.isDarkMode ?? false,
-            units: parsed.units ?? 'Imperial',
-          });
-        }
+        const raw = storage?.getItem(PREFERENCES_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw) as Record<string, unknown>;
+        set({
+          theme: isThemePreference(parsed.theme) ? parsed.theme : parsed.isDarkMode === true ? 'dark' : 'system',
+          units: parsed.units === 'Metric' ? 'Metric' : 'Imperial',
+        });
       } catch {
-        // Ignore parse errors
+        // Ignore unreadable storage
       }
-    },
-
-    savePreferences: () => {
-      if (typeof window === 'undefined') return;
-      const { isDarkMode, units } = get();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ isDarkMode, units }));
     },
   }));
 }

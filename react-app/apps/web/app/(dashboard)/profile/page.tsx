@@ -3,8 +3,8 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem } from '@fuelify/shared';
-import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore } from '@/lib/stores';
+import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference } from '@fuelify/shared';
+import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
 import { Icon, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
@@ -15,6 +15,8 @@ export default function ProfilePage() {
   const fetchProfile = useProfileStore((s) => s.fetchProfile);
   const updateProfile = useProfileStore((s) => s.updateProfile);
   const setUnits = useProfileStore((s) => s.setUnits);
+  const theme = usePreferencesStore((s) => s.theme);
+  const setTheme = usePreferencesStore((s) => s.setTheme);
   const email = useAuthStore((s) => s.email);
   const isAnonymous = useAuthStore((s) => s.isAnonymous);
   const signOut = useAuthStore((s) => s.signOut);
@@ -75,7 +77,13 @@ export default function ProfilePage() {
           {/* Settings */}
           <div className="section-title"><span>Preferences</span></div>
           <div className="card stack-sm">
-            <span className="label">Units</span>
+            <span className="label">Appearance</span>
+            <Segmented<ThemePreference>
+              options={THEME_PREFERENCES.map((t) => ({ value: t, label: THEME_LABELS[t] }))}
+              value={theme}
+              onChange={setTheme}
+            />
+            <span className="label" style={{ marginTop: 8 }}>Units</span>
             <Segmented
               options={[{ value: 'Imperial', label: 'Imperial' }, { value: 'Metric', label: 'Metric' }]}
               value={units}
