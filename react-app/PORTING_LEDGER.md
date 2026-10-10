@@ -42,21 +42,21 @@ those are built out here around the data the app already stores.
 
 | # | Item | Status |
 |---|------|--------|
-| C1 | Plan: week strip (MON–SUN, selected day highlighted), prev/next/today week navigation, meals for the day grouped by meal type, add / edit / delete / move meals (parity: `main/plan/screen.dart`, plus the CRUD the store already supports) | ☐ |
-| C2 | Home: greeting, today's meals, pantry items expiring soon, cart count, quick actions | ☐ |
-| C3 | Discover: swipeable recipe cards (drag right = like, left = dislike, up = favorite) plus buttons; records classifications (parity: `discovery_screen.dart`) | ☐ |
-| C4 | Saved (was the Food tab): liked/favorited recipes, recipe detail sheet, "add to plan" | ☐ |
-| C5 | Profile: avatar/initials, editable details, units, view or redo onboarding answers, sign out / create account | ☐ |
-| C6 | Cart: restyle on the design system, auto household, member list | ☐ |
-| C7 | Pantry: restyle on the design system (incl. scanner, receipt and meal-idea modals), auto household | ☐ |
+| C1 | Plan: week strip (MON–SUN, selected day highlighted), prev/next/today week navigation, meals for the day grouped by meal type, add / edit / delete / move meals (parity: `main/plan/screen.dart`, plus the CRUD the store already supports) | ☑ |
+| C2 | Home: greeting, today's meals, pantry items expiring soon, cart count, quick actions | ☑ |
+| C3 | Discover: swipeable recipe cards (drag right = like, left = dislike, up = favorite) plus buttons; records classifications (parity: `discovery_screen.dart`) | ☑ |
+| C4 | Saved (was the Food tab): liked/favorited recipes, recipe detail sheet, "add to plan" | ☑ |
+| C5 | Profile: avatar/initials, editable details, units, view or redo onboarding answers, sign out / create account | ☑ |
+| C6 | Cart: restyle on the design system, auto household, member list | ☑ |
+| C7 | Pantry: restyle on the design system (incl. scanner, receipt and meal-idea modals), auto household | ☑ |
 
 ## D. Verification
 
 | # | Item | Status |
 |---|------|--------|
-| D1 | `turbo run typecheck` + `next build` pass | ☐ |
-| D2 | Mobile-viewport screenshots of the shell, onboarding and empty states (Playwright) | ☐ |
-| D3 | Deploy to Vercel; check the production build | ☐ |
+| D1 | `turbo run typecheck` + `next build` pass | ☑ |
+| D2 | Mobile-viewport (390×844) Playwright run against a stubbed Supabase: every tab, onboarding steps, sheets, swipe, add-meal, onboarding save and splash routing. Tab bar sits flush at the viewport bottom with 0px page scroll on every tab; no console errors | ☑ |
+| D3 | Deploy to Vercel; check the production build | ◐ |
 
 ## Out of scope for this pass
 

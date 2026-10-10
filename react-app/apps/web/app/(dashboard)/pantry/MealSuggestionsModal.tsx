@@ -1,11 +1,15 @@
 'use client';
 
-// Modal that requests AI-generated meal ideas from the user's pantry and
-// displays them as expandable cards. Prioritizes partially-opened items.
+// Requests AI-generated meal ideas from the user's pantry and shows them as
+// expandable cards. Prioritizes partially-opened items. Ideas can be added to
+// the plan, and their missing ingredients to the cart.
 
 import { useCallback, useState } from 'react';
-import { useMealSuggestionStore } from '../../providers';
 import type { MealSuggestion, PantryItem } from '@fuelify/shared';
+import { useHouseholdStore, useMealSuggestionStore, useShoppingCartStore } from '../../providers';
+import { Icon, Sheet, Spinner, foodEmoji, foodGradient } from '../../components/ui';
+import { MealSheet, type MealType } from '../../components/MealSheet';
+import { todayISO } from '../../lib/dates';
 
 interface Props {
   open: boolean;
@@ -26,10 +30,9 @@ export function MealSuggestionsModal({ open, onClose, pantryItems }: Props) {
   const [mealType, setMealType] = useState<(typeof MEAL_TYPES)[number]>('Any');
   const [dietary, setDietary] = useState('');
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [planning, setPlanning] = useState<MealSuggestion | null>(null);
 
-  const openItemCount = pantryItems.filter(
-    (i) => i.status === 'open' && i.remainingPct < 100,
-  ).length;
+  const openItemCount = pantryItems.filter((i) => i.status === 'open' && i.remainingPct < 100).length;
 
   const handleGenerate = useCallback(async () => {
     setExpanded(null);
@@ -40,346 +43,185 @@ export function MealSuggestionsModal({ open, onClose, pantryItems }: Props) {
     });
   }, [generate, pantryItems, mealType, dietary]);
 
-  if (!open) return null;
-
   const hasContent = suggestions.length > 0 && !isGenerating;
 
   return (
-    <div style={s.overlay} onClick={onClose}>
-      <div style={s.modal} onClick={(e) => e.stopPropagation()}>
-        <div style={s.header}>
-          <h2 style={s.title}>🍽️ Meal Ideas</h2>
-          <button style={s.closeBtn} onClick={onClose}>
-            ✕
+    <>
+      <Sheet
+        open={open && !planning}
+        onClose={onClose}
+        title="Meal ideas"
+        footer={
+          <button className="btn btn-primary btn-block" onClick={handleGenerate} disabled={isGenerating || pantryItems.length === 0}>
+            <Icon name="sparkles" />
+            {isGenerating ? 'Thinking…' : hasContent ? 'Regenerate' : 'Suggest meals'}
           </button>
-        </div>
+        }
+      >
+        <div className="stack">
+          <p className="small muted">
+            Uses your {pantryItems.length} pantry item{pantryItems.length === 1 ? '' : 's'}
+            {openItemCount > 0 ? `, prioritizing ${openItemCount} opened` : ''}.
+          </p>
 
-        <p style={s.subtitle}>
-          {pantryItems.length} pantry items · {openItemCount} partially opened
-        </p>
+          <div className="chips-scroll">
+            {MEAL_TYPES.map((m) => (
+              <button key={m} className="chip" aria-pressed={mealType === m} onClick={() => setMealType(m)}>{m}</button>
+            ))}
+          </div>
+          <input className="input" placeholder="Dietary needs (optional) — e.g. vegetarian" value={dietary}
+            onChange={(e) => setDietary(e.target.value)} aria-label="Dietary needs" />
 
-        <div style={s.controls}>
-          <div style={{ marginBottom: 10 }}>
-            <span style={s.label}>Meal type</span>
-            <div style={s.chipRow}>
-              {MEAL_TYPES.map((m) => (
-                <button
-                  key={m}
-                  style={{ ...s.chip, ...(mealType === m ? s.chipActive : {}) }}
-                  onClick={() => setMealType(m)}
-                >
-                  {m}
-                </button>
-              ))}
+          {pantryItems.length === 0 && <div className="alert alert-info">Add items to your pantry to get suggestions.</div>}
+          {error && <div className="alert">{error}</div>}
+
+          {isGenerating && (
+            <div className="center-fill" style={{ minHeight: 160 }}>
+              <Spinner />
+              <p className="muted small">Cooking up ideas from your pantry…</p>
             </div>
-          </div>
-
-          <div style={{ marginBottom: 10 }}>
-            <span style={s.label}>Dietary (optional)</span>
-            <input
-              style={s.input}
-              placeholder="e.g. vegetarian, gluten-free"
-              value={dietary}
-              onChange={(e) => setDietary(e.target.value)}
-            />
-          </div>
-
-          <button
-            style={{
-              ...s.generateBtn,
-              ...(isGenerating || pantryItems.length === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
-            }}
-            onClick={handleGenerate}
-            disabled={isGenerating || pantryItems.length === 0}
-          >
-            {isGenerating
-              ? 'Generating…'
-              : hasContent
-              ? 'Regenerate'
-              : 'Suggest Meals'}
-          </button>
-
-          {pantryItems.length === 0 && (
-            <p style={s.hint}>Add items to your pantry to get suggestions.</p>
           )}
-        </div>
-
-        <div style={s.scroll}>
-          {error && <div style={s.error}>{error}</div>}
 
           {hasContent && prioritizedItems.length > 0 && (
-            <div style={s.priorityBanner}>
-              <strong style={{ color: '#4DB6AC', fontSize: 12 }}>Using up first:</strong>{' '}
-              <span style={{ color: '#ccc', fontSize: 13 }}>
-                {prioritizedItems.join(' · ')}
-              </span>
+            <div className="alert alert-info small">
+              <strong>Using up first:</strong> {prioritizedItems.join(' · ')}
             </div>
           )}
 
-          {suggestions.map((sug, idx) => (
+          {!isGenerating && suggestions.map((sug, idx) => (
             <SuggestionCard
               key={idx}
               suggestion={sug}
               expanded={expanded === idx}
               onToggle={() => setExpanded(expanded === idx ? null : idx)}
+              onPlan={() => setPlanning(sug)}
             />
           ))}
 
-          {!isGenerating && suggestions.length === 0 && !error && (
-            <p style={s.emptyText}>
-              Click "Suggest Meals" to get recipe ideas that use what you already have.
+          {!isGenerating && suggestions.length === 0 && !error && pantryItems.length > 0 && (
+            <p className="muted small center" style={{ padding: '16px 0' }}>
+              Tap “Suggest meals” for recipe ideas that use what you already have.
             </p>
           )}
 
           {generatedAt && hasContent && (
-            <p style={s.footnote}>
-              Generated {new Date(generatedAt).toLocaleTimeString()}
-            </p>
+            <p className="tiny faint center">Generated {new Date(generatedAt).toLocaleTimeString()}</p>
           )}
         </div>
-      </div>
-    </div>
+      </Sheet>
+
+      <MealSheet
+        open={!!planning}
+        onClose={() => setPlanning(null)}
+        preset={planning ? {
+          date: todayISO(),
+          title: planning.title,
+          description: planning.description,
+          mealType: toMealType(planning.mealType),
+        } : undefined}
+      />
+    </>
   );
+}
+
+function toMealType(t?: string): MealType | undefined {
+  const v = t?.toLowerCase();
+  return v === 'breakfast' || v === 'lunch' || v === 'dinner' || v === 'snack' ? v : undefined;
 }
 
 function SuggestionCard({
   suggestion,
   expanded,
   onToggle,
+  onPlan,
 }: {
   suggestion: MealSuggestion;
   expanded: boolean;
   onToggle: () => void;
+  onPlan: () => void;
 }) {
+  const ensureHousehold = useHouseholdStore((s) => s.ensureHousehold);
+  const addCartItem = useShoppingCartStore((s) => s.addItem);
+  const [cartState, setCartState] = useState<'idle' | 'adding' | 'added'>('idle');
+
   const pantryIngredients = suggestion.ingredients.filter((i) => !i.missing);
   const missingIngredients = suggestion.ingredients.filter((i) => i.missing);
   const openIngredients = suggestion.ingredients.filter((i) => i.usesOpenItem);
 
-  return (
-    <div style={s.card}>
-      <div style={s.cardHeader} onClick={onToggle}>
-        <div style={{ flex: 1 }}>
-          <div style={s.cardTitle}>{suggestion.title}</div>
-          <div style={s.cardDesc}>{suggestion.description}</div>
-          <div style={s.metaRow}>
-            {suggestion.mealType && <span style={s.metaTag}>{suggestion.mealType}</span>}
-            {suggestion.estimatedTime && (
-              <span style={s.metaTag}>⏱ {suggestion.estimatedTime}</span>
-            )}
-            {typeof suggestion.servings === 'number' && (
-              <span style={s.metaTag}>🍴 {suggestion.servings}</span>
-            )}
-          </div>
-        </div>
-        <div style={s.scoreWrap}>
-          <div style={s.scoreNum}>{suggestion.useItUpScore}</div>
-          <div style={s.scoreLabel}>use-it-up</div>
-        </div>
-      </div>
+  const addMissingToCart = async () => {
+    setCartState('adding');
+    const householdId = await ensureHousehold();
+    if (householdId) {
+      for (const ing of missingIngredients) {
+        await addCartItem(householdId, { name: ing.name, notes: ing.amount || undefined });
+      }
+    }
+    setCartState('added');
+  };
 
-      {openIngredients.length > 0 && (
-        <div style={s.openHint}>
-          Uses {openIngredients.length} open item{openIngredients.length !== 1 ? 's' : ''}:{' '}
-          {openIngredients.map((i) => i.name).join(', ')}
+  return (
+    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <button className="row" onClick={onToggle} style={{ width: '100%', padding: 14, gap: 12, alignItems: 'flex-start', textAlign: 'left' }}>
+        <div className="food-tile" style={{ background: foodGradient(suggestion.title) }} aria-hidden="true">{foodEmoji(suggestion.title)}</div>
+        <div className="grow stack-sm" style={{ gap: 4 }}>
+          <div style={{ fontWeight: 700 }}>{suggestion.title}</div>
+          <div className="small muted">{suggestion.description}</div>
+          <div className="chips" style={{ gap: 6 }}>
+            {suggestion.mealType && <span className="badge">{suggestion.mealType}</span>}
+            {suggestion.estimatedTime && <span className="badge"><Icon name="clock" size={12} />&nbsp;{suggestion.estimatedTime}</span>}
+            {typeof suggestion.servings === 'number' && <span className="badge">Serves {suggestion.servings}</span>}
+            <span className="badge badge-accent">Use-it-up {suggestion.useItUpScore}</span>
+          </div>
+          {openIngredients.length > 0 && (
+            <div className="tiny" style={{ color: 'var(--accent)' }}>
+              Uses opened: {openIngredients.map((i) => i.name).join(', ')}
+            </div>
+          )}
         </div>
-      )}
+        <span className="faint" style={{ transform: expanded ? 'rotate(180deg)' : undefined, transition: 'transform 0.15s' }}>
+          <Icon name="chevronDown" size={20} />
+        </span>
+      </button>
 
       {expanded && (
-        <div style={s.expanded}>
-          <div style={s.sectionTitle}>From your pantry</div>
-          {pantryIngredients.length === 0 ? (
-            <div style={s.ingEmpty}>—</div>
-          ) : (
-            pantryIngredients.map((ing, i) => (
-              <div key={i} style={s.ingredient}>
-                • {ing.name}
-                {ing.amount ? ` — ${ing.amount}` : ''}
-                {ing.usesOpenItem ? '  🔓' : ''}
-              </div>
-            ))
-          )}
-
+        <div className="stack" style={{ padding: '0 14px 14px', borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+          <div className="stack-sm">
+            <span className="label">From your pantry</span>
+            {pantryIngredients.length === 0 ? <span className="small faint">—</span> : pantryIngredients.map((ing, i) => (
+              <div key={i} className="small">• {ing.name}{ing.amount ? ` — ${ing.amount}` : ''}</div>
+            ))}
+          </div>
           {missingIngredients.length > 0 && (
-            <>
-              <div style={s.sectionTitle}>You'll need</div>
+            <div className="stack-sm">
+              <span className="label">You&apos;ll need</span>
               {missingIngredients.map((ing, i) => (
-                <div key={i} style={{ ...s.ingredient, color: '#FFBD73' }}>
-                  • {ing.name}
-                  {ing.amount ? ` — ${ing.amount}` : ''}
-                </div>
+                <div key={i} className="small" style={{ color: 'var(--primary)' }}>• {ing.name}{ing.amount ? ` — ${ing.amount}` : ''}</div>
               ))}
-            </>
-          )}
-
-          <div style={s.sectionTitle}>Instructions</div>
-          {suggestion.steps.map((step, i) => (
-            <div key={i} style={s.step}>
-              {i + 1}. {step}
             </div>
-          ))}
-
-          {suggestion.notes && <div style={s.notes}>💡 {suggestion.notes}</div>}
+          )}
+          <div className="stack-sm">
+            <span className="label">Steps</span>
+            {suggestion.steps.map((step, i) => (
+              <div key={i} className="row small" style={{ alignItems: 'flex-start', gap: 10 }}>
+                <span className="badge badge-primary" style={{ flexShrink: 0, width: 22, padding: 0, justifyContent: 'center' }}>{i + 1}</span>
+                <span>{step}</span>
+              </div>
+            ))}
+          </div>
+          {suggestion.notes && <div className="alert alert-info small">💡 {suggestion.notes}</div>}
+          <div className="row">
+            {missingIngredients.length > 0 && (
+              <button className="btn btn-secondary btn-sm grow" onClick={addMissingToCart} disabled={cartState !== 'idle'}>
+                <Icon name={cartState === 'added' ? 'check' : 'cart'} />
+                {cartState === 'added' ? 'Added' : cartState === 'adding' ? 'Adding…' : 'Add missing to cart'}
+              </button>
+            )}
+            <button className="btn btn-primary btn-sm grow" onClick={onPlan}>
+              <Icon name="calendar" /> Add to plan
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
-
-const s: Record<string, React.CSSProperties> = {
-  overlay: {
-    position: 'fixed',
-    inset: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    padding: 16,
-  },
-  modal: {
-    backgroundColor: '#202020',
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 600,
-    maxHeight: '90vh',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: '16px 16px 0 16px',
-  },
-  title: { color: '#FFBD73', fontSize: 22, fontWeight: 700, margin: 0 },
-  closeBtn: {
-    background: 'none',
-    border: 'none',
-    color: '#ccc',
-    fontSize: 20,
-    cursor: 'pointer',
-    padding: 4,
-  },
-  subtitle: { color: '#aaa', fontSize: 13, margin: '4px 16px 12px 16px' },
-
-  controls: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 10,
-    padding: 12,
-    margin: '0 16px 12px 16px',
-  },
-  label: {
-    color: '#aaa',
-    fontSize: 12,
-    marginBottom: 6,
-    display: 'block',
-  },
-  chipRow: { display: 'flex', flexWrap: 'wrap', gap: 6 },
-  chip: {
-    padding: '6px 12px',
-    borderRadius: 14,
-    backgroundColor: '#333',
-    color: '#ccc',
-    border: 'none',
-    cursor: 'pointer',
-    fontSize: 12,
-  },
-  chipActive: { backgroundColor: '#FFBD73', color: '#202020', fontWeight: 600 },
-  input: {
-    backgroundColor: '#333',
-    color: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    border: '1px solid #444',
-    fontSize: 14,
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-    width: '100%',
-  },
-  generateBtn: {
-    width: '100%',
-    backgroundColor: '#FFBD73',
-    color: '#202020',
-    border: 'none',
-    borderRadius: 8,
-    padding: '12px',
-    fontWeight: 700,
-    fontSize: 15,
-    cursor: 'pointer',
-  },
-  hint: { color: '#888', fontSize: 12, textAlign: 'center' as const, marginTop: 8 },
-
-  scroll: {
-    flex: 1,
-    overflowY: 'auto' as const,
-    padding: '0 16px 16px 16px',
-  },
-  error: { color: '#ff6b6b', fontSize: 13, padding: 12 },
-
-  priorityBanner: {
-    backgroundColor: '#2a2a2a',
-    borderLeft: '3px solid #4DB6AC',
-    padding: 10,
-    borderRadius: 6,
-    marginBottom: 10,
-  },
-
-  card: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 10,
-  },
-  cardHeader: {
-    display: 'flex',
-    alignItems: 'flex-start',
-    gap: 10,
-    cursor: 'pointer',
-  },
-  cardTitle: { color: '#fff', fontSize: 16, fontWeight: 700 },
-  cardDesc: { color: '#bbb', fontSize: 13, marginTop: 2 },
-  metaRow: { display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' as const },
-  metaTag: { color: '#888', fontSize: 11 },
-
-  scoreWrap: {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    minWidth: 56,
-  },
-  scoreNum: { color: '#FFBD73', fontSize: 22, fontWeight: 700 },
-  scoreLabel: { color: '#888', fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5 },
-
-  openHint: { color: '#4DB6AC', fontSize: 12, marginTop: 8 },
-
-  expanded: {
-    borderTop: '1px solid #333',
-    marginTop: 10,
-    paddingTop: 10,
-  },
-  sectionTitle: {
-    color: '#FFBD73',
-    fontSize: 12,
-    fontWeight: 700,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  ingredient: { color: '#ddd', fontSize: 13, lineHeight: '20px' as const },
-  ingEmpty: { color: '#666', fontSize: 13 },
-  step: { color: '#ddd', fontSize: 13, lineHeight: '20px' as const, marginBottom: 4 },
-  notes: {
-    color: '#aaa',
-    fontSize: 12,
-    fontStyle: 'italic' as const,
-    marginTop: 10,
-    padding: 8,
-    backgroundColor: '#333',
-    borderRadius: 6,
-  },
-
-  emptyText: { color: '#888', textAlign: 'center' as const, fontSize: 13, marginTop: 20 },
-  footnote: { color: '#666', fontSize: 11, textAlign: 'center' as const, marginTop: 12 },
-};

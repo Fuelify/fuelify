@@ -12,6 +12,7 @@ import {
   type StorageZone,
 } from '@fuelify/shared';
 import { useSupabase } from '../../providers';
+import { Icon, Sheet, Spinner } from '../../components/ui';
 
 interface Props {
   open: boolean;
@@ -98,236 +99,95 @@ export function ReceiptImportModal({ open, onClose, onImport }: Props) {
     }
   };
 
-  if (!open) return null;
-
   const selectedCount = lines.filter((l) => l.selected).length;
 
   return (
-    <div style={s.backdrop} onClick={handleClose}>
-      <div style={s.dialog} onClick={(e) => e.stopPropagation()}>
-        <div style={s.header}>
-          <h3 style={s.title}>Import Receipt</h3>
-          <button style={s.close} onClick={handleClose} aria-label="Close">
-            ✕
-          </button>
-        </div>
-
-        {loading ? (
-          <p style={s.status}>Parsing receipt…</p>
-        ) : error ? (
-          <div>
-            <p style={s.error}>{error}</p>
-            <button style={s.btnSecondary} onClick={() => setError(null)}>
-              Try again
-            </button>
-          </div>
-        ) : !result ? (
-          <div style={s.uploadWrap}>
-            <p style={s.hint}>
-              Upload a photo of your grocery receipt. We&apos;ll extract the line items so you can
-              bulk-add them to the pantry.
-            </p>
-            <label style={s.uploadLabel}>
-              <input
-                style={{ display: 'none' }}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) void handleFile(f);
-                }}
-              />
-              Choose receipt image
-            </label>
-          </div>
-        ) : (
+    <Sheet
+      open={open}
+      onClose={handleClose}
+      title="Import receipt"
+      footer={
+        result && lines.length > 0 ? (
           <>
-            {result.merchantName && <p style={s.merchant}>{result.merchantName}</p>}
-            <p style={s.subtitle}>
-              {selectedCount} of {lines.length} selected
-            </p>
-            <div style={s.listWrap}>
-              {lines.length === 0 ? (
-                <p style={s.hint}>No line items detected.</p>
-              ) : (
-                <table style={s.table}>
-                  <thead>
-                    <tr>
-                      <th />
-                      <th style={s.th}>Name</th>
-                      <th style={s.th}>Qty</th>
-                      <th style={s.th}>Zone</th>
-                      <th style={s.th}>Category</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {lines.map((line, i) => (
-                      <tr key={i}>
-                        <td style={s.td}>
-                          <input
-                            type="checkbox"
-                            checked={line.selected}
-                            onChange={(e) => updateLine(i, { selected: e.target.checked })}
-                          />
-                        </td>
-                        <td style={s.td}>
-                          <input
-                            style={s.cellInput}
-                            value={line.name}
-                            onChange={(e) => updateLine(i, { name: e.target.value })}
-                          />
-                        </td>
-                        <td style={s.td}>
-                          <input
-                            style={{ ...s.cellInput, width: 54 }}
-                            type="number"
-                            min={0}
-                            step={0.5}
-                            value={line.quantity ?? 1}
-                            onChange={(e) =>
-                              updateLine(i, { quantity: parseFloat(e.target.value) || 1 })
-                            }
-                          />
-                        </td>
-                        <td style={s.td}>
-                          <select
-                            style={s.cellInput}
-                            value={line.storageZone ?? 'dry'}
-                            onChange={(e) =>
-                              updateLine(i, { storageZone: e.target.value as StorageZone })
-                            }
-                          >
-                            {STORAGE_ZONES.map((z) => (
-                              <option key={z} value={z}>
-                                {STORAGE_ZONE_LABELS[z]}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                        <td style={s.td}>
-                          <select
-                            style={s.cellInput}
-                            value={line.category ?? ''}
-                            onChange={(e) =>
-                              updateLine(i, { category: e.target.value || undefined })
-                            }
-                          >
-                            <option value="">—</option>
-                            {PANTRY_CATEGORIES.map((c) => (
-                              <option key={c} value={c}>
-                                {c}
-                              </option>
-                            ))}
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
-            <div style={s.footer}>
-              <button style={s.btnSecondary} onClick={() => setResult(null)} disabled={submitting}>
-                Start over
-              </button>
-              <button
-                style={{ ...s.btnPrimary, ...(submitting ? { opacity: 0.5 } : {}) }}
-                onClick={handleImport}
-                disabled={submitting || selectedCount === 0}
-              >
-                {submitting ? 'Adding…' : `Add ${selectedCount}`}
-              </button>
-            </div>
+            <button className="btn btn-secondary" onClick={() => setResult(null)} disabled={submitting}>Start over</button>
+            <button className="btn btn-primary grow" onClick={handleImport} disabled={submitting || selectedCount === 0}>
+              {submitting ? 'Adding…' : `Add ${selectedCount} to pantry`}
+            </button>
           </>
-        )}
-      </div>
-    </div>
+        ) : undefined
+      }
+    >
+      {loading ? (
+        <div className="center-fill" style={{ minHeight: 200 }}>
+          <Spinner />
+          <p className="muted">Reading your receipt…</p>
+        </div>
+      ) : error ? (
+        <div className="stack">
+          <div className="alert">{error}</div>
+          <button className="btn btn-secondary" onClick={() => setError(null)}>Try again</button>
+        </div>
+      ) : !result ? (
+        <div className="stack">
+          <p className="muted">
+            Upload a photo of your grocery receipt. We&apos;ll pull out the line items so you can add them to your pantry in one go.
+          </p>
+          <label className="card card-button center-fill" style={{ minHeight: 160, borderStyle: 'dashed', cursor: 'pointer' }}>
+            <input
+              style={{ display: 'none' }}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void handleFile(f);
+              }}
+            />
+            <span style={{ color: 'var(--primary)' }}><Icon name="camera" size={32} /></span>
+            <span style={{ fontWeight: 700 }}>Take or choose a photo</span>
+            <span className="tiny faint">JPG or PNG</span>
+          </label>
+        </div>
+      ) : (
+        <div className="stack">
+          <div className="row-between">
+            <span style={{ fontWeight: 700 }}>{result.merchantName ?? 'Receipt'}</span>
+            <span className="small muted">{selectedCount} of {lines.length} selected</span>
+          </div>
+          {lines.length === 0 ? (
+            <p className="muted">No line items detected. Try a clearer photo.</p>
+          ) : (
+            lines.map((line, i) => (
+              <div key={i} className="card stack-sm" style={{ opacity: line.selected ? 1 : 0.5 }}>
+                <div className="row">
+                  <input
+                    type="checkbox"
+                    aria-label={`Include ${line.name}`}
+                    checked={line.selected}
+                    onChange={(e) => updateLine(i, { selected: e.target.checked })}
+                    style={{ width: 20, height: 20, accentColor: 'var(--primary)' }}
+                  />
+                  <input className="input" style={{ height: 40 }} value={line.name} aria-label="Name"
+                    onChange={(e) => updateLine(i, { name: e.target.value })} />
+                  <input className="input" style={{ height: 40, width: 72, flexShrink: 0 }} type="number" min={0} step={0.5} aria-label="Quantity"
+                    value={line.quantity ?? 1} onChange={(e) => updateLine(i, { quantity: parseFloat(e.target.value) || 1 })} />
+                </div>
+                <div className="row">
+                  <select className="select" style={{ height: 38, fontSize: 14 }} aria-label="Storage" value={line.storageZone ?? 'dry'}
+                    onChange={(e) => updateLine(i, { storageZone: e.target.value as StorageZone })}>
+                    {STORAGE_ZONES.map((z) => <option key={z} value={z}>{STORAGE_ZONE_LABELS[z]}</option>)}
+                  </select>
+                  <select className="select" style={{ height: 38, fontSize: 14 }} aria-label="Category" value={line.category ?? ''}
+                    onChange={(e) => updateLine(i, { category: e.target.value || undefined })}>
+                    <option value="">No category</option>
+                    {PANTRY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </Sheet>
   );
 }
-
-const s: Record<string, React.CSSProperties> = {
-  backdrop: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.75)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    padding: 16,
-  },
-  dialog: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 800,
-    maxHeight: '90vh',
-    padding: 16,
-    color: '#fff',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  title: { color: '#FFBD73', margin: 0, fontSize: 18 },
-  close: {
-    background: 'none',
-    border: 'none',
-    color: '#aaa',
-    fontSize: 18,
-    cursor: 'pointer',
-  },
-  uploadWrap: { padding: 24, textAlign: 'center' },
-  uploadLabel: {
-    display: 'inline-block',
-    backgroundColor: '#FFBD73',
-    color: '#202020',
-    padding: '10px 20px',
-    borderRadius: 8,
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
-  hint: { color: '#ccc', fontSize: 14, marginBottom: 16 },
-  merchant: { color: '#fff', margin: '4px 0', fontWeight: 600 },
-  subtitle: { color: '#aaa', fontSize: 12, margin: '0 0 8px 0' },
-  listWrap: { overflow: 'auto', flex: 1, borderTop: '1px solid #333', paddingTop: 8 },
-  table: { width: '100%', borderCollapse: 'collapse', fontSize: 13 },
-  th: { color: '#aaa', padding: 6, textAlign: 'left', fontWeight: 600, borderBottom: '1px solid #333' },
-  td: { padding: 6, borderBottom: '1px solid #333' },
-  cellInput: {
-    backgroundColor: '#333',
-    color: '#fff',
-    border: '1px solid #444',
-    borderRadius: 6,
-    padding: 6,
-    fontSize: 13,
-    width: '100%',
-    boxSizing: 'border-box',
-  },
-  status: { color: '#ccc', padding: 24, textAlign: 'center' },
-  error: { color: '#ff6b6b', padding: 8 },
-  footer: { display: 'flex', gap: 8, marginTop: 12, justifyContent: 'flex-end' },
-  btnPrimary: {
-    backgroundColor: '#FFBD73',
-    color: '#202020',
-    border: 'none',
-    borderRadius: 8,
-    padding: '10px 20px',
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
-  btnSecondary: {
-    backgroundColor: '#444',
-    color: '#ccc',
-    border: 'none',
-    borderRadius: 8,
-    padding: '10px 20px',
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
-};

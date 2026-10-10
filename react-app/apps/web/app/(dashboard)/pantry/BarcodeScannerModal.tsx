@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Icon, Sheet } from '../../components/ui';
 
 interface Props {
   open: boolean;
@@ -122,8 +123,6 @@ export function BarcodeScannerModal({ open, onClose, onScanned }: Props) {
     };
   }, [open, emit, stopAll]);
 
-  if (!open) return null;
-
   const submitManual = (e: React.FormEvent) => {
     e.preventDefault();
     const code = manual.trim();
@@ -133,111 +132,31 @@ export function BarcodeScannerModal({ open, onClose, onScanned }: Props) {
   };
 
   return (
-    <div style={s.backdrop} onClick={onClose}>
-      <div style={s.dialog} onClick={(e) => e.stopPropagation()}>
-        <div style={s.header}>
-          <h3 style={s.title}>Scan Barcode</h3>
-          <button style={s.close} onClick={onClose} aria-label="Close">
-            ✕
-          </button>
+    <Sheet open={open} onClose={onClose} title="Scan barcode">
+      <div className="stack">
+        <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 3', borderRadius: 'var(--radius)', overflow: 'hidden', background: '#000' }}>
+          <video ref={videoRef} style={{ width: '100%', height: '100%', objectFit: 'cover' }} muted playsInline />
+          <div style={{ position: 'absolute', inset: '22% 12%', border: '3px solid var(--primary)', borderRadius: 12, boxShadow: '0 0 0 9999px rgba(0,0,0,0.35)' }} />
         </div>
+        <p className="small muted center">Point your camera at a product barcode.</p>
 
-        <div style={s.videoWrap}>
-          <video ref={videoRef} style={s.video} muted playsInline />
-          <div style={s.frame} />
-        </div>
+        {usingFallback && <p className="tiny faint center">Using fallback decoder (@zxing).</p>}
+        {error && <div className="alert">{error}</div>}
 
-        {usingFallback && <p style={s.note}>Using fallback decoder (@zxing).</p>}
-        {error && <p style={s.error}>{error}</p>}
-
-        <form style={s.manualForm} onSubmit={submitManual}>
+        <form className="row" onSubmit={submitManual}>
           <input
-            style={s.input}
-            placeholder="Or enter barcode (e.g. 5449000000996)"
+            className="input"
+            placeholder="Or type a barcode"
             value={manual}
             onChange={(e) => setManual(e.target.value)}
             inputMode="numeric"
+            aria-label="Barcode"
           />
-          <button style={s.btnPrimary} type="submit" disabled={!manual.trim()}>
-            Look up
+          <button className="btn btn-primary" type="submit" disabled={!manual.trim()}>
+            <Icon name="search" /> Look up
           </button>
         </form>
       </div>
-    </div>
+    </Sheet>
   );
 }
-
-const s: Record<string, React.CSSProperties> = {
-  backdrop: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0,0,0,0.75)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1000,
-    padding: 16,
-  },
-  dialog: {
-    backgroundColor: '#2a2a2a',
-    borderRadius: 12,
-    width: '100%',
-    maxWidth: 500,
-    padding: 16,
-    color: '#fff',
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  title: { color: '#FFBD73', margin: 0, fontSize: 18 },
-  close: {
-    background: 'none',
-    border: 'none',
-    color: '#aaa',
-    fontSize: 18,
-    cursor: 'pointer',
-  },
-  videoWrap: {
-    position: 'relative',
-    width: '100%',
-    aspectRatio: '4 / 3',
-    backgroundColor: '#000',
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  video: { width: '100%', height: '100%', objectFit: 'cover' },
-  frame: {
-    position: 'absolute',
-    top: '20%',
-    left: '15%',
-    right: '15%',
-    bottom: '20%',
-    border: '2px solid #FFBD73',
-    borderRadius: 8,
-    pointerEvents: 'none',
-  },
-  note: { color: '#aaa', fontSize: 12, margin: '8px 0 0 0' },
-  error: { color: '#ff6b6b', fontSize: 13, margin: '8px 0 0 0' },
-  manualForm: { display: 'flex', gap: 8, marginTop: 12 },
-  input: {
-    flex: 1,
-    backgroundColor: '#333',
-    color: '#fff',
-    border: '1px solid #444',
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 14,
-  },
-  btnPrimary: {
-    backgroundColor: '#FFBD73',
-    color: '#202020',
-    border: 'none',
-    borderRadius: 8,
-    padding: '8px 16px',
-    fontWeight: 600,
-    cursor: 'pointer',
-  },
-};

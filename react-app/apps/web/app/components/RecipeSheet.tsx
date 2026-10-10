@@ -62,7 +62,7 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
             <div className="row" style={{ gap: 8 }}>
               <ClassifyButton label="Like" icon="heart" active={current === 'liked'} onClick={() => classifyRecipe(recipe.id, 'liked')} />
               <ClassifyButton label="Favorite" icon="star" active={current === 'favorited'} onClick={() => classifyRecipe(recipe.id, 'favorited')} />
-              <ClassifyButton label="Not for me" icon="thumbsDown" active={current === 'disliked'} onClick={() => classifyRecipe(recipe.id, 'disliked')} />
+              <ClassifyButton label="Pass" icon="thumbsDown" active={current === 'disliked'} onClick={() => classifyRecipe(recipe.id, 'disliked')} />
             </div>
 
             {recipe.ingredients.length > 0 && (

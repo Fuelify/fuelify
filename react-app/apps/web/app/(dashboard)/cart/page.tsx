@@ -134,7 +134,7 @@ export default function CartPage() {
 
 function CartRow({ item, userId, onToggle, onDelete }: { item: CartItem; userId: string | null; onToggle: () => void; onDelete: () => void }) {
   const detail = [
-    item.quantity !== 1 || item.unit ? `${item.quantity}${item.unit ? ` ${item.unit}` : ''}` : null,
+    item.unit ? `${item.quantity} ${item.unit}` : item.quantity !== 1 ? `×${item.quantity}` : null,
     item.addedByName && item.addedBy !== userId ? `added by ${item.addedByName}` : null,
   ].filter(Boolean).join(' · ');
   return (
