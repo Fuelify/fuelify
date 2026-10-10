@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from './providers';
+import { AUTH_DISABLED, useAuthStore } from './providers';
 import { DEBUG, DEBUG_ENTER_ROUTE } from '@fuelify/shared';
 
 // Splash screen — mirrors lib/screens/splash_screen.dart
@@ -16,7 +16,7 @@ export default function SplashPage() {
     if (status === 'loading') return;
 
     const timer = setTimeout(() => {
-      if (DEBUG) {
+      if (DEBUG || AUTH_DISABLED) {
         router.replace(`/${DEBUG_ENTER_ROUTE}`);
         return;
       }

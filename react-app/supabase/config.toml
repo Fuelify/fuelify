@@ -8,3 +8,7 @@ verify_jwt = true
 
 [functions.suggest-meals]
 verify_jwt = true
+
+[auth]
+# Needed for NEXT_PUBLIC_AUTH_DISABLED / EXPO_PUBLIC_AUTH_DISABLED (ungated mode)
+enable_anonymous_sign_ins = true

@@ -47,6 +47,10 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholde
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// Login gate toggle — "true" skips login; an anonymous Supabase session
+// is created instead so RLS-protected data still works.
+export const AUTH_DISABLED = process.env.NEXT_PUBLIC_AUTH_DISABLED === 'true';
+
 // Store types
 type AuthStoreApi = ReturnType<typeof createAuthStore>;
 type ProfileStoreApi = ReturnType<typeof createProfileStore>;
@@ -70,12 +74,13 @@ const HouseholdStoreContext = createContext<HouseholdStoreApi | null>(null);
 const ShoppingCartStoreContext = createContext<ShoppingCartStoreApi | null>(null);
 const PantryStoreContext = createContext<PantryStoreApi | null>(null);
 const MealSuggestionStoreContext = createContext<MealSuggestionStoreApi | null>(null);
+const DataStoresReadyContext = createContext(false);
 
 // Auth store is created once (no userId dependency)
 function useCreateAuthStore() {
   const ref = useRef<AuthStoreApi | null>(null);
   if (!ref.current) {
-    ref.current = createAuthStore(supabase);
+    ref.current = createAuthStore(supabase, { authDisabled: AUTH_DISABLED });
   }
   return ref.current;
 }
@@ -135,6 +140,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthStoreContext.Provider value={authStore}>
+      <DataStoresReadyContext.Provider value={dataStores !== null}>
       <ProfileStoreContext.Provider value={dataStores?.profileStore ?? null}>
         <PreferencesStoreContext.Provider value={preferencesStoreRef.current}>
           <NavigationStoreContext.Provider value={navigationStoreRef.current}>
@@ -154,11 +160,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           </NavigationStoreContext.Provider>
         </PreferencesStoreContext.Provider>
       </ProfileStoreContext.Provider>
+      </DataStoresReadyContext.Provider>
     </AuthStoreContext.Provider>
   );
 }
 
 // Hooks
+
+/** True once a user is signed in and the per-user data stores exist. */
+export function useDataStoresReady(): boolean {
+  return useContext(DataStoresReadyContext);
+}
+
 export function useAuthStore<T>(selector: (state: AuthStore) => T): T {
   const store = useContext(AuthStoreContext);
   if (!store) throw new Error('useAuthStore must be used within StoreProvider');

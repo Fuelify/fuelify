@@ -43,6 +43,10 @@ import {
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL ?? '';
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
+// Login gate toggle — "true" skips login; an anonymous Supabase session
+// is created instead so RLS-protected data still works.
+export const AUTH_DISABLED = process.env.EXPO_PUBLIC_AUTH_DISABLED === 'true';
+
 let supabase: ReturnType<typeof createSupabaseClient>;
 function getSupabase() {
   if (!supabase) supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -57,7 +61,7 @@ let preferencesStore: ReturnType<typeof createPreferencesStore>;
 let navigationStore: ReturnType<typeof createNavigationStore>;
 
 function getAuthStore() {
-  if (!authStore) authStore = createAuthStore(getSupabase());
+  if (!authStore) authStore = createAuthStore(getSupabase(), { authDisabled: AUTH_DISABLED });
   return authStore;
 }
 

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuthStore, useInitializeAuth } from '../hooks/useStores';
+import { AUTH_DISABLED, useAuthStore, useInitializeAuth } from '../hooks/useStores';
 import { DEBUG, DEBUG_ENTER_ROUTE } from '@fuelify/shared';
 
 // Splash screen — mirrors lib/screens/splash_screen.dart
@@ -15,7 +15,7 @@ export default function SplashScreen() {
     if (status === 'loading') return;
 
     const timer = setTimeout(() => {
-      if (DEBUG) {
+      if (DEBUG || AUTH_DISABLED) {
         router.replace(`/(dashboard)/${DEBUG_ENTER_ROUTE}` as never);
         return;
       }
