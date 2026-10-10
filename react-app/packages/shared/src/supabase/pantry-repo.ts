@@ -2,15 +2,12 @@
 // Items scoped to a household with storage zone and partial-open tracking.
 
 import type { TypedSupabaseClient } from './client';
+import { withAddedByNames } from './profile-names';
 import type { PantryItemRow, PantryItemInsert } from './types';
 import type { PantryItem, StorageZone, ItemStatus } from '../models/pantry';
 import type { PantryItemDraft } from '../models/external-data';
 
-function rowToItem(row: PantryItemRow & { profiles?: { first_name: string | null; last_name: string | null } | null }): PantryItem {
-  const firstName = row.profiles?.first_name ?? '';
-  const lastName = row.profiles?.last_name ?? '';
-  const addedByName = [firstName, lastName].filter(Boolean).join(' ') || null;
-
+function rowToItem(row: PantryItemRow): PantryItem {
   return {
     id: row.id,
     householdId: row.household_id,
@@ -28,7 +25,7 @@ function rowToItem(row: PantryItemRow & { profiles?: { first_name: string | null
     notes: row.notes,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    addedByName,
+    addedByName: null,
   };
 }
 
@@ -57,26 +54,26 @@ export class PantryRepository {
   async getItems(householdId: string): Promise<PantryItem[]> {
     const { data, error } = await this.supabase
       .from('pantry_items')
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .eq('household_id', householdId)
       .order('storage_zone')
       .order('name');
 
     if (error) throw new Error(`Failed to fetch pantry items: ${error.message}`);
-    return (data ?? []).map(rowToItem);
+    return withAddedByNames(this.supabase, (data ?? []).map(rowToItem));
   }
 
   /** Get pantry items filtered by storage zone */
   async getItemsByZone(householdId: string, zone: StorageZone): Promise<PantryItem[]> {
     const { data, error } = await this.supabase
       .from('pantry_items')
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .eq('household_id', householdId)
       .eq('storage_zone', zone)
       .order('name');
 
     if (error) throw new Error(`Failed to fetch pantry items by zone: ${error.message}`);
-    return (data ?? []).map(rowToItem);
+    return withAddedByNames(this.supabase, (data ?? []).map(rowToItem));
   }
 
   /** Add a pantry item */
@@ -84,11 +81,11 @@ export class PantryRepository {
     const { data, error } = await this.supabase
       .from('pantry_items')
       .insert(draftToInsertRow(householdId, userId, item))
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .single();
 
     if (error) throw new Error(`Failed to add pantry item: ${error.message}`);
-    return rowToItem(data);
+    return (await withAddedByNames(this.supabase, [rowToItem(data)]))[0];
   }
 
   /** Bulk-add pantry items (e.g. from receipt OCR import). */
@@ -98,10 +95,10 @@ export class PantryRepository {
     const { data, error } = await this.supabase
       .from('pantry_items')
       .insert(rows)
-      .select('*, profiles(first_name, last_name)');
+      .select('*');
 
     if (error) throw new Error(`Failed to bulk-add pantry items: ${error.message}`);
-    return (data ?? []).map(rowToItem);
+    return withAddedByNames(this.supabase, (data ?? []).map(rowToItem));
   }
 
   /** Update a pantry item */
@@ -134,11 +131,11 @@ export class PantryRepository {
         ...(updates.notes !== undefined && { notes: updates.notes }),
       })
       .eq('id', itemId)
-      .select('*, profiles(first_name, last_name)')
+      .select('*')
       .single();
 
     if (error) throw new Error(`Failed to update pantry item: ${error.message}`);
-    return rowToItem(data);
+    return (await withAddedByNames(this.supabase, [rowToItem(data)]))[0];
   }
 
   /** Delete a pantry item */

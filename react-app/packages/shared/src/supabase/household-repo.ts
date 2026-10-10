@@ -2,6 +2,7 @@
 // Manages households and their members for shared features.
 
 import type { TypedSupabaseClient } from './client';
+import { fetchDisplayProfiles, type DisplayProfile } from './profile-names';
 import type { HouseholdRow, HouseholdMemberRow } from './types';
 import type { Household, HouseholdMember, HouseholdRole } from '../models/household';
 
@@ -15,16 +16,16 @@ function rowToHousehold(row: HouseholdRow): Household {
   };
 }
 
-function rowToMember(row: HouseholdMemberRow & { profiles?: { first_name: string | null; last_name: string | null; image_url: string | null } | null }): HouseholdMember {
+function rowToMember(row: HouseholdMemberRow, profile?: DisplayProfile): HouseholdMember {
   return {
     id: row.id,
     householdId: row.household_id,
     userId: row.user_id,
     role: row.role as HouseholdRole,
     joinedAt: row.joined_at,
-    firstName: row.profiles?.first_name ?? null,
-    lastName: row.profiles?.last_name ?? null,
-    imageUrl: row.profiles?.image_url ?? null,
+    firstName: profile?.firstName ?? null,
+    lastName: profile?.lastName ?? null,
+    imageUrl: profile?.imageUrl ?? null,
   };
 }
 
@@ -99,12 +100,14 @@ export class HouseholdRepository {
   async getMembers(householdId: string): Promise<HouseholdMember[]> {
     const { data, error } = await this.supabase
       .from('household_members')
-      .select('*, profiles(first_name, last_name, image_url)')
+      .select('*')
       .eq('household_id', householdId)
       .order('joined_at');
 
     if (error) throw new Error(`Failed to fetch household members: ${error.message}`);
-    return (data ?? []).map(rowToMember);
+    const rows = data ?? [];
+    const profiles = await fetchDisplayProfiles(this.supabase, rows.map((r) => r.user_id));
+    return rows.map((r) => rowToMember(r, profiles.get(r.user_id)));
   }
 
   /** Add a member to a household by user ID */
@@ -112,11 +115,12 @@ export class HouseholdRepository {
     const { data, error } = await this.supabase
       .from('household_members')
       .insert({ household_id: householdId, user_id: userId, role })
-      .select('*, profiles(first_name, last_name, image_url)')
+      .select('*')
       .single();
 
     if (error) throw new Error(`Failed to add household member: ${error.message}`);
-    return rowToMember(data);
+    const profiles = await fetchDisplayProfiles(this.supabase, [data.user_id]);
+    return rowToMember(data, profiles.get(data.user_id));
   }
 
   /** Remove a member from a household */
