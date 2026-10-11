@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { type Recipe, todayISO, foodEmoji, totalTimeMinutes } from '@fuelify/shared';
+import { type Recipe, todayISO, totalTimeMinutes } from '@fuelify/shared';
 import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
-import { Icon, Sheet, foodBackground } from '@/components/ui';
+import { FoodImage, Icon, Sheet } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
 
 /** Recipe detail: ingredients, steps, like/favorite, add to plan, add ingredients to cart. */
@@ -52,9 +52,7 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
       >
         {recipe && (
           <div className="stack-lg">
-            <div style={{ height: 140, borderRadius: 'var(--radius)', background: foodBackground(recipe.title), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 72 }} aria-hidden="true">
-              {foodEmoji(recipe.title)}
-            </div>
+            <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} emojiSize={72} style={{ height: 180, borderRadius: 'var(--radius)' }} />
             <p className="muted">{recipe.description}</p>
             <RecipeMeta recipe={recipe} />
 
