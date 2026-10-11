@@ -60,14 +60,14 @@ export default function HomePage() {
           </h1>
         </div>
         <Link href="/profile" className="avatar" aria-label="Profile">
-          {initialsOf(profile?.firstName, profile?.lastName) || '🙂'}
+          {initialsOf(profile?.firstName, profile?.lastName) || <Icon name="user" size={20} />}
         </Link>
       </header>
 
       <div className="screen-pad stack" style={{ paddingTop: 12, paddingBottom: 32 }}>
         {profile && !profile.onboarded && (
           <Link href="/onboarding/welcome" className="card row" style={{ background: 'var(--primary-soft)', borderColor: 'var(--primary)', gap: 14 }}>
-            <span style={{ fontSize: 30 }} aria-hidden="true">👋</span>
+            <span style={{ color: 'var(--primary)', display: 'flex' }} aria-hidden="true"><Icon name="sparkles" size={28} /></span>
             <div className="grow">
               <div style={{ fontWeight: 700 }}>Finish setting up</div>
               <div className="small muted">Answer a few questions so we can personalize your plan.</div>

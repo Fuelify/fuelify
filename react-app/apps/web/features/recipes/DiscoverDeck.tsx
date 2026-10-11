@@ -119,7 +119,7 @@ function RecipeCard({ recipe, hint, style, ...handlers }: { recipe: Recipe; hint
         display: 'flex', flexDirection: 'column', userSelect: 'none', ...style,
       }}
     >
-      <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} emojiSize="min(28vw, 120px)" style={{ flex: 1, minHeight: 120 }}>
+      <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} iconSize={96} style={{ flex: 1, minHeight: 120 }}>
         {hint && (
           <span style={{
             position: 'absolute', top: 18, left: hint === 'NOPE' ? undefined : 18, right: hint === 'NOPE' ? 18 : undefined,

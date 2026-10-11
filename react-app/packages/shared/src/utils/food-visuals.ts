@@ -1,27 +1,20 @@
-// Deterministic food visuals (emoji + two-colour gradient) derived from a dish
+// Deterministic food visuals (line icon + two-colour tint) derived from a dish
 // title, so recipes and meals get consistent artwork without stock images.
 
-const FOOD_EMOJI: [RegExp, string][] = [
-  [/salmon|tuna|fish|poke/i, '🐟'],
-  [/shrimp|scampi|prawn/i, '🍤'],
-  [/chicken|turkey/i, '🍗'],
-  [/beef|steak|burger/i, '🥩'],
-  [/taco|burrito|wrap/i, '🌮'],
-  [/curry|dal|masala/i, '🍛'],
-  [/pad thai|noodle|ramen|zoodle/i, '🍜'],
-  [/pasta|bolognese|spaghetti/i, '🍝'],
-  [/salad|quinoa|bowl/i, '🥗'],
-  [/oat|porridge|cereal/i, '🥣'],
-  [/egg|scramble|omelet/i, '🍳'],
-  [/pizza/i, '🍕'],
-  [/soup|stew/i, '🍲'],
-  [/mushroom|portobello/i, '🍄'],
-  [/rice/i, '🍚'],
-  [/sandwich|toast|bread/i, '🥪'],
-  [/fruit|berry|apple|banana/i, '🍓'],
+/** Line icons a dish can be drawn with when it has no photo. */
+export type FoodIcon = 'fish' | 'drumstick' | 'leaf' | 'egg' | 'soup' | 'wheat' | 'apple' | 'utensils';
+
+const FOOD_ICONS: [RegExp, FoodIcon][] = [
+  [/salmon|tuna|fish|poke|cod|shrimp|scampi|prawn/i, 'fish'],
+  [/chicken|turkey|beef|steak|burger|pork|carnitas|meatball|sausage/i, 'drumstick'],
+  [/\beggs?\b|scramble|omelet|shakshuka|frittata/i, 'egg'],
+  [/soup|stew|chili|curry|dal|masala|minestrone/i, 'soup'],
+  [/fruit|berry|berries|apple|banana|mango|parfait|smoothie|chia/i, 'apple'],
+  [/pasta|bolognese|spaghetti|noodle|pad thai|ramen|rice|\boats?\b|porridge|toast|bread|bagel|flatbread|pancake|shells|risotto|orzo|quesadilla|taco|burrito|wrap|sandwich/i, 'wheat'],
+  [/salad|quinoa|bowl|veg|zoodle|zucchini|portobello|mushroom|tofu|chickpea|lentil|bean|hummus|edamame|guacamole|pepper/i, 'leaf'],
 ];
 
-export const DEFAULT_FOOD_EMOJI = '🍽️';
+export const DEFAULT_FOOD_ICON: FoodIcon = 'utensils';
 
 // Brand-adjacent pairs (cyan / periwinkle / orchid family plus two warm
 // complements) so generated food art sits comfortably next to the logo.
@@ -40,8 +33,9 @@ function hash(s: string): number {
   return Math.abs(h);
 }
 
-export function foodEmoji(title: string): string {
-  return FOOD_EMOJI.find(([re]) => re.test(title))?.[1] ?? DEFAULT_FOOD_EMOJI;
+/** A line icon for a dish, from its title. */
+export function foodIcon(title: string): FoodIcon {
+  return FOOD_ICONS.find(([re]) => re.test(title))?.[1] ?? DEFAULT_FOOD_ICON;
 }
 
 /** Two colours for a diagonal gradient; stable for a given title. */

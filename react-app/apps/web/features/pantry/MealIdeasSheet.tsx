@@ -4,10 +4,10 @@
 // expandable cards. Prioritizes partially-opened items. Ideas can be added to
 // the plan, and their missing ingredients to the cart.
 
-import { type MealSuggestion, type PantryItem, todayISO, foodEmoji, toMealType } from '@fuelify/shared';
+import { type MealSuggestion, type PantryItem, todayISO, toMealType } from '@fuelify/shared';
 import { useCallback, useState } from 'react';
 import { useHouseholdStore, useMealSuggestionStore, useShoppingCartStore } from '@/lib/stores';
-import { Icon, Sheet, Spinner, foodBackground } from '@/components/ui';
+import { FoodTile, Icon, Sheet, Spinner } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
 
 interface Props {
@@ -156,7 +156,7 @@ function SuggestionCard({
   return (
     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
       <button className="row" onClick={onToggle} style={{ width: '100%', padding: 14, gap: 12, alignItems: 'flex-start', textAlign: 'left' }}>
-        <div className="food-tile" style={{ background: foodBackground(suggestion.title) }} aria-hidden="true">{foodEmoji(suggestion.title)}</div>
+        <FoodTile title={suggestion.title} />
         <div className="grow stack-sm" style={{ gap: 4 }}>
           <div style={{ fontWeight: 700 }}>{suggestion.title}</div>
           <div className="small muted">{suggestion.description}</div>
@@ -202,7 +202,7 @@ function SuggestionCard({
               </div>
             ))}
           </div>
-          {suggestion.notes && <div className="alert alert-info small">💡 {suggestion.notes}</div>}
+          {suggestion.notes && <div className="alert alert-info small row" style={{ gap: 8, alignItems: 'flex-start' }}><Icon name="lightbulb" size={16} /> <span>{suggestion.notes}</span></div>}
           <div className="row">
             {missingIngredients.length > 0 && (
               <button className="btn btn-secondary btn-sm grow" onClick={addMissingToCart} disabled={cartState !== 'idle'}>

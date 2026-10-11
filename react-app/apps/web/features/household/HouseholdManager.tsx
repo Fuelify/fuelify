@@ -101,7 +101,7 @@ function MemberRow({ member, isSelf, canRemove }: { member: HouseholdMember; isS
 
   return (
     <div className="list-row" style={{ paddingRight: canRemove ? 4 : undefined }}>
-      <div className="avatar" style={{ width: 36, height: 36, fontSize: 14 }}>{initialsOf(member.firstName, member.lastName) || '🙂'}</div>
+      <div className="avatar" style={{ width: 36, height: 36, fontSize: 14 }}>{initialsOf(member.firstName, member.lastName) || <Icon name="user" size={18} />}</div>
       <div className="grow">
         <div className="truncate" style={{ fontWeight: 600 }}>{name}{isSelf && member.firstName ? ' (you)' : ''}</div>
         <div className="tiny faint">Joined {new Date(member.joinedAt).toLocaleDateString()}</div>

@@ -19,7 +19,7 @@ export function PlannedMealCard({ meal, onOpen }: { meal: MealPlanMeal; onOpen: 
   return (
     <div className="card row" style={{ gap: 4, padding: 0 }}>
       <button className="card-button row grow" style={{ gap: 12, padding: 14, minWidth: 0, background: 'transparent', borderRadius: 'var(--radius)' }} onClick={onOpen}>
-        <FoodTile title={meal.title} imageUrl={imageUrl} size={48} />
+        {imageUrl && <FoodTile title={meal.title} imageUrl={imageUrl} size={48} />}
         <div className="grow" style={{ minWidth: 0 }}>
           <div className="row" style={{ gap: 6 }}>
             <span className="truncate" style={{ fontWeight: 700 }}>{meal.title}</span>

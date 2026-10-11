@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { MEAL_TYPES, readMealPlanConfig, type MealPlanConfig, type MealType } from '@fuelify/shared';
 import { useProfileStore } from '@/lib/stores';
 import { usePlan } from '@/features/premium/usePlan';
+import { Icon } from '@/components/ui';
 
 /** Profile card for the meal plan generator's settings (profiles.meal_plan_config). */
 export function MealPlanSettings() {
@@ -31,7 +32,7 @@ export function MealPlanSettings() {
       <div className="chips" role="group" aria-label="Meals to plan each day">
         {MEAL_TYPES.map((t) => (
           <button key={t.value} className="chip" aria-pressed={config.slots[t.value]} disabled={!profile} onClick={() => toggle(t.value)}>
-            {t.emoji} {t.value === 'snack' ? 'Snacks' : t.label}
+            <Icon name={t.icon} size={16} /> {t.value === 'snack' ? 'Snacks' : t.label}
           </button>
         ))}
       </div>

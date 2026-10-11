@@ -203,7 +203,7 @@ export function OnboardingStepScreen({ step }: { step: string }) {
 function CompletionScreen() {
   return (
     <div className="center-fill" style={{ gap: 16 }}>
-      <div style={{ fontSize: 72, animation: 'pop 0.5s ease' }} aria-hidden="true">🎉</div>
+      <div style={{ animation: 'pop 0.5s ease', color: 'var(--primary)', display: 'flex' }} aria-hidden="true"><Icon name="checkCircle" size={72} /></div>
       <h2 style={{ fontSize: 26, fontWeight: 800 }}>You&apos;re all set!</h2>
       <p className="muted" style={{ maxWidth: 320 }}>
         Congratulations, you have now completed the onboarding process! Your plan is ready to build.
@@ -340,7 +340,7 @@ function DietStep({ draft }: { draft: OnboardingDraft }) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={image} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
               ) : (
-                <span aria-hidden="true">🍽️</span>
+                <span aria-hidden="true" style={{ color: 'var(--text-3)', display: 'flex' }}><Icon name="utensils" size={40} /></span>
               )}
             </div>
             <div className="row-between" style={{ padding: '10px 12px', background: selected ? 'var(--primary-soft)' : undefined }}>
@@ -494,7 +494,7 @@ function ActivityStep({ draft }: { draft: OnboardingDraft }) {
         const selected = draft.activeness === a.title;
         return (
           <button key={a.title} type="button" className="option" aria-pressed={selected} onClick={() => update({ activeness: a.title })}>
-            <span style={{ fontSize: 30, width: 44, textAlign: 'center' }} aria-hidden="true">{a.emoji}</span>
+            <span style={{ width: 44, display: 'flex', justifyContent: 'center', color: selected ? 'var(--primary)' : 'var(--text-2)' }} aria-hidden="true"><Icon name={a.icon} size={28} /></span>
             <span className="grow">
               <span style={{ display: 'block', fontWeight: 700 }}>{a.title}</span>
               <span className="small muted" style={{ display: 'block', marginTop: 2 }}>{a.body}</span>
@@ -544,7 +544,7 @@ function SubmissionStep({ draft }: { draft: OnboardingDraft }) {
   return (
     <div className="stack-lg">
       <div className="stack-sm center">
-        <div style={{ fontSize: 48 }} aria-hidden="true">🥗</div>
+        <div style={{ color: 'var(--primary)', display: 'flex', justifyContent: 'center' }} aria-hidden="true"><Icon name="leaf" size={48} /></div>
         <h2 style={{ fontSize: 24, fontWeight: 800 }}>Almost there!</h2>
         <p className="muted">Review your answers, then submit to finish setting up.</p>
       </div>

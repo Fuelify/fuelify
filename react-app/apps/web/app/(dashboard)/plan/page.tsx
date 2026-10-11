@@ -182,7 +182,7 @@ export default function PlanPage() {
             return (
               <section key={t.value} className="stack-sm">
                 <div className="section-title" style={{ margin: '8px 0 0' }}>
-                  <span>{t.emoji} {t.label}</span>
+                  <span className="row" style={{ gap: 6 }}><Icon name={t.icon} size={16} /> {t.label}</span>
                   <button className="btn btn-ghost btn-sm" style={{ height: 28 }} onClick={() => setSheet({ mealType: t.value })}>
                     <Icon name="plus" /> Add
                   </button>
