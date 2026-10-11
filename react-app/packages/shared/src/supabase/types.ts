@@ -192,6 +192,7 @@ export interface Database {
           diet_type: string | null;
           calories: number | null;
           meal_types: string[];
+          source_url: string | null;
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -210,6 +211,7 @@ export interface Database {
           diet_type?: string | null;
           calories?: number | null;
           meal_types?: string[];
+          source_url?: string | null;
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -227,6 +229,7 @@ export interface Database {
           diet_type?: string | null;
           calories?: number | null;
           meal_types?: string[];
+          source_url?: string | null;
           updated_at?: string;
         };
         Relationships: [];

@@ -19,6 +19,8 @@ export interface Recipe {
   calories: number | null;
   /** Meal slots the recipe suits (breakfast, lunch, dinner, snack) */
   mealTypes: string[];
+  /** Where an imported recipe came from */
+  sourceUrl: string | null;
   createdBy: string | null;
 }
 
@@ -51,6 +53,7 @@ function rowToRecipe(row: RecipeRow): Recipe {
     dietType: row.diet_type,
     calories: row.calories,
     mealTypes: row.meal_types ?? [],
+    sourceUrl: row.source_url ?? null,
     createdBy: row.created_by,
   };
 }
@@ -155,6 +158,8 @@ export class RecipeRepository {
     cuisine?: string;
     dietType?: string;
     calories?: number;
+    mealTypes?: string[];
+    sourceUrl?: string;
     createdBy?: string;
   }): Promise<Recipe> {
     const { data, error } = await this.supabase
@@ -171,6 +176,8 @@ export class RecipeRepository {
         cuisine: recipe.cuisine ?? null,
         diet_type: recipe.dietType ?? null,
         calories: recipe.calories ?? null,
+        ...(recipe.mealTypes?.length ? { meal_types: recipe.mealTypes } : {}),
+        source_url: recipe.sourceUrl ?? null,
         created_by: recipe.createdBy ?? null,
       })
       .select()
