@@ -9,6 +9,7 @@ const FEATURE_ICONS: Record<string, IconName> = {
   'auto-weekly-plans': 'calendar',
   'pantry-aware': 'pantry',
   'auto-shopping-list': 'cart',
+  'store-optimizer': 'store',
   'unlimited-ideas': 'sparkles',
 };
 
