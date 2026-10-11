@@ -105,6 +105,7 @@ export function createRecipeStore(repo: RecipeRepository, userId: string) {
           calories: draft.calories ?? undefined,
           mealTypes: draft.mealTypes,
           sourceUrl: draft.sourceUrl ?? undefined,
+          nutrition: draft.nutrition,
           createdBy: userId,
         });
         set((state) => ({ recipes: [...state.recipes, created] }));

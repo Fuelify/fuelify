@@ -5,6 +5,8 @@ import {
   inferMealTypes,
   isPrivateAddress,
   parseDurationText,
+  parseNutritionText,
+  titleFromUrl,
   parseIsoDuration,
   parseRecipeHtml,
   parseRecipeText,
@@ -35,7 +37,7 @@ describe('recipe page (schema.org JSON-LD)', () => {
           recipeYield: ['4', '4 servings'],
           recipeCuisine: 'Greek',
           recipeCategory: 'Dinner',
-          nutrition: { calories: '540 kcal' },
+          nutrition: { calories: '540 kcal', proteinContent: '38 g', fatContent: '18 g', sodiumContent: '820 mg' },
         },
       ],
     });
@@ -54,6 +56,7 @@ describe('recipe page (schema.org JSON-LD)', () => {
       cuisine: 'Greek',
       dietType: 'Omnivore',
       calories: 540,
+      nutrition: { proteinG: 38, fatG: 18, sodiumMg: 820 },
       mealTypes: ['dinner', 'lunch'],
       sourceUrl: 'https://example.com/orzo',
     });
@@ -134,6 +137,56 @@ I Made It`);
     });
   });
 
+  it('reads the real Allrecipes copy: site name before the title, details, one-line nutrition panel', () => {
+    const r = parseRecipeText(`Print
+Save
+Allrecipes
+Taco Pasta
+This is an easy taco pasta dish to make with ground beef, your favorite taco seasoning, tomatoes, pasta, and two types of cheese for a quick and delicious dinner that hits the spot every time!
+By Yolanda Gutierrez
+Prep Time: 10 mins
+Cook Time: 20 mins
+Total Time: 30 mins
+Servings: 4
+Ingredients
+6 ounces spaghetti or other pasta
+1 pound ground beef
+Directions
+Bring a large pot of lightly salted water to a boil. Cook pasta until tender, about 10 to 12 minutes.
+Drain pasta and add to skillet. Top with Cheddar cheese, cover, and let stand until cheese has melted.
+Nutrition Facts
+Calories
+927
+Total Carbohydrate 37g  Dietary Fiber 3g  Total Sugars 12g  Protein 61g  Total Fat 58g  Saturated Fat 28g  Cholesterol 208mg  Vitamin C 8mg  Sodium 2342mg  Calcium 1341mg
+Subscribe to Allrecipes' Magazine`);
+    expect(r).toMatchObject({
+      title: 'Taco Pasta',
+      description: expect.stringMatching(/^This is an easy taco pasta dish/),
+      ingredients: ['6 ounces spaghetti or other pasta', '1 pound ground beef'],
+      prepTimeMinutes: 10,
+      cookTimeMinutes: 20,
+      servings: 4,
+      calories: 927,
+      nutrition: { proteinG: 61, carbsG: 37, fatG: 58, fiberG: 3, sugarG: 12, sodiumMg: 2342 },
+    });
+    expect(r?.steps).toHaveLength(2);
+  });
+
+  it('uses the title from the link when the page text has it', () => {
+    const r = parseRecipeText('Allrecipes\nMain Dishes\nTaco Pasta\nIngredients\n1 lb beef\nDirections\nCook it.', { titleHint: 'Taco Pasta' });
+    expect(r?.title).toBe('Taco Pasta');
+    // and falls back to it when the text has no usable title line
+    expect(parseRecipeText('Ingredients\n1 lb beef\nDirections\nCook it.', { titleHint: 'Taco Pasta' })?.title).toBe('Taco Pasta');
+  });
+
+  it('reads nutrition in either order', () => {
+    expect(parseNutritionText('Calories: 410\n18g Fat\n33g Carbs\n30g Protein\n600mg Sodium')).toEqual({
+      calories: 410,
+      nutrition: { fatG: 18, carbsG: 33, proteinG: 30, sodiumMg: 600 },
+    });
+    expect(parseNutritionText('Saturated Fat 4g')).toEqual({ calories: null, nutrition: {} });
+  });
+
   it('reads duration text', () => {
     expect(parseDurationText('1 hr 20 mins')).toBe(80);
     expect(parseDurationText('45 minutes')).toBe(45);
@@ -149,6 +202,13 @@ I Made It`);
 });
 
 describe('helpers', () => {
+  it('turns a recipe URL into a title', () => {
+    expect(titleFromUrl('https://www.allrecipes.com/taco-pasta-recipe-8644589')).toBe('Taco Pasta');
+    expect(titleFromUrl('https://www.allrecipes.com/recipe/26317/chicken-pot-pie-ix/')).toBe('Chicken Pot Pie Ix');
+    expect(titleFromUrl('https://example.com/recipes/12345')).toBeNull();
+    expect(titleFromUrl('not a url')).toBeNull();
+  });
+
   it('parses ISO durations', () => {
     expect(parseIsoDuration('PT1H30M')).toBe(90);
     expect(parseIsoDuration('P0DT0H45M')).toBe(45);

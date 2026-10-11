@@ -5,6 +5,7 @@ import {
   DIET_OPTIONS,
   MEAL_TYPES,
   parseRecipeText,
+  titleFromUrl,
   recipeUrlError,
   type MealType,
   type Recipe,
@@ -49,9 +50,11 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
   const read = async () => {
     setError(null);
     if (source === 'text') {
-      const parsed = parseRecipeText(text);
+      // A link the user tried first tells us the title even if the paste doesn't
+      const linked = pastedFrom ?? (recipeUrlError(url) ? null : url.trim());
+      const parsed = parseRecipeText(text, { titleHint: titleFromUrl(linked) });
       if (!parsed) setError('Couldn’t find ingredients or steps. Put the title on the first line, then “Ingredients” and “Instructions” sections.');
-      setDraft(parsed && pastedFrom ? { ...parsed, sourceUrl: pastedFrom } : parsed);
+      setDraft(parsed && linked ? { ...parsed, sourceUrl: linked } : parsed);
       return;
     }
     const problem = recipeUrlError(url);
@@ -144,6 +147,7 @@ function DraftReview({
     time ? `${time} min` : null,
     draft.calories ? `${draft.calories} kcal` : null,
     draft.servings ? `serves ${draft.servings}` : null,
+    draft.nutrition.proteinG != null ? `${draft.nutrition.proteinG}g protein` : null,
   ].filter(Boolean).join(' · ');
 
   return (
