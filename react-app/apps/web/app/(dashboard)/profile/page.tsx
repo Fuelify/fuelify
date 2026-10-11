@@ -8,6 +8,7 @@ import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePre
 import { Icon, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { MealPlanSettings } from '@/features/meal-plan/MealPlanSettings';
+import { GrocerySettings } from '@/features/grocery/GrocerySettings';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
 // onboarding answers, units, household and account actions.
@@ -128,6 +129,13 @@ export default function ProfilePage() {
             {!plan.premium && plan.plan && <span className="badge badge-premium" style={{ textTransform: 'none', letterSpacing: 0 }}>Premium</span>}
           </div>
           <MealPlanSettings />
+
+          {/* Grocery store connections */}
+          <div className="section-title">
+            <span>Grocery stores</span>
+            {!plan.premium && plan.plan && <span className="badge badge-premium" style={{ textTransform: 'none', letterSpacing: 0 }}>Premium</span>}
+          </div>
+          <GrocerySettings />
 
           {/* Onboarding answers */}
           <div className="section-title">

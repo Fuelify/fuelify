@@ -2,9 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { CartItem } from '@fuelify/shared';
 import { useAuthStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '@/lib/stores';
 import { EmptyState, Icon, LoadingBlock, PageHeader } from '@/components/ui';
+import { usePlan } from '@/features/premium/usePlan';
+import { FromPlanSheet } from '@/features/grocery/FromPlanSheet';
+import { BestPricesSheet } from '@/features/grocery/BestPricesSheet';
 
 // Shared household shopping list. Checked items can be moved straight into the pantry.
 export default function CartPage() {
@@ -28,6 +32,12 @@ export default function CartPage() {
   const [newItem, setNewItem] = useState('');
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
+  // Premium store tools
+  const router = useRouter();
+  const { premium } = usePlan();
+  const [tool, setTool] = useState<'plan' | 'prices' | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const openTool = (t: 'plan' | 'prices') => (premium ? setTool(t) : router.push('/premium'));
 
   useEffect(() => {
     ensureHousehold().finally(() => setStarted(true));
@@ -81,9 +91,24 @@ export default function CartPage() {
         </button>
       </form>
 
+      <div className="row" style={{ padding: '0 var(--gutter) 12px', gap: 8, flexShrink: 0 }}>
+        <button className="btn btn-secondary btn-sm grow" onClick={() => openTool('plan')}>
+          <Icon name="calendar" size={16} /> From meal plan
+        </button>
+        <button className="btn btn-secondary btn-sm grow" onClick={() => openTool('prices')} disabled={premium && unchecked.length === 0}>
+          <Icon name="sparkles" size={16} /> Best prices
+        </button>
+      </div>
+
       <div className="screen-scroll">
         <div className="screen-pad stack" style={{ paddingTop: 0, paddingBottom: 32 }}>
           {(cartError || hhError) && <div className="alert">{cartError ?? hhError}</div>}
+          {notice && (
+            <div className="alert alert-info row" role="status" style={{ gap: 8 }}>
+              <span className="grow">{notice}</span>
+              <button className="icon-btn" aria-label="Dismiss" style={{ width: 28, height: 28, color: 'inherit' }} onClick={() => setNotice(null)}><Icon name="x" size={16} /></button>
+            </div>
+          )}
 
           {cartLoading && items.length === 0 ? (
             <LoadingBlock />
@@ -127,6 +152,15 @@ export default function CartPage() {
         </div>
       </div>
 
+      {activeHouseholdId && (
+        <FromPlanSheet
+          open={tool === 'plan'}
+          onClose={() => setTool(null)}
+          householdId={activeHouseholdId}
+          onAdded={(n) => setNotice(n ? `Added ${n} item${n === 1 ? '' : 's'} from your meal plan.` : null)}
+        />
+      )}
+      <BestPricesSheet open={tool === 'prices'} onClose={() => setTool(null)} items={unchecked} />
     </>
   );
 }
@@ -134,6 +168,7 @@ export default function CartPage() {
 function CartRow({ item, userId, onToggle, onDelete }: { item: CartItem; userId: string | null; onToggle: () => void; onDelete: () => void }) {
   const detail = [
     item.unit ? `${item.quantity} ${item.unit}` : item.quantity !== 1 ? `×${item.quantity}` : null,
+    item.notes,
     item.addedByName && item.addedBy !== userId ? `added by ${item.addedByName}` : null,
   ].filter(Boolean).join(' · ');
   return (

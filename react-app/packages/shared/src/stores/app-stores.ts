@@ -17,14 +17,22 @@ import { createShoppingCartStore } from './shopping-cart-store';
 import { createPantryStore } from './pantry-store';
 import { createMealSuggestionStore } from './meal-suggestion-store';
 import { createPlanGenerationStore } from './plan-generation-store';
+import { createGroceryStore, UNAVAILABLE_GROCERY_API, type GroceryApi } from './grocery-store';
+
+/** App-specific services the shared stores need. */
+export interface UserStoreServices {
+  /** Store connections (the web app provides one backed by its server routes) */
+  groceryApi?: GroceryApi;
+}
 
 /** Stores that hold one signed-in user's data. Recreate them when the user changes. */
-export function createUserStores(supabase: TypedSupabaseClient, userId: string) {
+export function createUserStores(supabase: TypedSupabaseClient, userId: string, services: UserStoreServices = {}) {
   const profiles = new ProfileRepository(supabase);
   const meals = new MealPlanRepository(supabase);
   const recipes = new RecipeRepository(supabase);
   const pantry = new PantryRepository(supabase);
   const mealPlanStore = createMealPlanStore(meals, userId);
+  const shoppingCartStore = createShoppingCartStore(new ShoppingCartRepository(supabase), userId);
   return {
     userId,
     profileStore: createProfileStore(profiles, userId),
@@ -32,7 +40,11 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string) 
     planGenerationStore: createPlanGenerationStore({ profiles, recipes, meals, pantry, mealPlanStore }, userId),
     recipeStore: createRecipeStore(recipes, userId),
     householdStore: createHouseholdStore(new HouseholdRepository(supabase), userId),
-    shoppingCartStore: createShoppingCartStore(new ShoppingCartRepository(supabase), userId),
+    shoppingCartStore,
+    groceryStore: createGroceryStore(
+      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, cartStore: shoppingCartStore },
+      userId,
+    ),
     pantryStore: createPantryStore(pantry, userId),
     mealSuggestionStore: createMealSuggestionStore(new MealSuggester(supabase)),
   };

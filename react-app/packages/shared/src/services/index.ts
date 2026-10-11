@@ -3,3 +3,5 @@ export * from './receipt-parser';
 export * from './meal-suggester';
 export * from './plan-generator';
 export * from './recipe-import';
+export * from './ingredients';
+export * from './basket-optimizer';

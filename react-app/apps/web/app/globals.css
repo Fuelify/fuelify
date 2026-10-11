@@ -594,3 +594,9 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
 .nutrition-cell { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-3); }
 .nutrition-cell strong { font-size: 17px; }
 .nutrition-cell span { font-size: 12px; color: var(--text-2); }
+
+/* ---------- Switch ------------------------------------------------------- */
+.switch { flex-shrink: 0; width: 42px; height: 24px; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--border); position: relative; transition: background 0.15s; }
+.switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); transition: transform 0.15s; }
+.switch.on { background: var(--primary); border-color: var(--primary); }
+.switch.on::after { transform: translateX(18px); }

@@ -30,6 +30,8 @@ export interface UserProfile {
   onboardingStep: number;
   /** Read with readMealPlanConfig */
   mealPlanConfig: Record<string, unknown>;
+  /** Read with readGroceryConfig */
+  groceryConfig: Record<string, unknown>;
 }
 
 function rowToProfile(row: ProfileRow): UserProfile {
@@ -56,6 +58,7 @@ function rowToProfile(row: ProfileRow): UserProfile {
     onboarded: row.onboarded,
     onboardingStep: row.onboarding_step,
     mealPlanConfig: row.meal_plan_config ?? {},
+    groceryConfig: row.grocery_config ?? {},
   };
 }
 
@@ -97,6 +100,7 @@ export class ProfileRepository {
     onboarded: boolean;
     onboardingStep: number;
     mealPlanConfig: Record<string, unknown>;
+    groceryConfig: Record<string, unknown>;
   }>): Promise<UserProfile> {
     const dbUpdates: ProfileUpdate = {};
     if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName;
@@ -120,6 +124,7 @@ export class ProfileRepository {
     if (updates.onboarded !== undefined) dbUpdates.onboarded = updates.onboarded;
     if (updates.onboardingStep !== undefined) dbUpdates.onboarding_step = updates.onboardingStep;
     if (updates.mealPlanConfig !== undefined) dbUpdates.meal_plan_config = updates.mealPlanConfig;
+    if (updates.groceryConfig !== undefined) dbUpdates.grocery_config = updates.groceryConfig;
 
     const { data, error } = await this.supabase
       .from('profiles')
