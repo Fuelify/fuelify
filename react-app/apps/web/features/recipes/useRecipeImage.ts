@@ -1,18 +1,19 @@
 'use client';
 
 import { useEffect } from 'react';
+import type { Recipe } from '@fuelify/shared';
 import { useRecipeStore } from '@/lib/stores';
 
 let requested = false;
 
 /**
- * Photo for a planned meal's recipe. Meals only keep the recipe id, so this
- * reads the catalog (loaded once per session on first use).
+ * A planned meal's recipe, from the catalog (loaded once per session on first
+ * use). Meals only keep the recipe id. Undefined while loading or not found.
  */
-export function useRecipeImage(recipeId: string | null | undefined): string | null {
+export function useCatalogRecipe(recipeId: string | null | undefined): Recipe | undefined {
   const catalogEmpty = useRecipeStore((s) => s.recipes.length === 0);
   const loadCatalog = useRecipeStore((s) => s.loadCatalog);
-  const imageUrl = useRecipeStore((s) => (recipeId ? s.recipes.find((r) => r.id === recipeId)?.imageUrl ?? null : null));
+  const recipe = useRecipeStore((s) => (recipeId ? s.recipes.find((r) => r.id === recipeId) : undefined));
 
   useEffect(() => {
     if (recipeId && catalogEmpty && !requested) {
@@ -23,5 +24,10 @@ export function useRecipeImage(recipeId: string | null | undefined): string | nu
     }
   }, [recipeId, catalogEmpty, loadCatalog]);
 
-  return imageUrl;
+  return recipe;
+}
+
+/** Photo for a planned meal's recipe. */
+export function useRecipeImage(recipeId: string | null | undefined): string | null {
+  return useCatalogRecipe(recipeId)?.imageUrl ?? null;
 }

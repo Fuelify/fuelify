@@ -193,6 +193,7 @@ export interface Database {
           calories: number | null;
           meal_types: string[];
           source_url: string | null;
+          nutrition: Record<string, unknown>;
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -212,6 +213,7 @@ export interface Database {
           calories?: number | null;
           meal_types?: string[];
           source_url?: string | null;
+          nutrition?: Record<string, unknown>;
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -230,6 +232,7 @@ export interface Database {
           calories?: number | null;
           meal_types?: string[];
           source_url?: string | null;
+          nutrition?: Record<string, unknown>;
           updated_at?: string;
         };
         Relationships: [];

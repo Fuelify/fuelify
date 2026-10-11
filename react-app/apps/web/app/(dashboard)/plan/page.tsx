@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   MEAL_TYPES,
   type MealPlanMeal,
@@ -17,6 +17,7 @@ import { useMealPlanStore } from '@/lib/stores';
 import { Icon, PageHeader } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
 import { PlannedMealCard } from '@/features/meals/PlannedMealCard';
+import { PlannedMealRecipe } from '@/features/meals/PlannedMealRecipe';
 import { UpgradeBanner } from '@/features/premium/UpgradeBanner';
 import { useMealPlanGenerator } from '@/features/meal-plan/useMealPlanGenerator';
 
@@ -54,6 +55,12 @@ export default function PlanPage() {
   const generatingDay = generator.isGenerating(selectedDate);
 
   const [sheet, setSheet] = useState<{ meal?: MealPlanMeal; mealType?: MealType } | null>(null);
+  // Meals made from a recipe open the recipe first; "Edit meal" goes to the form
+  const [viewing, setViewing] = useState<MealPlanMeal | null>(null);
+  const editMeal = useCallback((m: MealPlanMeal) => {
+    setViewing(null);
+    setSheet({ meal: m });
+  }, []);
 
   // Load the visible week (plus neighbours so swiping is instant)
   useEffect(() => {
@@ -196,13 +203,15 @@ export default function PlanPage() {
                     Nothing planned for {t.label.toLowerCase()}
                   </button>
                 ) : (
-                  list.map((m) => <PlannedMealCard key={m.id} meal={m} onOpen={() => setSheet({ meal: m })} />)
+                  list.map((m) => <PlannedMealCard key={m.id} meal={m} onOpen={() => (m.recipeId ? setViewing(m) : setSheet({ meal: m }))} />)
                 )}
               </section>
             );
           })}
         </div>
       </div>
+
+      <PlannedMealRecipe meal={viewing} onClose={() => setViewing(null)} onEdit={editMeal} />
 
       <MealSheet
         open={sheet !== null}

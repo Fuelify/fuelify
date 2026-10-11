@@ -5,6 +5,7 @@
 // Pure functions only — fetching the page happens server-side (web API route).
 
 import type { MealType } from '../models/meal';
+import type { Nutrition } from '../models/nutrition';
 
 export interface RecipeDraft {
   title: string;
@@ -19,6 +20,8 @@ export interface RecipeDraft {
   /** Omnivore / Pescatarian / Vegetarian / Vegan / Raw, when known */
   dietType: string | null;
   calories: number | null;
+  /** Per serving, beyond calories */
+  nutrition: Nutrition;
   /** Ordered: first is the preferred slot */
   mealTypes: MealType[];
   sourceUrl: string | null;
@@ -185,9 +188,58 @@ export function recipeFromSchema(node: Record<string, unknown>, sourceUrl: strin
     cuisine: asArray(node.recipeCuisine as string[]).map(cleanText).filter(Boolean)[0] ?? null,
     dietType: inferDietType(ingredients, declaredDiets),
     calories: firstNumber(nutrition.calories),
+    nutrition: nutritionFromSchema(nutrition),
     mealTypes: inferMealTypes(category, keywords.join(' '), title),
     sourceUrl,
   };
+}
+
+/** schema.org NutritionInformation ("30 g", "450 mg") to our per-serving fields. */
+function nutritionFromSchema(n: Record<string, unknown>): Nutrition {
+  const out: Nutrition = {};
+  const set = (key: keyof Nutrition, v: unknown) => {
+    const num = firstNumber(v);
+    if (num != null) out[key] = num;
+  };
+  set('proteinG', n.proteinContent);
+  set('carbsG', n.carbohydrateContent);
+  set('fatG', n.fatContent);
+  set('fiberG', n.fiberContent);
+  set('sugarG', n.sugarContent);
+  set('sodiumMg', n.sodiumContent);
+  return out;
+}
+
+/**
+ * Nutrition from label text, in either order ("Protein 61g", "61g Protein") and
+ * on one line or many — e.g. a copied "Nutrition Facts" panel.
+ */
+export function parseNutritionText(text: string): { calories: number | null; nutrition: Nutrition } {
+  const t = text.replace(/\s+/g, ' ');
+  const LABELS: [keyof Nutrition, string, 'g' | 'mg'][] = [
+    ['proteinG', 'protein', 'g'],
+    ['carbsG', 'total carbohydrates?|carbohydrates?|total carbs|carbs', 'g'],
+    ['fatG', 'total fat|(?<!saturated |trans |unsaturated )fat', 'g'],
+    ['fiberG', 'dietary fiber|fiber|fibre', 'g'],
+    ['sugarG', 'total sugars?|sugars?', 'g'],
+    ['sodiumMg', 'sodium', 'mg'],
+  ];
+  const labelFirst = (label: string, unit: string) => new RegExp(`(?:^|[^a-z])(?:${label})\\s*:?\\s*(\\d+(?:\\.\\d+)?)\\s*${unit}\\b`, 'i');
+  const valueFirst = (label: string, unit: string) => new RegExp(`(\\d+(?:\\.\\d+)?)\\s*${unit}\\s+(?:${label})\\b`, 'i');
+  // A panel is written one way throughout ("Protein 61g" or "61g Protein").
+  // Mixing both would misread "Carbs 37g Fiber 3g" as 37g of fiber.
+  // Whichever comes first in the panel, a nutrient name or an amount, sets the order.
+  const body = t.replace(/calories\s*:?\s*\d+|\d+\s*(?:k?cal|calories)\b/gi, ' ');
+  const firstLabel = body.search(new RegExp(LABELS.map(([, label]) => `(?:${label})`).join('|'), 'i'));
+  const firstAmount = body.search(/\d+(?:\.\d+)?\s*m?g\b/i);
+  const order = firstAmount >= 0 && (firstLabel < 0 || firstAmount < firstLabel) ? valueFirst : labelFirst;
+  const nutrition: Nutrition = {};
+  for (const [key, label, unit] of LABELS) {
+    const m = t.match(order(label, unit));
+    if (m) nutrition[key] = Math.round(Number(m[1]));
+  }
+  const cal = t.match(/calories\s*:?\s*(\d{2,4})\b|(\d{2,4})\s*(?:k?cal|calories)\b/i);
+  return { calories: cal ? Number(cal[1] ?? cal[2]) : null, nutrition };
 }
 
 function metaContent(html: string, property: string): string | null {
@@ -233,7 +285,7 @@ const END_HEADING = /^(nutrition( facts)?|recipe (tips?|notes?)|tips( & tricks)?
 /** Page furniture to drop wherever it appears */
 const NOISE = /^(advertisement|ad|skip to content|jump to (recipe|nutrition facts?)|save|saved|rate|print|share|pin|email|cook mode|\(keep screen awake\)|original recipe.*yields.*|\d\/\dx|\d+x( \d+x)*|1\/2x 1x 2x|us|metric|step \d+|photo:?.*|credit:?.*)$/i;
 /** Lines before the title on a copied page (site navigation, breadcrumbs) */
-const NOT_A_TITLE = /^(skip to content|home|menu|search|log ?in|sign ?up|subscribe|recipes?|dinners?|main dishes|breakfast|lunch|desserts?|.*›.*|.*>.*|.*\/.*)$/i;
+const NOT_A_TITLE = /^(skip to content|home|menu|search|log ?in|sign ?up|subscribe|newsletters?|magazine|sweepstakes|recipes?|dinners?|main dishes|breakfast|lunch|desserts?|.*›.*|.*>.*|.*\/.*)$/i;
 const BULLET = /^\s*(?:[-*•▢◦·]|\d+[.)]|step\s*\d+[:.)]?)\s*/i;
 const LOOKS_LIKE_INGREDIENT = /^\s*(?:[-*•▢◦·]\s*)?(\d|½|¼|¾|⅓|⅔|a\s|an\s|one\s|two\s|pinch|handful|salt|pepper)/i;
 
@@ -245,37 +297,76 @@ export function parseDurationText(s: string): number | null {
   return total > 0 ? total : null;
 }
 
+/** A readable title from a recipe URL slug: ".../taco-pasta-recipe-8644589" → "Taco Pasta". */
+export function titleFromUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  let path: string;
+  try {
+    path = new URL(url).pathname;
+  } catch {
+    return null;
+  }
+  const slug = path.split('/').filter(Boolean).reverse().find((seg) => /[a-z]{3}/i.test(seg) && !/^(recipes?|\d+)$/i.test(seg));
+  if (!slug) return null;
+  const words = decodeURIComponent(slug)
+    .replace(/\.[a-z]+$/i, '')
+    .split(/[-_]+/)
+    .filter((w) => w && !/^\d+$/.test(w) && !/^recipes?$/i.test(w));
+  if (words.length === 0) return null;
+  return words.map((w) => w[0].toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
+
+const normalize = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const isTitleCase = (s: string) => {
+  const words = s.split(/\s+/).filter((w) => /^[a-z]/i.test(w) && w.length > 3);
+  return words.length > 0 && words.every((w) => /^[A-Z]/.test(w));
+};
+/** Lines a title can't be: sentences, bylines, details */
+const looksLikeProse = (l: string) => l.length > 80 || /[.!?]$/.test(l);
+const ANCHOR = /^(submitted by|recipe by|by\s|\d[\d,]* (ratings?|reviews?)|prep(aration)?( time)?\s*:|cook(ing)?( time)?\s*:|total( time)?\s*:|servings?\s*:|serves\s*:?|yield\s*:)/i;
+
 /**
  * Parse a recipe pasted as text, from a note or a whole copied recipe page:
- * the title (first real line), "Prep Time / Cook Time / Servings" details,
- * then sections under "Ingredients" and "Instructions"/"Directions" headings.
- * Page furniture and everything after the steps (nutrition, tips, reviews) is
- * dropped. Without headings, quantity-led lines are taken as ingredients.
+ * the title, "Prep Time / Cook Time / Servings" details, then sections under
+ * "Ingredients" and "Instructions"/"Directions" headings, and an optional
+ * "Nutrition Facts" panel. Page furniture and everything else after the steps
+ * (tips, reviews) is dropped. Without headings, quantity-led lines are taken
+ * as ingredients. `titleHint` (e.g. from the page URL) wins when it matches.
  */
-export function parseRecipeText(text: string): RecipeDraft | null {
+export function parseRecipeText(text: string, { titleHint }: { titleHint?: string | null } = {}): RecipeDraft | null {
   const strip = (l: string) => l.trim().replace(/^#+\s*/, '');
-  const all = text.split(/\r?\n/).map(strip).filter(Boolean);
-  const titleAt = all.findIndex((l) => l.length > 2 && !NOT_A_TITLE.test(l) && !NOISE.test(l) && !INGREDIENTS_HEADING.test(l) && !STEPS_HEADING.test(l));
-  if (titleAt < 0) return null;
-  const title = all[titleAt];
-  const lines = all.slice(titleAt + 1).filter((l) => !NOISE.test(l));
-  if (lines.length === 0) return null;
+  const all = text.split(/\r?\n/).map(strip).filter((l) => l && !NOISE.test(l));
+  if (all.length < 2) return null;
+
+  // Title: the hint if the page contains it; otherwise the last title-like
+  // line before the byline/details/ingredients (copied pages start with the
+  // site name and menus), falling back to the first real line.
+  const anchorAt = all.findIndex((l) => ANCHOR.test(l) || INGREDIENTS_HEADING.test(l) || STEPS_HEADING.test(l));
+  const head = all.slice(0, anchorAt < 0 ? 1 : anchorAt).map((l, i) => ({ l, i })).filter(({ l }) => l.length > 2 && !NOT_A_TITLE.test(l) && !looksLikeProse(l));
+  const hinted = titleHint ? all.findIndex((l) => normalize(l) === normalize(titleHint)) : -1;
+  const pick = hinted >= 0 ? { l: all[hinted], i: hinted } : [...head].reverse().find(({ l }) => isTitleCase(l)) ?? head[0];
+  const title = pick?.l ?? titleHint ?? all[0];
+  const titleAt = pick?.i ?? -1;
+  const lines = all.filter((_, i) => i !== titleAt && !(titleAt >= 0 && i < titleAt && !looksLikeProse(all[i])));
 
   const ingredients: string[] = [];
   const steps: string[] = [];
   const intro: string[] = [];
+  const nutritionLines: string[] = [];
   let prep: number | null = null;
   let cook: number | null = null;
   let total: number | null = null;
   let servings: number | null = null;
-  let section: 'intro' | 'ingredients' | 'steps' | 'end' = 'intro';
+  let section: 'intro' | 'ingredients' | 'steps' | 'nutrition' | 'end' = 'intro';
   const sawHeading = lines.some((l) => INGREDIENTS_HEADING.test(l) || STEPS_HEADING.test(l));
 
   for (const line of lines) {
     if (INGREDIENTS_HEADING.test(line)) { section = 'ingredients'; continue; }
     if (STEPS_HEADING.test(line)) { section = 'steps'; continue; }
+    if (/^nutrition( facts)?\b/i.test(line)) { section = 'nutrition'; nutritionLines.push(line.replace(/^nutrition( facts)?/i, '')); continue; }
     if (section !== 'intro' && END_HEADING.test(line)) { section = 'end'; continue; }
     if (section === 'end') continue;
+    if (section === 'nutrition') { nutritionLines.push(line); continue; }
 
     // Recipe details lines, e.g. "Prep Time: 10 mins", "Servings: 6"
     const detail = line.match(/^(prep(?:aration)?(?: time)?|cook(?:ing)?(?: time)?|total(?: time)?|servings|serves|yield)\s*:?\s*(.+)$/i);
@@ -296,10 +387,11 @@ export function parseRecipeText(text: string): RecipeDraft | null {
     else intro.push(line);
   }
   if (ingredients.length === 0 && steps.length === 0) return null;
+  const facts = parseNutritionText(nutritionLines.join('\n'));
   return {
     title,
     // Copied pages put bylines and dates here; keep the blurb, briefly
-    description: intro.filter((l) => !/^(submitted by|recipe by|by |updated|published|posted|tested by|\d+ (reviews?|ratings?))/i.test(l)).slice(0, 2).join(' '),
+    description: intro.filter((l) => !/^(submitted by|recipe by|by |updated|published|posted|tested by|\d+ (reviews?|ratings?))/i.test(l) && !NOT_A_TITLE.test(l)).slice(0, 2).join(' '),
     imageUrl: null,
     ingredients,
     steps,
@@ -308,7 +400,8 @@ export function parseRecipeText(text: string): RecipeDraft | null {
     servings,
     cuisine: null,
     dietType: inferDietType(ingredients),
-    calories: null,
+    calories: facts.calories,
+    nutrition: facts.nutrition,
     mealTypes: inferMealTypes(title),
     sourceUrl: null,
   };

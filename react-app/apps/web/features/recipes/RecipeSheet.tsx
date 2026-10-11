@@ -1,13 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { type Recipe, todayISO, totalTimeMinutes } from '@fuelify/shared';
+import { NUTRIENTS, type Recipe, todayISO, totalTimeMinutes } from '@fuelify/shared';
 import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
 import { FoodImage, Icon, Sheet } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
 
-/** Recipe detail: ingredients, steps, like/favorite, add to plan, add ingredients to cart. */
-export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClose: () => void }) {
+/**
+ * Recipe detail: ingredients, steps, nutrition, like/favorite, add ingredients
+ * to cart, and a primary action (default: add to plan; the Plan page passes
+ * "Edit meal" for a meal that's already planned).
+ */
+export function RecipeSheet({
+  recipe,
+  onClose,
+  primaryAction,
+}: {
+  recipe: Recipe | null;
+  onClose: () => void;
+  primaryAction?: { label: string; icon: 'edit' | 'calendar'; onClick: () => void };
+}) {
   const classifications = useRecipeStore((s) => s.classifications);
   const classifyRecipe = useRecipeStore((s) => s.classifyRecipe);
   const ensureHousehold = useHouseholdStore((s) => s.ensureHousehold);
@@ -44,9 +56,15 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
               <Icon name={cartState === 'added' ? 'check' : 'cart'} />
               {cartState === 'added' ? 'Added to cart' : cartState === 'adding' ? 'Adding…' : 'Add to cart'}
             </button>
-            <button className="btn btn-primary grow" onClick={() => setPlanOpen(true)}>
-              <Icon name="calendar" /> Add to plan
-            </button>
+            {primaryAction ? (
+              <button className="btn btn-primary grow" onClick={primaryAction.onClick}>
+                <Icon name={primaryAction.icon} /> {primaryAction.label}
+              </button>
+            ) : (
+              <button className="btn btn-primary grow" onClick={() => setPlanOpen(true)}>
+                <Icon name="calendar" /> Add to plan
+              </button>
+            )}
           </>
         }
       >
@@ -91,6 +109,8 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
                 </ol>
               </section>
             )}
+
+            <NutritionPanel recipe={recipe} />
           </div>
         )}
       </Sheet>
@@ -122,5 +142,24 @@ function ClassifyButton({ label, icon, active, onClick }: { label: string; icon:
     <button className="chip grow" aria-pressed={active} onClick={onClick} style={{ justifyContent: 'center' }}>
       <Icon name={icon} size={16} filled={active && icon !== 'thumbsDown'} /> {label}
     </button>
+  );
+}
+
+/** Per-serving nutrition, when the recipe has any. */
+function NutritionPanel({ recipe }: { recipe: Recipe }) {
+  const rows = NUTRIENTS.filter((n) => recipe.nutrition[n.key] != null);
+  if (recipe.calories == null && rows.length === 0) return null;
+  return (
+    <section className="stack-sm">
+      <h3 className="h3">Nutrition <span className="small muted" style={{ fontWeight: 500 }}>per serving</span></h3>
+      <div className="nutrition-grid">
+        {recipe.calories != null && (
+          <div className="nutrition-cell"><strong>{recipe.calories}</strong><span>Calories</span></div>
+        )}
+        {rows.map((n) => (
+          <div key={n.key} className="nutrition-cell"><strong>{recipe.nutrition[n.key]}{n.unit}</strong><span>{n.label}</span></div>
+        ))}
+      </div>
+    </section>
   );
 }

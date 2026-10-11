@@ -588,3 +588,9 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
 .promo .icon-btn { color: rgba(255, 255, 255, 0.85); }
 .promo .icon-btn:active { background: rgba(255, 255, 255, 0.15); }
 .badge-premium { background: var(--brand-gradient); color: #ffffff; }
+
+/* ---------- Nutrition (recipe sheet) ------------------------------------ */
+.nutrition-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 8px; }
+.nutrition-cell { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: var(--radius-sm); background: var(--surface-3); }
+.nutrition-cell strong { font-size: 17px; }
+.nutrition-cell span { font-size: 12px; color: var(--text-2); }

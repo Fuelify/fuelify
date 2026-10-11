@@ -3,6 +3,7 @@
 
 import type { TypedSupabaseClient } from './client';
 import type { RecipeRow, RecipeClassificationRow, RecipeReviewRow } from './types';
+import { readNutrition, type Nutrition } from '../models/nutrition';
 
 export interface Recipe {
   id: string;
@@ -21,6 +22,8 @@ export interface Recipe {
   mealTypes: string[];
   /** Where an imported recipe came from */
   sourceUrl: string | null;
+  /** Per serving, beyond calories */
+  nutrition: Nutrition;
   createdBy: string | null;
 }
 
@@ -54,6 +57,7 @@ function rowToRecipe(row: RecipeRow): Recipe {
     calories: row.calories,
     mealTypes: row.meal_types ?? [],
     sourceUrl: row.source_url ?? null,
+    nutrition: readNutrition(row.nutrition),
     createdBy: row.created_by,
   };
 }
@@ -160,6 +164,7 @@ export class RecipeRepository {
     calories?: number;
     mealTypes?: string[];
     sourceUrl?: string;
+    nutrition?: Nutrition;
     createdBy?: string;
   }): Promise<Recipe> {
     const { data, error } = await this.supabase
@@ -178,6 +183,7 @@ export class RecipeRepository {
         calories: recipe.calories ?? null,
         ...(recipe.mealTypes?.length ? { meal_types: recipe.mealTypes } : {}),
         source_url: recipe.sourceUrl ?? null,
+        nutrition: { ...(recipe.nutrition ?? {}) },
         created_by: recipe.createdBy ?? null,
       })
       .select()
