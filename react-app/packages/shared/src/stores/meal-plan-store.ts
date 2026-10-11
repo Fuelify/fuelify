@@ -4,7 +4,7 @@
 import { createStore } from 'zustand/vanilla';
 import type { MealPlanRepository, MealPlanMeal } from '../supabase/meal-plan-repo';
 import { addDays, todayISO } from '../utils/dates';
-import { nextMealOption } from '../models/meal';
+import { nextMealOption, type MealSwapState } from '../models/meal';
 
 export interface MealPlanState {
   meals: Record<string, MealPlanMeal[]>; // keyed by date string (YYYY-MM-DD)
@@ -20,8 +20,10 @@ export interface MealPlanActions {
   updateMeal: (mealId: string, updates: { title?: string; description?: string; mealType?: string }) => Promise<void>;
   moveMeal: (mealId: string, newDate: string) => Promise<void>;
   deleteMeal: (mealId: string) => Promise<void>;
-  /** Instantly swap a generated meal to its next saved option (saved in the background). */
+  /** Instantly swap a generated meal to its next saved option (saved in the background). No-op on the last option. */
   swapMeal: (mealId: string) => Promise<void>;
+  /** Show a swap immediately and save it; rolls back if saving fails. */
+  applySwap: (mealId: string, swap: MealSwapState) => Promise<void>;
   addFeedback: (mealId: string, feedback: { rating?: number; comment?: string }) => Promise<void>;
   deleteFeedback: (mealId: string) => Promise<void>;
   setSelectedDate: (date: string) => void;
@@ -102,16 +104,32 @@ export function createMealPlanStore(repo: MealPlanRepository, userId: string) {
     },
 
     swapMeal: async (mealId: string) => {
+      const meal = Object.values(get().meals).flat().find((m) => m.id === mealId);
+      if (!meal?.recipeId) return;
+      const next = nextMealOption({
+        current: { recipeId: meal.recipeId, title: meal.title, description: meal.description },
+        alternatives: meal.alternatives,
+        seenRecipeIds: meal.seenRecipeIds,
+      });
+      if (next) await get().applySwap(mealId, next);
+    },
+
+    applySwap: async (mealId, swap) => {
       const date = Object.keys(get().meals).find((d) => get().meals[d].some((m) => m.id === mealId));
       const meal = date ? get().meals[date].find((m) => m.id === mealId) : undefined;
-      if (!date || !meal || !meal.recipeId) return;
-      const swap = nextMealOption({ recipeId: meal.recipeId, title: meal.title, description: meal.description }, meal.alternatives);
-      if (!swap) return;
+      if (!date || !meal) return;
       const replace = (m: MealPlanMeal) =>
         set((state) => ({ meals: { ...state.meals, [date]: (state.meals[date] ?? []).map((x) => (x.id === mealId ? m : x)) } }));
-      replace({ ...meal, recipeId: swap.current.recipeId, title: swap.current.title, description: swap.current.description, alternatives: swap.alternatives });
+      replace({
+        ...meal,
+        recipeId: swap.current.recipeId,
+        title: swap.current.title,
+        description: swap.current.description,
+        alternatives: swap.alternatives,
+        seenRecipeIds: swap.seenRecipeIds,
+      });
       try {
-        await repo.swapMeal(mealId, swap.current, swap.alternatives);
+        await repo.swapMeal(mealId, swap);
       } catch (err) {
         replace(meal);
         set({ error: (err as Error).message });

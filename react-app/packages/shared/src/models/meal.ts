@@ -70,17 +70,23 @@ export interface MealOption {
   description: string;
 }
 
+/** A generated meal's shuffle state: what's showing, what's queued, what's been shown. */
+export interface MealSwapState {
+  current: MealOption;
+  /** Unseen options, best first */
+  alternatives: MealOption[];
+  /** Recipe ids already shown for this meal */
+  seenRecipeIds: string[];
+}
+
 /**
- * Swap to the next option. The current recipe goes to the back of the list,
- * so repeated swaps cycle through every option and return to the first.
+ * Move to the next queued option; the current one joins the seen list.
+ * Returns null on the last option — time to plan a fresh batch.
  */
-export function nextMealOption(
-  current: MealOption,
-  alternatives: MealOption[],
-): { current: MealOption; alternatives: MealOption[] } | null {
-  if (alternatives.length === 0) return null;
-  const [next, ...rest] = alternatives;
-  return { current: next, alternatives: [...rest, current] };
+export function nextMealOption(state: MealSwapState): MealSwapState | null {
+  if (state.alternatives.length === 0) return null;
+  const [next, ...rest] = state.alternatives;
+  return { current: next, alternatives: rest, seenRecipeIds: [...state.seenRecipeIds, state.current.recipeId] };
 }
 
 /** Lenient read of meals.alternatives (JSONB). */

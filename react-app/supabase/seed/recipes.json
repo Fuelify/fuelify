@@ -27,8 +27,8 @@
       "Build bowls with rice, chicken and vegetables; top with tzatziki."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -58,8 +58,8 @@
       "Serve salmon over rice with greens; garnish with sesame and spring onion."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -89,8 +89,8 @@
       "Season and serve with rice or naan."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -148,7 +148,8 @@
       "Toss everything together and top with feta."
     ],
     "meal_types": [
-      "lunch"
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -174,7 +175,8 @@
       "Top with berries in the morning."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "snack"
     ]
   },
   {
@@ -204,8 +206,8 @@
       "Serve over rice."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -234,8 +236,8 @@
       "Fill with sweet potato, beans, avocado and cilantro; add lime."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -264,8 +266,8 @@
       "Finish with parsley and parmesan."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -295,7 +297,8 @@
       "Cook pasta and toss with the sauce."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -322,7 +325,8 @@
       "Top with feta and serve with toast."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "lunch"
     ]
   },
   {
@@ -350,7 +354,8 @@
       "Add green beans and lemon slices; roast 10 more minutes."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -380,8 +385,8 @@
       "Top with spring onions and crushed peanuts."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -467,7 +472,8 @@
       "Roll tightly like a burrito and slice in half."
     ],
     "meal_types": [
-      "lunch"
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -496,8 +502,8 @@
       "Squeeze lime over the pan and serve in warm tortillas with sour cream and salsa."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -526,7 +532,8 @@
       "Top with basil; serve over pasta or with crusty bread."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -557,8 +564,8 @@
       "Serve over rice with cucumbers and spring onions."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -588,7 +595,8 @@
       "Stir in cream and chicken; simmer 8 minutes. Serve with rice and cilantro."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -618,7 +626,8 @@
       "Serve over rice and beans with pico de gallo."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -644,7 +653,8 @@
       "Fill tortillas with salad and chicken; roll tightly and halve."
     ],
     "meal_types": [
-      "lunch"
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -674,7 +684,8 @@
       "Top with cheddar and sour cream."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -701,8 +712,8 @@
       "Stir in spinach, lemon zest and juice, and parmesan."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -729,7 +740,9 @@
       "Serve with salsa, or wrap and freeze for busy mornings."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -759,8 +772,8 @@
       "Serve over rice, topped with a fried egg if you like."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -788,8 +801,8 @@
       "Bake 12–15 minutes; finish with lemon juice."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -817,8 +830,8 @@
       "Warm tortillas and fill with fish and slaw; top with cilantro."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -846,8 +859,8 @@
       "Serve over rice with green beans."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -874,7 +887,8 @@
       "Dress with lemon juice and a drizzle of the tuna oil; season."
     ],
     "meal_types": [
-      "lunch"
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -901,8 +915,8 @@
       "Roast broccoli at 425°F for 15 minutes; sprinkle with sesame."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -931,8 +945,8 @@
       "Toss over high heat 2–3 minutes until glossy."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -961,7 +975,8 @@
       "Finish with lemon and black pepper."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "lunch"
     ]
   },
   {
@@ -989,7 +1004,8 @@
       "Top with remaining cheese; bake at 375°F for 25 minutes."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1017,8 +1033,8 @@
       "Fold in eggs, spring onions and sesame oil."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1049,7 +1065,8 @@
     ],
     "meal_types": [
       "breakfast",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1160,7 +1177,8 @@
       "Stir in mushrooms, butter, parmesan and thyme."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1186,7 +1204,8 @@
       "Season and drizzle with balsamic glaze."
     ],
     "meal_types": [
-      "lunch"
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1215,8 +1234,8 @@
       "Whisk tahini, lemon and water; assemble bowls and drizzle."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1246,8 +1265,8 @@
       "Top with cilantro; serve with rice."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1277,8 +1296,8 @@
       "Toss with noodles and sauce; top with peanuts."
     ],
     "meal_types": [
-      "lunch",
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1305,7 +1324,8 @@
       "Cook 5 minutes, then fold in spinach until wilted."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "lunch"
     ]
   },
   {
@@ -1392,7 +1412,8 @@
       "Top with sliced avocado."
     ],
     "meal_types": [
-      "dinner"
+      "dinner",
+      "lunch"
     ]
   },
   {
@@ -1475,7 +1496,8 @@
       "Toss with cabbage and cilantro; top with cashews."
     ],
     "meal_types": [
-      "lunch"
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1500,7 +1522,8 @@
       "Pour into a bowl and add toppings."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "snack"
     ]
   },
   {
@@ -1526,7 +1549,8 @@
       "Roll into 12 balls and chill 30 minutes."
     ],
     "meal_types": [
-      "snack"
+      "snack",
+      "breakfast"
     ]
   },
   {
@@ -1552,7 +1576,9 @@
       "Spread on toast and top with halved tomatoes and chili flakes."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1607,7 +1633,8 @@
     ],
     "meal_types": [
       "breakfast",
-      "lunch"
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1632,7 +1659,9 @@
       "Cook until nearly set, add feta and fold."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1687,7 +1716,8 @@
       "Cover and cook until eggs are set."
     ],
     "meal_types": [
-      "breakfast"
+      "breakfast",
+      "dinner"
     ]
   },
   {
@@ -1714,7 +1744,8 @@
     ],
     "meal_types": [
       "breakfast",
-      "snack"
+      "snack",
+      "lunch"
     ]
   },
   {
@@ -1790,7 +1821,8 @@
       "Serve with hummus for dipping."
     ],
     "meal_types": [
-      "snack"
+      "snack",
+      "lunch"
     ]
   },
   {
@@ -1812,7 +1844,8 @@
       "Serve with almond butter sprinkled with cinnamon."
     ],
     "meal_types": [
-      "snack"
+      "snack",
+      "breakfast"
     ]
   },
   {
@@ -1906,7 +1939,8 @@
       "Roll up tightly."
     ],
     "meal_types": [
-      "snack"
+      "snack",
+      "lunch"
     ]
   },
   {
@@ -1933,7 +1967,8 @@
       "Slice jicama, radishes and serve alongside."
     ],
     "meal_types": [
-      "snack"
+      "snack",
+      "lunch"
     ]
   }
 ]

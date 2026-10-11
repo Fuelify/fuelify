@@ -8,7 +8,7 @@ const recipe = (id: string, mealTypes: string[]) => ({
   servings: null, cuisine: null, dietType: 'Omnivore', calories: null, mealTypes, createdBy: null,
 });
 const meal = (id: string, mealType: string, generated: boolean, recipeId: string | null = null): MealPlanMeal => ({
-  id, title: id, description: '', mealType, sortOrder: 0, date: '2026-10-12', recipeId, generated, alternatives: [],
+  id, title: id, description: '', mealType, sortOrder: 0, date: '2026-10-12', recipeId, generated, alternatives: [], seenRecipeIds: [],
 });
 
 function setup(slots: Record<string, boolean> = { breakfast: true, lunch: true, dinner: true, snack: false }) {
@@ -62,30 +62,63 @@ describe('plan generation store', () => {
   });
 });
 
-describe('swapping a meal', () => {
+describe('shuffling a meal', () => {
   const opt = (id: string) => ({ recipeId: id, title: id, description: '' });
-  const generatedMeal = { ...meal('m1', 'dinner', true, 'a'), title: 'a', alternatives: [opt('b'), opt('c')] };
 
-  async function loaded(swapMeal: () => Promise<void>) {
-    const repo = { getDayMealPlan: vi.fn(async () => [generatedMeal]), swapMeal: vi.fn(swapMeal) };
-    const store = createMealPlanStore(repo as unknown as MealPlanRepository, 'u1');
-    await store.getState().fetchDayMealPlan('2026-10-12');
-    return { store, repo };
+  function shuffleSetup(alternatives: ReturnType<typeof opt>[], seenRecipeIds: string[] = [], swapMeal = async () => undefined) {
+    const current = { ...meal('m1', 'dinner', true, 'd1'), title: 'd1', alternatives, seenRecipeIds };
+    const meals = {
+      getDayMealPlan: vi.fn(async () => [current]),
+      getMealPlan: vi.fn(async () => ({ '2026-10-12': [current] })),
+      swapMeal: vi.fn(swapMeal),
+    };
+    const mealPlanStore = createMealPlanStore(meals as unknown as MealPlanRepository, 'u1');
+    const deps = {
+      profiles: { getProfile: vi.fn(async () => ({ diet: 'Omnivore', allergens: [], mealPlanConfig: {} })) },
+      recipes: {
+        listAllRecipes: vi.fn(async () => ['d1', 'd2', 'd3'].map((id) => recipe(id, ['dinner']))),
+        getClassifiedRecipes: vi.fn(async () => []),
+      },
+      meals,
+      pantry: { getItems: vi.fn(async () => []) },
+      mealPlanStore,
+    } as unknown as PlanGenerationDeps;
+    return { store: createPlanGenerationStore(deps, 'u1'), mealPlanStore, meals };
   }
+  const shown = (s: ReturnType<typeof shuffleSetup>['mealPlanStore']) => s.getState().meals['2026-10-12'][0];
 
-  it('shows the next option immediately and saves it', async () => {
-    const { store, repo } = await loaded(async () => undefined);
-    await store.getState().swapMeal('m1');
-    const m = store.getState().meals['2026-10-12'][0];
-    expect([m.recipeId, m.title]).toEqual(['b', 'b']);
-    expect(m.alternatives.map((a) => a.recipeId)).toEqual(['c', 'a']);
-    expect(repo.swapMeal).toHaveBeenCalledWith('m1', opt('b'), [opt('c'), opt('a')]);
+  it('swaps to the next saved option instantly', async () => {
+    const t = shuffleSetup([opt('d2'), opt('d3')]);
+    await t.mealPlanStore.getState().fetchDayMealPlan('2026-10-12');
+    await t.store.getState().shuffle('m1');
+    expect(shown(t.mealPlanStore)).toMatchObject({ recipeId: 'd2', alternatives: [opt('d3')], seenRecipeIds: ['d1'] });
+    expect(t.meals.getMealPlan).not.toHaveBeenCalled();
+    expect(t.meals.swapMeal).toHaveBeenCalledWith('m1', { current: opt('d2'), alternatives: [opt('d3')], seenRecipeIds: ['d1'] });
+  });
+
+  it('on the last option, plans a fresh batch that skips recipes already shown', async () => {
+    const t = shuffleSetup([], ['d2']);
+    await t.mealPlanStore.getState().fetchDayMealPlan('2026-10-12');
+    await t.store.getState().shuffle('m1');
+    // d1 is showing and d2 was seen, so d3 comes first
+    expect(shown(t.mealPlanStore).recipeId).toBe('d3');
+    expect(shown(t.mealPlanStore).seenRecipeIds).toEqual(['d2', 'd1']);
+    expect(t.store.getState().shufflingMealIds).toEqual([]);
+  });
+
+  it('starts the history over once every recipe has been shown', async () => {
+    const t = shuffleSetup([], ['d2', 'd3']);
+    await t.mealPlanStore.getState().fetchDayMealPlan('2026-10-12');
+    await t.store.getState().shuffle('m1');
+    expect(['d2', 'd3']).toContain(shown(t.mealPlanStore).recipeId);
+    expect(shown(t.mealPlanStore).seenRecipeIds).toEqual(['d1']);
   });
 
   it('puts the meal back if saving fails', async () => {
-    const { store } = await loaded(async () => { throw new Error('offline'); });
-    await store.getState().swapMeal('m1');
-    expect(store.getState().meals['2026-10-12'][0].recipeId).toBe('a');
-    expect(store.getState().error).toBe('offline');
+    const t = shuffleSetup([opt('d2')], [], async () => { throw new Error('offline'); });
+    await t.mealPlanStore.getState().fetchDayMealPlan('2026-10-12');
+    await t.store.getState().shuffle('m1');
+    expect(shown(t.mealPlanStore).recipeId).toBe('d1');
+    expect(t.mealPlanStore.getState().error).toBe('offline');
   });
 });
