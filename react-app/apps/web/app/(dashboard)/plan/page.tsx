@@ -16,6 +16,7 @@ import {
 import { useMealPlanStore } from '@/lib/stores';
 import { FoodTile, Icon, PageHeader } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
+import { UpgradeBanner } from '@/features/premium/UpgradeBanner';
 
 // Mirrors: lib/screens/main/plan/screen.dart — week strip (MON–SUN) over a day view.
 // Swipe the day view (or use the arrows) to move between days / weeks.
@@ -71,6 +72,8 @@ export default function PlanPage() {
           ) : undefined
         }
       />
+
+      <UpgradeBanner style={{ margin: '0 var(--gutter) 12px', flexShrink: 0 }} />
 
       {/* Week strip */}
       <div className="row" style={{ padding: '0 6px 10px', gap: 2, flexShrink: 0 }}>

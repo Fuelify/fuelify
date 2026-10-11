@@ -376,6 +376,7 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
   border-radius: var(--radius-full);
   font-size: 11px;
   font-weight: 700;
+  white-space: nowrap;
   background: var(--surface-3);
   color: var(--text-2);
 }
@@ -548,3 +549,31 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
   color: transparent;
 }
 .badge-tertiary { background: var(--tertiary-soft); color: var(--tertiary); }
+
+/* ---------- Upgrade prompts --------------------------------------------- */
+/* Deepened brand gradient (cyan → periwinkle → orchid) so white text passes AA in both themes */
+.promo {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, #17809f 0%, #4f63e6 55%, #8e3fae 100%);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+.promo::after { /* soft highlight */
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -60px;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22), transparent 70%);
+  pointer-events: none;
+}
+.promo .promo-sub { color: rgba(255, 255, 255, 0.88); }
+.promo .btn-promo { background: #ffffff; color: #3a47b8; }
+.promo .btn-promo:active:not(:disabled) { background: #eef0ff; }
+.promo .icon-btn { color: rgba(255, 255, 255, 0.85); }
+.promo .icon-btn:active { background: rgba(255, 255, 255, 0.15); }
+.badge-premium { background: var(--brand-gradient); color: #ffffff; }

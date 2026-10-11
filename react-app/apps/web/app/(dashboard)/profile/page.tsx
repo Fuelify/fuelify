@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference } from '@fuelify/shared';
+import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, isPremium, toPlanTier } from '@fuelify/shared';
 import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
 import { Icon, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
 
@@ -74,6 +74,18 @@ export default function ProfilePage() {
             </Link>
           )}
 
+          <Link href="/premium" className="card row" style={{ gap: 12 }}>
+            <span style={{ color: 'var(--primary)' }}><Icon name="sparkles" /></span>
+            <div className="grow">
+              <div className="row" style={{ gap: 8 }}>
+                <span style={{ fontWeight: 700 }}>{toPlanTier(profile?.plan)} plan</span>
+                {isPremium(profile) && <span className="badge badge-premium">Premium</span>}
+              </div>
+              <div className="small muted">{isPremium(profile) ? 'Auto-generated weekly meal plans are on.' : 'Upgrade for auto-generated weekly meal plans.'}</div>
+            </div>
+            <Icon name="chevronRight" />
+          </Link>
+
           {/* Settings */}
           <div className="section-title"><span>Preferences</span></div>
           <div className="card stack-sm">
@@ -142,7 +154,7 @@ export default function ProfilePage() {
               </Link>
             )}
           </div>
-          <p className="tiny faint center" style={{ marginTop: 8 }}>Fuelify · {profile?.plan ?? 'Free'} plan</p>
+          <p className="tiny faint center" style={{ marginTop: 8 }}>Fuelify · {toPlanTier(profile?.plan)} plan</p>
         </div>
       </div>
 
