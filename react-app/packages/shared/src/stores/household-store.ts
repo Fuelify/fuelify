@@ -3,6 +3,7 @@
 import { createStore } from 'zustand/vanilla';
 import type { HouseholdRepository } from '../supabase/household-repo';
 import type { Household, HouseholdMember, HouseholdRole } from '../models/household';
+import type { PlanTier } from '../models/subscription';
 
 export interface HouseholdState {
   households: Household[];
@@ -25,6 +26,8 @@ export interface HouseholdActions {
   removeMember: (userId: string) => Promise<void>;
   /** Owner adds an existing user by email. Resolves to an error message, or null on success. */
   addMemberByEmail: (email: string) => Promise<string | null>;
+  /** Owner switches the active household's plan. Resolves to an error message, or null on success. */
+  setPlan: (plan: PlanTier) => Promise<string | null>;
   /** Current user leaves the active household and switches to another (creating one if needed). */
   leaveHousehold: () => Promise<void>;
 }
@@ -32,6 +35,11 @@ export interface HouseholdActions {
 export type HouseholdStore = HouseholdState & HouseholdActions;
 
 export const DEFAULT_HOUSEHOLD_NAME = 'My Household';
+
+/** The household the user is currently viewing, if loaded. */
+export function selectActiveHousehold(state: HouseholdState): Household | undefined {
+  return state.households.find((h) => h.id === state.activeHouseholdId);
+}
 
 export function createHouseholdStore(repo: HouseholdRepository, userId: string) {
   // Shared so concurrent callers (e.g. Home + Pantry mounting) don't create two households
@@ -155,6 +163,18 @@ export function createHouseholdStore(repo: HouseholdRepository, userId: string) 
       try {
         const member = await repo.addMemberByEmail(hhId, email);
         set((state) => ({ members: [...state.members, member] }));
+        return null;
+      } catch (err) {
+        return (err as Error).message;
+      }
+    },
+
+    setPlan: async (plan: PlanTier) => {
+      const hhId = get().activeHouseholdId;
+      if (!hhId) return 'No household selected.';
+      try {
+        const updated = await repo.setPlan(hhId, plan);
+        set((state) => ({ households: state.households.map((h) => (h.id === hhId ? updated : h)) }));
         return null;
       } catch (err) {
         return (err as Error).message;

@@ -267,6 +267,7 @@ export interface Database {
         Row: {
           id: string;
           name: string;
+          plan: string;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -274,12 +275,14 @@ export interface Database {
         Insert: {
           id?: string;
           name: string;
+          plan?: string;
           created_by: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           name?: string;
+          plan?: string;
           updated_at?: string;
         };
         Relationships: [];

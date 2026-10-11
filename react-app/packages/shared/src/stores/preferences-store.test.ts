@@ -65,13 +65,24 @@ describe('dismissible prompts', () => {
     junk.getState().loadPreferences();
     expect(junk.getState().dismissedAt).toEqual({ b: 5 });
   });
+
+  it('undismiss shows a prompt again and persists that', () => {
+    const storage = memoryStorage();
+    const store = createPreferencesStore(storage);
+    store.getState().dismiss('promo');
+    store.getState().undismiss('promo');
+    expect(store.getState().dismissedAt.promo).toBeUndefined();
+    const reloaded = createPreferencesStore(storage);
+    reloaded.getState().loadPreferences();
+    expect(reloaded.getState().dismissedAt.promo).toBeUndefined();
+  });
 });
 
 describe('subscription', () => {
-  it('treats anything but Premium as Free', () => {
-    expect(isPremium({ plan: 'Premium' })).toBe(true);
-    expect(isPremium({ plan: 'Free' })).toBe(false);
-    expect(isPremium({ plan: 'premium' })).toBe(false);
+  it('treats anything but premium as standard', () => {
+    expect(isPremium({ plan: 'premium' })).toBe(true);
+    expect(isPremium({ plan: 'standard' })).toBe(false);
+    expect(isPremium({ plan: 'Premium' })).toBe(false);
     expect(isPremium(null)).toBe(false);
   });
 

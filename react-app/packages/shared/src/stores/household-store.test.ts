@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createHouseholdStore } from './household-store';
+import { createHouseholdStore, selectActiveHousehold } from './household-store';
 import { householdInviteErrorMessage, isOwner, sortMembers, type HouseholdMember } from '../models/household';
 import type { HouseholdRepository } from '../supabase/household-repo';
 
@@ -29,13 +29,14 @@ describe('household rules', () => {
 });
 
 function fakeRepo(overrides: Partial<Record<keyof HouseholdRepository, unknown>> = {}) {
-  const households = [{ id: 'h1', name: 'Minier Household', createdBy: 'ethan', createdAt: '', updatedAt: '' }];
+  const households = [{ id: 'h1', name: 'Minier Household', plan: 'standard' as const, createdBy: 'ethan', createdAt: '', updatedAt: '' }];
   return {
     getMyHouseholds: vi.fn(async () => households),
     getMembers: vi.fn(async () => [member('ethan', 'owner')]),
     createHousehold: vi.fn(),
     addMemberByEmail: vi.fn(async () => member('teagan', 'member')),
     removeMember: vi.fn(async () => undefined),
+    setPlan: vi.fn(async (id: string, plan: string) => ({ ...households[0], id, plan })),
     ...overrides,
   } as unknown as HouseholdRepository;
 }
@@ -60,5 +61,20 @@ describe('household store', () => {
     await store.getState().leaveHousehold();
     expect(repo.removeMember).toHaveBeenCalledWith('h1', 'teagan');
     expect(repo.getMyHouseholds).toHaveBeenCalledTimes(2);
+  });
+
+  it('switches the shared household plan and reports failures', async () => {
+    const repo = fakeRepo();
+    const store = createHouseholdStore(repo, 'ethan');
+    await store.getState().fetchHouseholds();
+    expect(selectActiveHousehold(store.getState())?.plan).toBe('standard');
+
+    expect(await store.getState().setPlan('premium')).toBeNull();
+    expect(repo.setPlan).toHaveBeenCalledWith('h1', 'premium');
+    expect(selectActiveHousehold(store.getState())?.plan).toBe('premium');
+
+    (repo.setPlan as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Only the household owner can change the plan.'));
+    expect(await store.getState().setPlan('standard')).toMatch(/Only the household owner/);
+    expect(selectActiveHousehold(store.getState())?.plan).toBe('premium');
   });
 });

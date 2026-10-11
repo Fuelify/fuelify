@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PREMIUM_FEATURES, isPremium } from '@fuelify/shared';
-import { useProfileStore } from '@/lib/stores';
+import { PREMIUM_FEATURES } from '@fuelify/shared';
 import { Icon, LogoMark, PageHeader, type IconName } from '@/components/ui';
+import { usePlan } from '@/features/premium/usePlan';
 
 const FEATURE_ICONS: Record<string, IconName> = {
   'auto-weekly-plans': 'calendar',
@@ -13,17 +12,11 @@ const FEATURE_ICONS: Record<string, IconName> = {
   'unlimited-ideas': 'sparkles',
 };
 
-// Premium plan overview. Billing isn't wired up yet, so the upgrade button is
-// shown as coming soon rather than pretending to take payment.
+// Premium plan overview. Billing isn't wired up yet, so upgrading switches the
+// household's plan directly (no payment step).
 export default function PremiumPage() {
   const router = useRouter();
-  const profile = useProfileStore((s) => s.profile);
-  const fetchProfile = useProfileStore((s) => s.fetchProfile);
-  const premium = isPremium(profile);
-
-  useEffect(() => {
-    if (!profile) fetchProfile();
-  }, [profile, fetchProfile]);
+  const { plan, premium, canChange, setPlan, busy, error } = usePlan();
 
   return (
     <>
@@ -65,14 +58,17 @@ export default function PremiumPage() {
       </div>
 
       <div className="screen-footer stack-sm">
+        {error && <div className="alert" role="alert">{error}</div>}
         {premium ? (
-          <div className="alert alert-info center">You&apos;re on Premium. Enjoy your auto-planned weeks!</div>
+          <div className="alert alert-info center">Your household is on Premium. Enjoy your auto-planned weeks!</div>
+        ) : !canChange ? (
+          <p className="hint center">{plan ? 'Only the household owner can upgrade the plan.' : 'Loading your plan…'}</p>
         ) : (
           <>
-            <button className="btn btn-primary btn-lg btn-block" disabled>
-              Upgrade to Premium · coming soon
+            <button className="btn btn-primary btn-lg btn-block" disabled={busy || !plan} onClick={() => setPlan('premium')}>
+              {busy ? 'Upgrading…' : 'Upgrade to Premium'}
             </button>
-            <p className="hint center">Premium is launching soon. You&apos;re on the Free plan for now.</p>
+            <p className="hint center">Free while we&apos;re in early access. Applies to everyone in your household.</p>
           </>
         )}
       </div>

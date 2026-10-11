@@ -3,9 +3,10 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, isPremium, toPlanTier } from '@fuelify/shared';
+import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, PLAN_LABELS } from '@fuelify/shared';
 import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
 import { Icon, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
+import { usePlan } from '@/features/premium/usePlan';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
 // onboarding answers, units, household and account actions.
@@ -24,6 +25,9 @@ export default function ProfilePage() {
   const activeHouseholdId = useHouseholdStore((s) => s.activeHouseholdId);
   const members = useHouseholdStore((s) => s.members);
   const ensureHousehold = useHouseholdStore((s) => s.ensureHousehold);
+
+  const plan = usePlan();
+  const planLabel = plan.plan ? PLAN_LABELS[plan.plan] : '…';
 
   const [editOpen, setEditOpen] = useState(false);
 
@@ -74,17 +78,31 @@ export default function ProfilePage() {
             </Link>
           )}
 
-          <Link href="/premium" className="card row" style={{ gap: 12 }}>
-            <span style={{ color: 'var(--primary)' }}><Icon name="sparkles" /></span>
-            <div className="grow">
-              <div className="row" style={{ gap: 8 }}>
-                <span style={{ fontWeight: 700 }}>{toPlanTier(profile?.plan)} plan</span>
-                {isPremium(profile) && <span className="badge badge-premium">Premium</span>}
+          {/* Plan (shared by the household; owner switches it) */}
+          <div className="card stack-sm">
+            <Link href="/premium" className="row" style={{ gap: 12 }}>
+              <span style={{ color: 'var(--primary)' }}><Icon name="sparkles" /></span>
+              <div className="grow">
+                <div className="row" style={{ gap: 8 }}>
+                  <span style={{ fontWeight: 700 }}>{planLabel} plan</span>
+                  {plan.premium && <span className="badge badge-premium">Premium</span>}
+                </div>
+                <div className="small muted">{plan.premium ? 'Auto-generated weekly meal plans are on.' : 'Upgrade for auto-generated weekly meal plans.'}</div>
               </div>
-              <div className="small muted">{isPremium(profile) ? 'Auto-generated weekly meal plans are on.' : 'Upgrade for auto-generated weekly meal plans.'}</div>
-            </div>
-            <Icon name="chevronRight" />
-          </Link>
+              <Icon name="chevronRight" />
+            </Link>
+            {plan.plan && plan.canChange && (
+              <button
+                className={`btn btn-block ${plan.premium ? 'btn-secondary' : 'btn-primary'}`}
+                disabled={plan.busy}
+                onClick={() => plan.setPlan(plan.premium ? 'standard' : 'premium')}
+              >
+                {plan.busy ? 'Saving…' : plan.premium ? 'Switch to Standard' : 'Upgrade to Premium'}
+              </button>
+            )}
+            {plan.plan && !plan.canChange && <p className="hint">Your household owner manages the plan.</p>}
+            {plan.error && <div className="alert" role="alert">{plan.error}</div>}
+          </div>
 
           {/* Settings */}
           <div className="section-title"><span>Preferences</span></div>
@@ -154,7 +172,7 @@ export default function ProfilePage() {
               </Link>
             )}
           </div>
-          <p className="tiny faint center" style={{ marginTop: 8 }}>Fuelify · {toPlanTier(profile?.plan)} plan</p>
+          <p className="tiny faint center" style={{ marginTop: 8 }}>Fuelify · {planLabel} plan</p>
         </div>
       </div>
 

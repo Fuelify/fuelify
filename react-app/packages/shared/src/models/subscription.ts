@@ -1,15 +1,18 @@
-// Subscription plans. `profiles.plan` holds the tier name ('Free' by default).
+// Subscription plans. The plan belongs to the household (`households.plan`),
+// so every member shares it; only the owner can change it.
 
-export const PLAN_TIERS = ['Free', 'Premium'] as const;
+export const PLAN_TIERS = ['standard', 'premium'] as const;
 export type PlanTier = (typeof PLAN_TIERS)[number];
 
-/** Unknown or missing values are treated as Free. */
+export const PLAN_LABELS: Record<PlanTier, string> = { standard: 'Standard', premium: 'Premium' };
+
+/** Unknown or missing values are treated as standard. */
 export function toPlanTier(plan: string | null | undefined): PlanTier {
-  return plan === 'Premium' ? 'Premium' : 'Free';
+  return plan === 'premium' ? 'premium' : 'standard';
 }
 
-export function isPremium(profile: { plan?: string | null } | null | undefined): boolean {
-  return toPlanTier(profile?.plan) === 'Premium';
+export function isPremium(household: { plan?: string | null } | null | undefined): boolean {
+  return toPlanTier(household?.plan) === 'premium';
 }
 
 export interface PremiumFeature {
