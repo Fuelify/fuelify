@@ -1,3 +1,5 @@
+import type { MealOption } from '../models/meal';
+
 // Supabase Database types for the Fuelify PostgreSQL schema
 // Maps to the tables created in supabase/migrations/00001_initial_schema.sql
 
@@ -114,6 +116,7 @@ export interface Database {
           meal_type: string;
           sort_order: number;
           generated: boolean;
+          alternatives: MealOption[];
           date: string;
           created_at: string;
           updated_at: string;
@@ -128,6 +131,7 @@ export interface Database {
           meal_type?: string;
           sort_order?: number;
           generated?: boolean;
+          alternatives?: MealOption[];
           date: string;
           created_at?: string;
           updated_at?: string;
@@ -141,6 +145,7 @@ export interface Database {
           meal_type?: string;
           sort_order?: number;
           generated?: boolean;
+          alternatives?: MealOption[];
           date?: string;
           updated_at?: string;
         };

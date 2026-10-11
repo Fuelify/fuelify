@@ -36,6 +36,8 @@ export interface PlannerInput {
   occupied?: Record<string, MealType[]>;
   /** Recipes already in the plan nearby; avoided so the week has variety */
   recentRecipeIds?: Iterable<string>;
+  /** Backup options kept per meal for swapping (default 4) */
+  alternatives?: number;
   /** Injectable for deterministic tests. Defaults to Math.random. */
   random?: () => number;
 }
@@ -43,7 +45,10 @@ export interface PlannerInput {
 export interface PlannedMeal {
   date: string;
   mealType: MealType;
+  /** The top-ranked pick */
   recipe: PlannerRecipe;
+  /** Next-best picks for the same slot, best first, for instant swapping */
+  alternatives: PlannerRecipe[];
 }
 
 export interface PlannerResult {
@@ -116,6 +121,9 @@ const SCORE = {
   jitter: 1,
 } as const;
 
+/** Backup options saved with each generated meal */
+export const DEFAULT_ALTERNATIVES = 4;
+
 export function generateMealPlan(input: PlannerInput): PlannerResult {
   const random = input.random ?? Math.random;
   const favorited = new Set(input.favorited ?? []);
@@ -123,6 +131,7 @@ export function generateMealPlan(input: PlannerInput): PlannerResult {
   const disliked = new Set(input.disliked ?? []);
   const used = new Set(input.recentRecipeIds ?? []);
   const pantryNames = input.pantryNames ?? [];
+  const alternativeCount = input.alternatives ?? DEFAULT_ALTERNATIVES;
 
   // Everything the user can and wants to eat, scored once up front
   const eligible = input.recipes
@@ -143,25 +152,20 @@ export function generateMealPlan(input: PlannerInput): PlannerResult {
     for (const mealType of input.slots) {
       if (taken.has(mealType)) continue;
       const forSlot = eligible.filter((c) => c.recipe.mealTypes.includes(mealType) && !usedToday.has(c.recipe.id));
-      // Prefer recipes not yet used nearby; repeat only when the catalog runs out
-      const fresh = forSlot.filter((c) => !used.has(c.recipe.id));
-      const pool = fresh.length > 0 ? fresh : forSlot;
-      if (pool.length === 0) {
+      if (forSlot.length === 0) {
         unfilled.push({ date, mealType });
         continue;
       }
-      let best = pool[0];
-      let bestScore = -Infinity;
-      for (const c of pool) {
-        const score = c.base + random() * SCORE.jitter;
-        if (score > bestScore) {
-          best = c;
-          bestScore = score;
-        }
-      }
-      meals.push({ date, mealType, recipe: best.recipe });
-      used.add(best.recipe.id);
-      usedToday.add(best.recipe.id);
+      // Rank by preference (with jitter for variety). Recipes not yet used nearby
+      // come first; repeats are only offered once the catalog runs out.
+      const ranked = forSlot
+        .map((c) => ({ recipe: c.recipe, fresh: !used.has(c.recipe.id), score: c.base + random() * SCORE.jitter }))
+        .sort((a, b) => Number(b.fresh) - Number(a.fresh) || b.score - a.score)
+        .map((c) => c.recipe);
+      const [best, ...rest] = ranked;
+      meals.push({ date, mealType, recipe: best, alternatives: rest.slice(0, alternativeCount) });
+      used.add(best.id);
+      usedToday.add(best.id);
     }
   }
 

@@ -8,6 +8,7 @@ import {
   type PlannerInput,
   type PlannerRecipe,
 } from './plan-generator';
+import { nextMealOption, readMealOptions } from '../models/meal';
 import { DEFAULT_MEAL_PLAN_CONFIG, enabledSlots, readMealPlanConfig } from '../models/meal-plan-config';
 
 // The real Discover catalog, so the tests catch gaps in the seed data too
@@ -122,4 +123,44 @@ describe('generateMealPlan', () => {
     const { unfilled } = plan({ dates: [WEEK[0]], recipes: CATALOG.filter((r) => !r.mealTypes.includes('breakfast')) });
     expect(unfilled).toEqual([{ date: WEEK[0], mealType: 'breakfast' }]);
   });
+
+  it('keeps ranked backup options for every meal, all valid for the slot and diet', () => {
+    const { meals } = plan({ diet: 'Vegetarian', allergens: ['Eggs'] });
+    for (const m of meals) {
+      expect(m.alternatives).toHaveLength(4);
+      const ids = [m.recipe.id, ...m.alternatives.map((a) => a.id)];
+      expect(new Set(ids).size).toBe(ids.length);
+      for (const a of m.alternatives) {
+        expect(a.mealTypes).toContain(m.mealType);
+        expect(dietAllows('Vegetarian', a.dietType)).toBe(true);
+        expect(recipeContainsAllergen(a, ['Eggs'])).toBe(false);
+      }
+    }
+  });
+
+  it('puts the most preferred recipe first, ahead of its alternatives', () => {
+    const { meals } = plan({ dates: [WEEK[0]], slots: ['dinner'], favorited: ['Mushroom Risotto', 'Red Lentil Dal'], random: () => 0.5 });
+    expect(meals[0].recipe.id).toMatch(/Mushroom Risotto|Red Lentil Dal/);
+    expect(meals[0].alternatives[0].id).toMatch(/Mushroom Risotto|Red Lentil Dal/);
+  });
 });
+
+describe('nextMealOption', () => {
+  const o = (id: string) => ({ recipeId: id, title: id, description: '' });
+  it('cycles through every option and back to the first', () => {
+    let state = { current: o('a'), alternatives: [o('b'), o('c')] };
+    const seen = [state.current.recipeId];
+    for (let i = 0; i < 3; i++) {
+      state = nextMealOption(state.current, state.alternatives)!;
+      seen.push(state.current.recipeId);
+    }
+    expect(seen).toEqual(['a', 'b', 'c', 'a']);
+    expect(nextMealOption(o('a'), [])).toBeNull();
+  });
+
+  it('reads stored options leniently', () => {
+    expect(readMealOptions([o('a'), { title: 'no id' }, 'junk'])).toEqual([o('a')]);
+    expect(readMealOptions(null)).toEqual([]);
+  });
+});
+
