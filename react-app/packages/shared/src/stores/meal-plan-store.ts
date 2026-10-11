@@ -3,7 +3,7 @@
 
 import { createStore } from 'zustand/vanilla';
 import type { MealPlanRepository, MealPlanMeal } from '../supabase/meal-plan-repo';
-import { todayISO } from '../utils/dates';
+import { addDays, todayISO } from '../utils/dates';
 
 export interface MealPlanState {
   meals: Record<string, MealPlanMeal[]>; // keyed by date string (YYYY-MM-DD)
@@ -38,7 +38,10 @@ export function createMealPlanStore(repo: MealPlanRepository, userId: string) {
       set({ isLoading: true, error: null });
       try {
         const grouped = await repo.getMealPlan(userId, startDate, endDate);
-        set({ meals: { ...get().meals, ...grouped }, isLoading: false });
+        // Days with no meals come back missing; clear them so stale meals don't linger
+        const range: Record<string, MealPlanMeal[]> = {};
+        for (let d = startDate; d <= endDate; d = addDays(d, 1)) range[d] = grouped[d] ?? [];
+        set({ meals: { ...get().meals, ...range }, isLoading: false });
       } catch (err) {
         set({ isLoading: false, error: (err as Error).message });
       }

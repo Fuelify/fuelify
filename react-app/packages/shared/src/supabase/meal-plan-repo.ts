@@ -12,6 +12,8 @@ export interface MealPlanMeal {
   sortOrder: number;
   date: string;
   recipeId: string | null;
+  /** Created by the meal plan generator (replaced on regenerate) */
+  generated: boolean;
 }
 
 function rowToMeal(row: MealRow): MealPlanMeal {
@@ -23,6 +25,7 @@ function rowToMeal(row: MealRow): MealPlanMeal {
     sortOrder: row.sort_order,
     date: row.date,
     recipeId: row.recipe_id,
+    generated: row.generated ?? false,
   };
 }
 
@@ -102,7 +105,56 @@ export class MealPlanRepository {
     return rowToMeal(data);
   }
 
-  /** Update an existing meal */
+  /** Remove generator-made meals on the given dates; meals the user added stay. */
+  async deleteGeneratedMeals(userId: string, dates: string[]): Promise<void> {
+    if (dates.length === 0) return;
+    const { error } = await this.supabase
+      .from('meals')
+      .delete()
+      .eq('user_id', userId)
+      .eq('generated', true)
+      .in('date', dates);
+
+    if (error) throw new Error(`Failed to clear generated meals: ${error.message}`);
+  }
+
+  /** Insert generator-made meals in bulk (one round trip for plans, one for meals). */
+  async addGeneratedMeals(userId: string, meals: {
+    title: string;
+    description: string;
+    date: string;
+    mealType: string;
+    recipeId: string;
+    sortOrder: number;
+  }[]): Promise<void> {
+    if (meals.length === 0) return;
+    const dates = [...new Set(meals.map((m) => m.date))];
+    const { data: plans, error: planError } = await this.supabase
+      .from('meal_plans')
+      .upsert(dates.map((date) => ({ user_id: userId, date })), { onConflict: 'user_id,date' })
+      .select('id, date');
+
+    if (planError) throw new Error(`Failed to upsert meal plans: ${planError.message}`);
+    const planIds = new Map((plans ?? []).map((p) => [p.date, p.id]));
+
+    const { error } = await this.supabase.from('meals').insert(
+      meals.map((m) => ({
+        user_id: userId,
+        meal_plan_id: planIds.get(m.date),
+        title: m.title,
+        description: m.description,
+        date: m.date,
+        meal_type: m.mealType,
+        recipe_id: m.recipeId,
+        sort_order: m.sortOrder,
+        generated: true,
+      })),
+    );
+
+    if (error) throw new Error(`Failed to add generated meals: ${error.message}`);
+  }
+
+  /** Update an existing meal. Edited meals count as the user's own, so regenerating keeps them. */
   async updateMeal(mealId: string, updates: {
     title?: string;
     description?: string;
@@ -116,6 +168,7 @@ export class MealPlanRepository {
         ...(updates.description !== undefined && { description: updates.description }),
         ...(updates.mealType !== undefined && { meal_type: updates.mealType }),
         ...(updates.sortOrder !== undefined && { sort_order: updates.sortOrder }),
+        generated: false,
         updated_at: new Date().toISOString(),
       })
       .eq('id', mealId)
@@ -145,6 +198,7 @@ export class MealPlanRepository {
       .update({
         date: newDate,
         meal_plan_id: planData.id,
+        generated: false,
         updated_at: new Date().toISOString(),
       })
       .eq('id', mealId)

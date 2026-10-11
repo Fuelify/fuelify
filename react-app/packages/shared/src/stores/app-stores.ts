@@ -16,17 +16,24 @@ import { createHouseholdStore } from './household-store';
 import { createShoppingCartStore } from './shopping-cart-store';
 import { createPantryStore } from './pantry-store';
 import { createMealSuggestionStore } from './meal-suggestion-store';
+import { createPlanGenerationStore } from './plan-generation-store';
 
 /** Stores that hold one signed-in user's data. Recreate them when the user changes. */
 export function createUserStores(supabase: TypedSupabaseClient, userId: string) {
+  const profiles = new ProfileRepository(supabase);
+  const meals = new MealPlanRepository(supabase);
+  const recipes = new RecipeRepository(supabase);
+  const pantry = new PantryRepository(supabase);
+  const mealPlanStore = createMealPlanStore(meals, userId);
   return {
     userId,
-    profileStore: createProfileStore(new ProfileRepository(supabase), userId),
-    mealPlanStore: createMealPlanStore(new MealPlanRepository(supabase), userId),
-    recipeStore: createRecipeStore(new RecipeRepository(supabase), userId),
+    profileStore: createProfileStore(profiles, userId),
+    mealPlanStore,
+    planGenerationStore: createPlanGenerationStore({ profiles, recipes, meals, pantry, mealPlanStore }, userId),
+    recipeStore: createRecipeStore(recipes, userId),
     householdStore: createHouseholdStore(new HouseholdRepository(supabase), userId),
     shoppingCartStore: createShoppingCartStore(new ShoppingCartRepository(supabase), userId),
-    pantryStore: createPantryStore(new PantryRepository(supabase), userId),
+    pantryStore: createPantryStore(pantry, userId),
     mealSuggestionStore: createMealSuggestionStore(new MealSuggester(supabase)),
   };
 }

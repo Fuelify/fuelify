@@ -17,6 +17,8 @@ export interface Recipe {
   cuisine: string | null;
   dietType: string | null;
   calories: number | null;
+  /** Meal slots the recipe suits (breakfast, lunch, dinner, snack) */
+  mealTypes: string[];
   createdBy: string | null;
 }
 
@@ -48,6 +50,7 @@ function rowToRecipe(row: RecipeRow): Recipe {
     cuisine: row.cuisine,
     dietType: row.diet_type,
     calories: row.calories,
+    mealTypes: row.meal_types ?? [],
     createdBy: row.created_by,
   };
 }

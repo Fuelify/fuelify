@@ -27,6 +27,7 @@ export interface Database {
           plan: string;
           onboarded: boolean;
           onboarding_step: number;
+          meal_plan_config: Record<string, unknown>;
           created_at: string;
           updated_at: string;
         };
@@ -52,6 +53,7 @@ export interface Database {
           plan?: string;
           onboarded?: boolean;
           onboarding_step?: number;
+          meal_plan_config?: Record<string, unknown>;
         };
         Update: {
           first_name?: string | null;
@@ -74,6 +76,7 @@ export interface Database {
           plan?: string;
           onboarded?: boolean;
           onboarding_step?: number;
+          meal_plan_config?: Record<string, unknown>;
         };
         Relationships: [];
       };
@@ -110,6 +113,7 @@ export interface Database {
           description: string;
           meal_type: string;
           sort_order: number;
+          generated: boolean;
           date: string;
           created_at: string;
           updated_at: string;
@@ -123,6 +127,7 @@ export interface Database {
           description?: string;
           meal_type?: string;
           sort_order?: number;
+          generated?: boolean;
           date: string;
           created_at?: string;
           updated_at?: string;
@@ -135,6 +140,7 @@ export interface Database {
           description?: string;
           meal_type?: string;
           sort_order?: number;
+          generated?: boolean;
           date?: string;
           updated_at?: string;
         };
@@ -177,6 +183,7 @@ export interface Database {
           cuisine: string | null;
           diet_type: string | null;
           calories: number | null;
+          meal_types: string[];
           created_by: string | null;
           created_at: string;
           updated_at: string;
@@ -194,6 +201,7 @@ export interface Database {
           cuisine?: string | null;
           diet_type?: string | null;
           calories?: number | null;
+          meal_types?: string[];
           created_by?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -210,6 +218,7 @@ export interface Database {
           cuisine?: string | null;
           diet_type?: string | null;
           calories?: number | null;
+          meal_types?: string[];
           updated_at?: string;
         };
         Relationships: [];

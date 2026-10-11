@@ -13,6 +13,9 @@ export type { NavigationStore, NavigationState, NavigationActions, DashboardTab 
 export { createMealPlanStore } from './meal-plan-store';
 export type { MealPlanStore, MealPlanState, MealPlanActions } from './meal-plan-store';
 
+export { createPlanGenerationStore } from './plan-generation-store';
+export type { PlanGenerationStore, PlanGenerationState, PlanGenerationActions, PlanGenerationDeps } from './plan-generation-store';
+
 export { createRecipeStore } from './recipe-store';
 export type { RecipeStore, RecipeState, RecipeActions } from './recipe-store';
 

@@ -17,6 +17,7 @@ import { useMealPlanStore } from '@/lib/stores';
 import { FoodTile, Icon, PageHeader } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
 import { UpgradeBanner } from '@/features/premium/UpgradeBanner';
+import { useMealPlanGenerator } from '@/features/meal-plan/useMealPlanGenerator';
 
 // Mirrors: lib/screens/main/plan/screen.dart — week strip (MON–SUN) over a day view.
 // Swipe the day view (or use the arrows) to move between days / weeks.
@@ -33,6 +34,16 @@ export default function PlanPage() {
   const today = todayISO();
   const weekStart = startOfWeek(selectedDate);
   const days = useMemo(() => weekDays(weekStart), [weekStart]);
+
+  const generator = useMealPlanGenerator();
+  // "Generate week" plans 7 days from today, or from the start of a future week being viewed
+  const generateFrom = weekStart > today ? weekStart : today;
+  const generateWeek = () => {
+    generator.generateDays(Array.from({ length: 7 }, (_, i) => addDays(generateFrom, i)));
+    if (selectedDate < today) setSelectedDate(today);
+  };
+  const canGenerateDay = selectedDate >= today;
+  const generatingDay = generator.isGenerating(selectedDate);
 
   const [sheet, setSheet] = useState<{ meal?: MealPlanMeal; mealType?: MealType } | null>(null);
 
@@ -67,9 +78,19 @@ export default function PlanPage() {
         title="Plan"
         sub={formatMonth(weekStart)}
         right={
-          selectedDate !== today ? (
-            <button className="btn btn-secondary btn-sm" onClick={() => setSelectedDate(today)}>Today</button>
-          ) : undefined
+          <div className="row" style={{ gap: 6 }}>
+            {selectedDate !== today && (
+              <button className="btn btn-secondary btn-sm" onClick={() => setSelectedDate(today)}>Today</button>
+            )}
+            <button
+              className="btn btn-primary btn-sm"
+              disabled={generator.isGenerating()}
+              onClick={generateWeek}
+              title={generator.premium ? 'Plan the next 7 days' : 'Premium feature'}
+            >
+              <Icon name="sparkles" size={16} /> {generator.isGenerating() && !generatingDay ? 'Planning…' : 'Generate week'}
+            </button>
+          </div>
         }
       />
 
@@ -119,12 +140,33 @@ export default function PlanPage() {
                 {isLoading && plannedCount === 0 ? 'Loading…' : `${plannedCount} meal${plannedCount === 1 ? '' : 's'} planned`}
               </p>
             </div>
-            <button className="btn btn-primary btn-sm" onClick={() => setSheet({})}>
-              <Icon name="plus" /> Add meal
-            </button>
+            <div className="row" style={{ gap: 6 }}>
+              {canGenerateDay && (
+                <button
+                  className="btn btn-secondary btn-sm"
+                  disabled={generator.isGenerating()}
+                  onClick={() => generator.generateDays([selectedDate])}
+                  aria-label={plannedCount > 0 ? 'Regenerate this day' : 'Generate this day'}
+                >
+                  <Icon name={plannedCount > 0 ? 'refresh' : 'sparkles'} size={16} /> {generatingDay ? 'Planning…' : plannedCount > 0 ? 'Regenerate' : 'Generate'}
+                </button>
+              )}
+              <button className="btn btn-primary btn-sm" onClick={() => setSheet({})} aria-label="Add meal">
+                <Icon name="plus" /> Add
+              </button>
+            </div>
           </div>
 
           {error && <div className="alert">{error}</div>}
+          {generator.error && <div className="alert" role="alert">{generator.error}</div>}
+          {generator.message && (
+            <div className="alert alert-info row" role="status" style={{ gap: 8 }}>
+              <span className="grow">{generator.message} Meals you added yourself are kept.</span>
+              <button className="icon-btn" aria-label="Dismiss" style={{ width: 28, height: 28, color: 'inherit' }} onClick={generator.clearResult}>
+                <Icon name="x" size={16} />
+              </button>
+            </div>
+          )}
 
           {MEAL_TYPES.map((t) => {
             const list = byType[t.value] ?? [];
@@ -149,7 +191,10 @@ export default function PlanPage() {
                     <button key={m.id} className="card card-button row" style={{ gap: 12 }} onClick={() => setSheet({ meal: m })}>
                       <FoodTile title={m.title} size={48} />
                       <div className="grow">
-                        <div className="truncate" style={{ fontWeight: 700 }}>{m.title}</div>
+                        <div className="row" style={{ gap: 6 }}>
+                          <span className="truncate" style={{ fontWeight: 700 }}>{m.title}</span>
+                          {m.generated && <span className="badge badge-tertiary" style={{ flexShrink: 0 }}>Auto</span>}
+                        </div>
                         {m.description && <div className="small muted truncate">{m.description}</div>}
                       </div>
                       <span className="faint"><Icon name="chevronRight" size={18} /></span>

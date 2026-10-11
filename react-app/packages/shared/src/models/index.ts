@@ -10,3 +10,4 @@ export * from './meal-suggestion';
 export * from './profile-answers';
 export * from './theme';
 export * from './subscription';
+export * from './meal-plan-config';
