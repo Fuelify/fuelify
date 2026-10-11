@@ -4,12 +4,14 @@
 import type { TypedSupabaseClient } from './client';
 import { fetchDisplayProfiles, type DisplayProfile } from './profile-names';
 import type { HouseholdRow, HouseholdMemberRow } from './types';
+import { toPlanTier, type PlanTier } from '../models/subscription';
 import { householdInviteErrorMessage, type Household, type HouseholdMember, type HouseholdRole } from '../models/household';
 
 function rowToHousehold(row: HouseholdRow): Household {
   return {
     id: row.id,
     name: row.name,
+    plan: toPlanTier(row.plan),
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -83,6 +85,25 @@ export class HouseholdRepository {
       .single();
 
     if (error) throw new Error(`Failed to update household: ${error.message}`);
+    return rowToHousehold(data);
+  }
+
+  /**
+   * Change the household's plan (owner only, enforced by RLS). There is no
+   * billing yet, so this switches plans directly; once payments exist this
+   * should move server-side behind the payment provider's webhook.
+   */
+  async setPlan(householdId: string, plan: PlanTier): Promise<Household> {
+    const { data, error } = await this.supabase
+      .from('households')
+      .update({ plan })
+      .eq('id', householdId)
+      .select()
+      .maybeSingle();
+
+    if (error) throw new Error(`Failed to change plan: ${error.message}`);
+    // RLS filters the row out for non-owners instead of raising an error
+    if (!data) throw new Error('Only the household owner can change the plan.');
     return rowToHousehold(data);
   }
 

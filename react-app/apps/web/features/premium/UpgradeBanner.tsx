@@ -1,33 +1,27 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import {
   HIGHLIGHTED_PREMIUM_FEATURE,
   UPGRADE_PROMO_ID,
   UPGRADE_PROMO_SNOOZE_DAYS,
-  isPremium,
   isSnoozed,
 } from '@fuelify/shared';
-import { usePreferencesStore, useProfileStore } from '@/lib/stores';
+import { usePreferencesStore } from '@/lib/stores';
 import { Icon } from '@/components/ui';
+import { usePlan } from './usePlan';
 
 /**
- * Upgrade prompt for Free-plan users, leading with auto-generated weekly
+ * Upgrade prompt for households on the Standard plan, leading with auto-generated weekly
  * meal plans. Hidden for Premium users and for a week after "Not now".
  */
 export function UpgradeBanner({ style }: { style?: React.CSSProperties }) {
-  const profile = useProfileStore((s) => s.profile);
-  const fetchProfile = useProfileStore((s) => s.fetchProfile);
+  const { plan } = usePlan();
   const dismissedAt = usePreferencesStore((s) => s.dismissedAt[UPGRADE_PROMO_ID]);
   const dismiss = usePreferencesStore((s) => s.dismiss);
 
-  useEffect(() => {
-    if (!profile) fetchProfile();
-  }, [profile, fetchProfile]);
-
-  // Wait for the profile so Premium users never see a flash of the banner
-  if (!profile || isPremium(profile) || isSnoozed(dismissedAt, UPGRADE_PROMO_SNOOZE_DAYS)) return null;
+  // Wait for the household so Premium users never see a flash of the banner
+  if (plan !== 'standard' || isSnoozed(dismissedAt, UPGRADE_PROMO_SNOOZE_DAYS)) return null;
 
   return (
     <aside className="promo" aria-label="Upgrade to Premium" style={style}>

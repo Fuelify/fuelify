@@ -1,10 +1,14 @@
 // Household model — supports multi-user households for shared features (shopping cart, etc.)
 
+import type { PlanTier } from './subscription';
+
 export type HouseholdRole = 'owner' | 'member';
 
 export interface Household {
   id: string;
   name: string;
+  /** Shared by every member */
+  plan: PlanTier;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

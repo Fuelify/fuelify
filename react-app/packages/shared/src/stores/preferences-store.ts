@@ -16,6 +16,8 @@ export interface PreferencesActions {
   setUnits: (units: 'Imperial' | 'Metric') => void;
   loadPreferences: () => void;
   dismiss: (promoId: string) => void;
+  /** Show a dismissed prompt again right away */
+  undismiss: (promoId: string) => void;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -59,6 +61,14 @@ export function createPreferencesStore(storage: PreferencesStorage | null = defa
 
     dismiss: (promoId) => {
       set((state) => ({ dismissedAt: { ...state.dismissedAt, [promoId]: Date.now() } }));
+      save(get());
+    },
+
+    undismiss: (promoId) => {
+      set((state) => {
+        const { [promoId]: _removed, ...rest } = state.dismissedAt;
+        return { dismissedAt: rest };
+      });
       save(get());
     },
 
