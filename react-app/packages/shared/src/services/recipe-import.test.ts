@@ -4,6 +4,7 @@ import {
   inferDietType,
   inferMealTypes,
   isPrivateAddress,
+  parseDurationText,
   parseIsoDuration,
   parseRecipeHtml,
   parseRecipeText,
@@ -90,6 +91,53 @@ Instructions
       steps: ['Rinse the lentils.', 'Simmer everything for 20 minutes.'],
       dietType: null,
     });
+  });
+
+  it('reads a whole copied recipe page, skipping navigation, ads and everything after the steps', () => {
+    const r = parseRecipeText(`Skip to content
+Dinners > Main Dishes
+Taco Pasta
+Submitted by Home Cook
+Updated on May 1, 2024
+Save
+Rate
+Prep Time:
+10 mins
+Cook Time: 20 mins
+Total Time: 30 mins
+Servings: 6
+Jump to Nutrition Facts
+Advertisement
+Ingredients
+Original recipe (1X) yields 6 servings
+1/2x 1x 2x
+1 pound ground beef
+1 (1 ounce) packet taco seasoning
+8 ounces small shell pasta
+Directions
+Step 1
+Brown the beef in a large skillet; drain.
+Step 2
+Stir in the seasoning, pasta and 2 cups water; simmer until the pasta is tender, about 15 minutes.
+Recipe Tips
+Use ground turkey for a lighter version.
+Nutrition Facts (per serving)
+412 Calories
+I Made It`);
+    expect(r).toMatchObject({
+      title: 'Taco Pasta',
+      ingredients: ['1 pound ground beef', '1 (1 ounce) packet taco seasoning', '8 ounces small shell pasta'],
+      steps: ['Brown the beef in a large skillet; drain.', 'Stir in the seasoning, pasta and 2 cups water; simmer until the pasta is tender, about 15 minutes.'],
+      cookTimeMinutes: 20,
+      servings: 6,
+      dietType: 'Omnivore',
+    });
+  });
+
+  it('reads duration text', () => {
+    expect(parseDurationText('1 hr 20 mins')).toBe(80);
+    expect(parseDurationText('45 minutes')).toBe(45);
+    expect(parseDurationText('soon')).toBeNull();
   });
 
   it('guesses sections without headings and rejects non-recipes', () => {

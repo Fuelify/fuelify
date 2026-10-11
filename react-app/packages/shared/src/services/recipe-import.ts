@@ -228,43 +228,84 @@ export function parseRecipeHtml(html: string, sourceUrl: string | null): HtmlImp
 
 const INGREDIENTS_HEADING = /^(ingredients?|you(?:'ll)? need|shopping list)\s*:?$/i;
 const STEPS_HEADING = /^(instructions?|directions?|method|steps?|preparation|how to make( it)?)\s*:?$/i;
+/** Where a recipe page's useful text ends (copied whole pages run on into this) */
+const END_HEADING = /^(nutrition( facts)?|recipe (tips?|notes?)|tips( & tricks)?|notes?|cook'?s notes?|editor'?s notes?|reviews?|\d[\d,]* (reviews?|ratings?)|i made it|you('ll)? (also )?(like|love)|related( recipes)?|more recipes|explore more|did you make this)\b/i;
+/** Page furniture to drop wherever it appears */
+const NOISE = /^(advertisement|ad|skip to content|jump to (recipe|nutrition facts?)|save|saved|rate|print|share|pin|email|cook mode|\(keep screen awake\)|original recipe.*yields.*|\d\/\dx|\d+x( \d+x)*|1\/2x 1x 2x|us|metric|step \d+|photo:?.*|credit:?.*)$/i;
+/** Lines before the title on a copied page (site navigation, breadcrumbs) */
+const NOT_A_TITLE = /^(skip to content|home|menu|search|log ?in|sign ?up|subscribe|recipes?|dinners?|main dishes|breakfast|lunch|desserts?|.*›.*|.*>.*|.*\/.*)$/i;
 const BULLET = /^\s*(?:[-*•▢◦·]|\d+[.)]|step\s*\d+[:.)]?)\s*/i;
 const LOOKS_LIKE_INGREDIENT = /^\s*(?:[-*•▢◦·]\s*)?(\d|½|¼|¾|⅓|⅔|a\s|an\s|one\s|two\s|pinch|handful|salt|pepper)/i;
 
+/** "1 hr 20 mins", "45 minutes", "1 hour" → minutes */
+export function parseDurationText(s: string): number | null {
+  const h = s.match(/(\d+)\s*(h|hr|hrs|hour|hours)\b/i);
+  const m = s.match(/(\d+)\s*(m|min|mins|minute|minutes)\b/i);
+  const total = (h ? Number(h[1]) * 60 : 0) + (m ? Number(m[1]) : 0);
+  return total > 0 ? total : null;
+}
+
 /**
- * Parse a recipe pasted as text: the first line is the title, then sections
- * under "Ingredients" and "Instructions" (or similar) headings. Without
- * headings, quantity-led lines are taken as ingredients and the rest as steps.
+ * Parse a recipe pasted as text, from a note or a whole copied recipe page:
+ * the title (first real line), "Prep Time / Cook Time / Servings" details,
+ * then sections under "Ingredients" and "Instructions"/"Directions" headings.
+ * Page furniture and everything after the steps (nutrition, tips, reviews) is
+ * dropped. Without headings, quantity-led lines are taken as ingredients.
  */
 export function parseRecipeText(text: string): RecipeDraft | null {
-  const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  if (lines.length < 2) return null;
-  const title = lines[0].replace(/^#+\s*/, '');
+  const strip = (l: string) => l.trim().replace(/^#+\s*/, '');
+  const all = text.split(/\r?\n/).map(strip).filter(Boolean);
+  const titleAt = all.findIndex((l) => l.length > 2 && !NOT_A_TITLE.test(l) && !NOISE.test(l) && !INGREDIENTS_HEADING.test(l) && !STEPS_HEADING.test(l));
+  if (titleAt < 0) return null;
+  const title = all[titleAt];
+  const lines = all.slice(titleAt + 1).filter((l) => !NOISE.test(l));
+  if (lines.length === 0) return null;
+
   const ingredients: string[] = [];
   const steps: string[] = [];
   const intro: string[] = [];
-  let section: 'intro' | 'ingredients' | 'steps' = 'intro';
-  const sawHeading = lines.slice(1).some((l) => INGREDIENTS_HEADING.test(l.replace(/^#+\s*/, '')) || STEPS_HEADING.test(l.replace(/^#+\s*/, '')));
+  let prep: number | null = null;
+  let cook: number | null = null;
+  let total: number | null = null;
+  let servings: number | null = null;
+  let section: 'intro' | 'ingredients' | 'steps' | 'end' = 'intro';
+  const sawHeading = lines.some((l) => INGREDIENTS_HEADING.test(l) || STEPS_HEADING.test(l));
 
-  for (const raw of lines.slice(1)) {
-    const line = raw.replace(/^#+\s*/, '');
-    if (INGREDIENTS_HEADING.test(line)) section = 'ingredients';
-    else if (STEPS_HEADING.test(line)) section = 'steps';
-    else if (!sawHeading) (LOOKS_LIKE_INGREDIENT.test(line) && steps.length === 0 ? ingredients : steps).push(line.replace(BULLET, ''));
-    else if (section === 'ingredients') ingredients.push(line.replace(BULLET, ''));
-    else if (section === 'steps') steps.push(line.replace(BULLET, ''));
+  for (const line of lines) {
+    if (INGREDIENTS_HEADING.test(line)) { section = 'ingredients'; continue; }
+    if (STEPS_HEADING.test(line)) { section = 'steps'; continue; }
+    if (section !== 'intro' && END_HEADING.test(line)) { section = 'end'; continue; }
+    if (section === 'end') continue;
+
+    // Recipe details lines, e.g. "Prep Time: 10 mins", "Servings: 6"
+    const detail = line.match(/^(prep(?:aration)?(?: time)?|cook(?:ing)?(?: time)?|total(?: time)?|servings|serves|yield)\s*:?\s*(.+)$/i);
+    if (detail && section !== 'steps') {
+      const key = detail[1].toLowerCase();
+      if (key.startsWith('prep')) prep = parseDurationText(detail[2]);
+      else if (key.startsWith('cook')) cook = parseDurationText(detail[2]);
+      else if (key.startsWith('total')) total = parseDurationText(detail[2]);
+      else servings = Number(detail[2].match(/\d+/)?.[0]) || null;
+      continue;
+    }
+
+    const item = line.replace(BULLET, '').trim();
+    if (!item) continue;
+    if (!sawHeading) (LOOKS_LIKE_INGREDIENT.test(line) && steps.length === 0 ? ingredients : steps).push(item);
+    else if (section === 'ingredients') ingredients.push(item);
+    else if (section === 'steps') steps.push(item);
     else intro.push(line);
   }
   if (ingredients.length === 0 && steps.length === 0) return null;
   return {
     title,
-    description: intro.join(' '),
+    // Copied pages put bylines and dates here; keep the blurb, briefly
+    description: intro.filter((l) => !/^(submitted by|recipe by|by |updated|published|posted|tested by|\d+ (reviews?|ratings?))/i.test(l)).slice(0, 2).join(' '),
     imageUrl: null,
     ingredients,
     steps,
-    prepTimeMinutes: null,
-    cookTimeMinutes: null,
-    servings: null,
+    prepTimeMinutes: prep,
+    cookTimeMinutes: cook ?? (prep == null ? total : null),
+    servings,
     cuisine: null,
     dietType: inferDietType(ingredients),
     calories: null,

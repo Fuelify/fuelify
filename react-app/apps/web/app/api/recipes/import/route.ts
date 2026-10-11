@@ -1,4 +1,4 @@
-// POST /api/recipes/import { url } → { recipe } | { error, partial? }
+// POST /api/recipes/import { url } → { recipe } | { error, code?, partial? }
 //
 // Fetches a recipe page server-side (browsers can't read other sites) and
 // parses it with the shared importer. Signed-in users only, public web
@@ -6,7 +6,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { parseRecipeHtml, recipeUrlError } from '@fuelify/shared';
-import { fetchRecipePage, ImportError } from '@/lib/fetch-recipe-page';
+import { BlockedError, fetchRecipePage, ImportError } from '@/lib/fetch-recipe-page';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -40,6 +40,8 @@ export async function POST(request: Request) {
       422,
     );
   } catch (err) {
+    // `code: 'blocked'` tells the app to switch straight to pasting the text
+    if (err instanceof BlockedError) return json({ error: err.message, code: 'blocked' }, 422);
     if (err instanceof ImportError) return json({ error: err.message }, 422);
     console.error('recipe import failed', err);
     return json({ error: 'Something went wrong importing that recipe.' }, 500);
