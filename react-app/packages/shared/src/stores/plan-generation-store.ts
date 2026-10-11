@@ -20,7 +20,7 @@ export interface PlanGenerationState {
   shufflingMealIds: string[];
   error: string | null;
   /** Summary of the last run, for a confirmation message */
-  lastResult: { dates: string[]; added: number; unfilled: PlannerResult['unfilled'] } | null;
+  lastResult: { dates: string[]; added: number; unfilled: PlannerResult['unfilled']; cleared?: number } | null;
 }
 
 export interface PlanGenerationActions {
@@ -35,6 +35,8 @@ export interface PlanGenerationActions {
    * remain; on the last one, plans a fresh batch that skips recipes already shown.
    */
   shuffle: (mealId: string, householdId?: string | null) => Promise<void>;
+  /** Remove generated meals on `dates` (meals the user added stay). Resolves true on success. */
+  clearGenerated: (dates: string[]) => Promise<boolean>;
   clearResult: () => void;
 }
 
@@ -183,6 +185,25 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
         set({ error: (err as Error).message });
       } finally {
         set((s) => ({ shufflingMealIds: s.shufflingMealIds.filter((id) => id !== mealId) }));
+      }
+    },
+
+    clearGenerated: async (dates) => {
+      if (dates.length === 0 || get().generatingDates.length > 0) return false;
+      const sorted = [...dates].sort();
+      const targets = new Set(sorted);
+      const cleared = Object.entries(deps.mealPlanStore.getState().meals)
+        .filter(([date]) => targets.has(date))
+        .reduce((n, [, day]) => n + day.filter((m) => m.generated).length, 0);
+      set({ generatingDates: sorted, error: null, lastResult: null });
+      try {
+        await deps.meals.deleteGeneratedMeals(userId, sorted);
+        await deps.mealPlanStore.getState().fetchMealPlan(sorted[0], sorted[sorted.length - 1]);
+        set({ generatingDates: [], lastResult: { dates: sorted, added: 0, unfilled: [], cleared } });
+        return true;
+      } catch (err) {
+        set({ generatingDates: [], error: (err as Error).message });
+        return false;
       }
     },
 
