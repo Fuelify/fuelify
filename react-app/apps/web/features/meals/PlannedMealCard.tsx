@@ -1,16 +1,18 @@
 'use client';
 
 import type { MealPlanMeal } from '@fuelify/shared';
-import { useMealPlanStore } from '@/lib/stores';
+import { useHouseholdStore, usePlanGenerationStore } from '@/lib/stores';
 import { FoodTile, Icon } from '@/components/ui';
 
 /**
- * A meal on the Plan page. Generated meals with saved options get a shuffle
- * button that swaps to the next-best recipe instantly (no regenerate).
+ * A meal on the Plan page. Generated meals get a shuffle button: it swaps to the
+ * next-best saved option instantly, and on the last one plans a fresh batch.
  */
 export function PlannedMealCard({ meal, onOpen }: { meal: MealPlanMeal; onOpen: () => void }) {
-  const swapMeal = useMealPlanStore((s) => s.swapMeal);
-  const swappable = meal.generated && meal.alternatives.length > 0;
+  const shuffle = usePlanGenerationStore((s) => s.shuffle);
+  const busy = usePlanGenerationStore((s) => s.shufflingMealIds.includes(meal.id));
+  const householdId = useHouseholdStore((s) => s.activeHouseholdId);
+  const swappable = meal.generated && !!meal.recipeId;
 
   return (
     <div className="card row" style={{ gap: 4, padding: 0 }}>
@@ -30,10 +32,11 @@ export function PlannedMealCard({ meal, onOpen }: { meal: MealPlanMeal; onOpen: 
           className="icon-btn icon-btn-filled"
           style={{ marginRight: 12, flexShrink: 0 }}
           aria-label={`Swap ${meal.title} for another option`}
-          title={`Swap (${meal.alternatives.length + 1} options)`}
-          onClick={() => swapMeal(meal.id)}
+          title={meal.alternatives.length ? `${meal.alternatives.length} more option${meal.alternatives.length === 1 ? '' : 's'}` : 'Find new options'}
+          disabled={busy}
+          onClick={() => shuffle(meal.id, householdId)}
         >
-          <Icon name="shuffle" size={18} />
+          <span className={busy ? 'spin' : undefined} style={{ display: 'inline-flex' }}><Icon name="shuffle" size={18} /></span>
         </button>
       )}
     </div>

@@ -13,6 +13,7 @@ export interface PlannerRecipe {
   description: string;
   ingredients: string[];
   dietType: string | null;
+  /** Slots the recipe suits; the first is its preferred slot */
   mealTypes: string[];
 }
 
@@ -98,6 +99,11 @@ export function recipeContainsAllergen(recipe: Pick<PlannerRecipe, 'ingredients'
   return allergens.some((a) => ALLERGEN_PATTERNS[a]?.test(text));
 }
 
+/** The slot a recipe is best suited to (first of its meal types). */
+export function preferredMealType(recipe: Pick<PlannerRecipe, 'mealTypes'>): string | undefined {
+  return recipe.mealTypes[0];
+}
+
 /** How many of the recipe's ingredients are already in the pantry. */
 export function pantryMatchCount(recipe: Pick<PlannerRecipe, 'ingredients'>, pantryNames: string[]): number {
   const names = pantryNames.map((n) => n.trim().toLowerCase()).filter((n) => n.length >= 3);
@@ -113,6 +119,8 @@ export function pantryMatchCount(recipe: Pick<PlannerRecipe, 'ingredients'>, pan
 // ---------------------------------------------------------------------------
 
 const SCORE = {
+  /** In its preferred slot (Avocado Toast at breakfast, not dinner) */
+  preferredSlot: 2,
   favorited: 1.5,
   liked: 1,
   pantryPerIngredient: 0.4,
@@ -159,7 +167,11 @@ export function generateMealPlan(input: PlannerInput): PlannerResult {
       // Rank by preference (with jitter for variety). Recipes not yet used nearby
       // come first; repeats are only offered once the catalog runs out.
       const ranked = forSlot
-        .map((c) => ({ recipe: c.recipe, fresh: !used.has(c.recipe.id), score: c.base + random() * SCORE.jitter }))
+        .map((c) => ({
+          recipe: c.recipe,
+          fresh: !used.has(c.recipe.id),
+          score: c.base + (preferredMealType(c.recipe) === mealType ? SCORE.preferredSlot : 0) + random() * SCORE.jitter,
+        }))
         .sort((a, b) => Number(b.fresh) - Number(a.fresh) || b.score - a.score)
         .map((c) => c.recipe);
       const [best, ...rest] = ranked;

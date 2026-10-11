@@ -3,7 +3,7 @@
 
 import type { TypedSupabaseClient } from './client';
 import type { MealRow } from './types';
-import { readMealOptions, type MealOption } from '../models/meal';
+import { readMealOptions, type MealOption, type MealSwapState } from '../models/meal';
 
 export interface MealPlanMeal {
   id: string;
@@ -17,6 +17,8 @@ export interface MealPlanMeal {
   generated: boolean;
   /** Ranked recipes this meal can be swapped to (generated meals only) */
   alternatives: MealOption[];
+  /** Recipes already shown while shuffling this meal */
+  seenRecipeIds: string[];
 }
 
 function rowToMeal(row: MealRow): MealPlanMeal {
@@ -30,6 +32,7 @@ function rowToMeal(row: MealRow): MealPlanMeal {
     recipeId: row.recipe_id,
     generated: row.generated ?? false,
     alternatives: readMealOptions(row.alternatives),
+    seenRecipeIds: row.seen_recipe_ids ?? [],
   };
 }
 
@@ -154,6 +157,7 @@ export class MealPlanRepository {
         sort_order: m.sortOrder,
         generated: true,
         alternatives: m.alternatives,
+        seen_recipe_ids: [],
       })),
     );
 
@@ -161,14 +165,15 @@ export class MealPlanRepository {
   }
 
   /** Swap a generated meal to another recipe; it stays generated. */
-  async swapMeal(mealId: string, option: MealOption, alternatives: MealOption[]): Promise<void> {
+  async swapMeal(mealId: string, swap: MealSwapState): Promise<void> {
     const { error } = await this.supabase
       .from('meals')
       .update({
-        recipe_id: option.recipeId,
-        title: option.title,
-        description: option.description,
-        alternatives,
+        recipe_id: swap.current.recipeId,
+        title: swap.current.title,
+        description: swap.current.description,
+        alternatives: swap.alternatives,
+        seen_recipe_ids: swap.seenRecipeIds,
         updated_at: new Date().toISOString(),
       })
       .eq('id', mealId);

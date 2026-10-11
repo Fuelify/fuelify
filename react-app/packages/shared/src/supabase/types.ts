@@ -117,6 +117,7 @@ export interface Database {
           sort_order: number;
           generated: boolean;
           alternatives: MealOption[];
+          seen_recipe_ids: string[];
           date: string;
           created_at: string;
           updated_at: string;
@@ -132,6 +133,7 @@ export interface Database {
           sort_order?: number;
           generated?: boolean;
           alternatives?: MealOption[];
+          seen_recipe_ids?: string[];
           date: string;
           created_at?: string;
           updated_at?: string;
@@ -146,6 +148,7 @@ export interface Database {
           sort_order?: number;
           generated?: boolean;
           alternatives?: MealOption[];
+          seen_recipe_ids?: string[];
           date?: string;
           updated_at?: string;
         };

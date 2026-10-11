@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   dietAllows,
   generateMealPlan,
+  preferredMealType,
   pantryMatchCount,
   recipeContainsAllergen,
   type PlannerInput,
@@ -145,17 +146,34 @@ describe('generateMealPlan', () => {
   });
 });
 
+describe('preferred meal slots', () => {
+  it('fills each slot mostly with recipes that prefer it', () => {
+    const { meals } = plan();
+    for (const slot of ['breakfast', 'lunch', 'dinner'] as const) {
+      const inSlot = meals.filter((m) => m.mealType === slot);
+      expect(inSlot.filter((m) => preferredMealType(m.recipe) === slot).length).toBeGreaterThanOrEqual(6);
+    }
+  });
+
+  it('lets a breakfast recipe fill lunch or dinner when it fits there', () => {
+    const toast = CATALOG.find((r) => r.id === 'Avocado Toast with Tomatoes')!;
+    expect(preferredMealType(toast)).toBe('breakfast');
+    const { meals } = plan({ dates: [WEEK[0]], slots: ['dinner'], recipes: [toast] });
+    expect(meals[0].recipe.id).toBe(toast.id);
+    // But a breakfast-only recipe never lands at dinner
+    const pancakes = CATALOG.find((r) => r.id === 'Banana Oat Pancakes')!;
+    expect(plan({ dates: [WEEK[0]], slots: ['dinner'], recipes: [pancakes] }).meals).toEqual([]);
+  });
+});
+
 describe('nextMealOption', () => {
   const o = (id: string) => ({ recipeId: id, title: id, description: '' });
-  it('cycles through every option and back to the first', () => {
-    let state = { current: o('a'), alternatives: [o('b'), o('c')] };
-    const seen = [state.current.recipeId];
-    for (let i = 0; i < 3; i++) {
-      state = nextMealOption(state.current, state.alternatives)!;
-      seen.push(state.current.recipeId);
-    }
-    expect(seen).toEqual(['a', 'b', 'c', 'a']);
-    expect(nextMealOption(o('a'), [])).toBeNull();
+  it('steps through the queued options, remembering what was shown, and stops at the last', () => {
+    const second = nextMealOption({ current: o('a'), alternatives: [o('b'), o('c')], seenRecipeIds: [] })!;
+    expect(second).toEqual({ current: o('b'), alternatives: [o('c')], seenRecipeIds: ['a'] });
+    const last = nextMealOption(second)!;
+    expect(last).toEqual({ current: o('c'), alternatives: [], seenRecipeIds: ['a', 'b'] });
+    expect(nextMealOption(last)).toBeNull();
   });
 
   it('reads stored options leniently', () => {

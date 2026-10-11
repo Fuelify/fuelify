@@ -4,8 +4,8 @@
 
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { enabledSlots, readMealPlanConfig } from '../models/meal-plan-config';
-import { isMealType, type MealType } from '../models/meal';
-import { generateMealPlan, type PlannerResult } from '../services/plan-generator';
+import { isMealType, type MealOption, type MealType } from '../models/meal';
+import { generateMealPlan, type PlannerRecipe, type PlannerResult } from '../services/plan-generator';
 import { addDays } from '../utils/dates';
 import type { MealPlanRepository } from '../supabase/meal-plan-repo';
 import type { PantryRepository } from '../supabase/pantry-repo';
@@ -16,6 +16,8 @@ import type { MealPlanStore } from './meal-plan-store';
 export interface PlanGenerationState {
   /** Dates currently being generated, empty when idle */
   generatingDates: string[];
+  /** Meals fetching a fresh batch of options */
+  shufflingMealIds: string[];
   error: string | null;
   /** Summary of the last run, for a confirmation message */
   lastResult: { dates: string[]; added: number; unfilled: PlannerResult['unfilled'] } | null;
@@ -28,6 +30,11 @@ export interface PlanGenerationActions {
    * Resolves true on success; failures are recorded in `error`.
    */
   generate: (dates: string[], householdId?: string | null) => Promise<boolean>;
+  /**
+   * Swap a generated meal to its next option. Instant while saved options
+   * remain; on the last one, plans a fresh batch that skips recipes already shown.
+   */
+  shuffle: (mealId: string, householdId?: string | null) => Promise<void>;
   clearResult: () => void;
 }
 
@@ -56,8 +63,36 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
     return catalog;
   };
 
+  /** Everything the planner needs around `first`..`last`, loaded in parallel. */
+  async function loadContext(first: string, last: string, householdId?: string | null) {
+    const [profile, recipes, classifications, pantryItems, existing] = await Promise.all([
+      deps.profiles.getProfile(userId),
+      loadCatalog(),
+      deps.recipes.getClassifiedRecipes(userId),
+      householdId ? deps.pantry.getItems(householdId) : Promise.resolve([]),
+      deps.meals.getMealPlan(userId, addDays(first, -VARIETY_WINDOW_DAYS), addDays(last, VARIETY_WINDOW_DAYS)),
+    ]);
+    const idsBy = (c: string) => classifications.filter((x) => x.classification === c).map((x) => x.recipeId);
+    return {
+      profile,
+      existing,
+      base: {
+        recipes,
+        diet: profile.diet,
+        allergens: profile.allergens,
+        favorited: idsBy('favorited'),
+        liked: idsBy('liked'),
+        disliked: idsBy('disliked'),
+        pantryNames: pantryItems.filter((i) => i.status !== 'expired').map((i) => i.name),
+      },
+    };
+  }
+
+  const toOption = (r: PlannerRecipe): MealOption => ({ recipeId: r.id, title: r.title, description: r.description });
+
   return createStore<PlanGenerationStore>()((set, get) => ({
     generatingDates: [],
+    shufflingMealIds: [],
     error: null,
     lastResult: null,
 
@@ -68,14 +103,7 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
       const last = sorted[sorted.length - 1];
       set({ generatingDates: sorted, error: null, lastResult: null });
       try {
-        const [profile, recipes, classifications, pantryItems, existing] = await Promise.all([
-          deps.profiles.getProfile(userId),
-          loadCatalog(),
-          deps.recipes.getClassifiedRecipes(userId),
-          householdId ? deps.pantry.getItems(householdId) : Promise.resolve([]),
-          deps.meals.getMealPlan(userId, addDays(first, -VARIETY_WINDOW_DAYS), addDays(last, VARIETY_WINDOW_DAYS)),
-        ]);
-
+        const { profile, existing, base } = await loadContext(first, last, householdId);
         const slots = enabledSlots(readMealPlanConfig(profile));
         if (slots.length === 0) throw new Error('Turn on at least one meal in Profile → Meal plan.');
 
@@ -88,21 +116,8 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
             if (targets.has(date) && !m.generated && isMealType(m.mealType)) (occupied[date] ??= []).push(m.mealType);
           }
         }
-        const idsBy = (c: string) => classifications.filter((x) => x.classification === c).map((x) => x.recipeId);
 
-        const result = generateMealPlan({
-          dates: sorted,
-          slots,
-          recipes,
-          diet: profile.diet,
-          allergens: profile.allergens,
-          favorited: idsBy('favorited'),
-          liked: idsBy('liked'),
-          disliked: idsBy('disliked'),
-          pantryNames: pantryItems.filter((i) => i.status !== 'expired').map((i) => i.name),
-          occupied,
-          recentRecipeIds,
-        });
+        const result = generateMealPlan({ ...base, dates: sorted, slots, occupied, recentRecipeIds });
 
         await deps.meals.deleteGeneratedMeals(userId, sorted);
         await deps.meals.addGeneratedMeals(
@@ -114,7 +129,7 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
             mealType: m.mealType,
             recipeId: m.recipe.id,
             sortOrder: 0,
-            alternatives: m.alternatives.map((a) => ({ recipeId: a.id, title: a.title, description: a.description })),
+            alternatives: m.alternatives.map(toOption),
           })),
         );
         await deps.mealPlanStore.getState().fetchMealPlan(first, last);
@@ -127,6 +142,47 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
       } catch (err) {
         set({ generatingDates: [], error: (err as Error).message });
         return false;
+      }
+    },
+
+    shuffle: async (mealId, householdId) => {
+      const plan = deps.mealPlanStore.getState();
+      const meal = Object.values(plan.meals).flat().find((m) => m.id === mealId);
+      if (!meal || !meal.recipeId || get().shufflingMealIds.includes(mealId)) return;
+
+      // Saved options left: instant
+      if (meal.alternatives.length > 0) {
+        await plan.swapMeal(mealId);
+        return;
+      }
+
+      // On the last option: plan a fresh batch for this slot, skipping what's been shown
+      if (!isMealType(meal.mealType)) return;
+      set((s) => ({ shufflingMealIds: [...s.shufflingMealIds, mealId], error: null }));
+      try {
+        const { existing, base } = await loadContext(meal.date, meal.date, householdId);
+        const nearby = Object.values(existing).flat().map((m) => m.recipeId).filter((id): id is string => !!id);
+        const seen = [...meal.seenRecipeIds, meal.recipeId];
+        const { meals: [fresh] } = generateMealPlan({
+          ...base,
+          dates: [meal.date],
+          slots: [meal.mealType],
+          recentRecipeIds: [...nearby, ...seen],
+          // Never re-offer the meal that's on screen
+          disliked: [...base.disliked, meal.recipeId],
+        });
+        if (!fresh) throw new Error('No other recipes fit this meal yet.');
+        // Once every option has been seen, start the history over
+        const exhausted = seen.includes(fresh.recipe.id);
+        await deps.mealPlanStore.getState().applySwap(mealId, {
+          current: toOption(fresh.recipe),
+          alternatives: fresh.alternatives.map(toOption),
+          seenRecipeIds: exhausted ? [meal.recipeId] : seen,
+        });
+      } catch (err) {
+        set({ error: (err as Error).message });
+      } finally {
+        set((s) => ({ shufflingMealIds: s.shufflingMealIds.filter((id) => id !== mealId) }));
       }
     },
 
