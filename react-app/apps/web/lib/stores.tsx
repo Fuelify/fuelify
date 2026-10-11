@@ -13,6 +13,7 @@ import {
   type NavigationStore,
   type UserStores,
 } from '@fuelify/shared';
+import { createWebGroceryApi } from './grocery-api';
 
 // ===================================================================
 // Single Supabase client — handles auth + all data.
@@ -23,6 +24,7 @@ import {
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder';
 const supabase = createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const groceryApi = createWebGroceryApi(supabase);
 
 // Login gate toggle — "true" skips login; an anonymous Supabase session
 // is created instead so RLS-protected data still works.
@@ -51,7 +53,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const userId = useStore(auth, (s) => s.userId);
 
   // Rebuild every per-user store when the signed-in user changes
-  const userStores = useMemo(() => (userId ? createUserStores(supabase, userId) : null), [userId]);
+  const userStores = useMemo(() => (userId ? createUserStores(supabase, userId, { groceryApi }) : null), [userId]);
 
   useEffect(() => {
     auth.getState().initialize();
@@ -90,6 +92,7 @@ export const useShoppingCartStore = storeHook(UserStoresContext, (s) => s.shoppi
 export const usePantryStore = storeHook(UserStoresContext, (s) => s.pantryStore, NO_USER);
 export const useMealSuggestionStore = storeHook(UserStoresContext, (s) => s.mealSuggestionStore, NO_USER);
 export const usePlanGenerationStore = storeHook(UserStoresContext, (s) => s.planGenerationStore, NO_USER);
+export const useGroceryStore = storeHook(UserStoresContext, (s) => s.groceryStore, NO_USER);
 
 /** True once a user is signed in and the per-user stores exist. */
 export function useDataStoresReady(): boolean {

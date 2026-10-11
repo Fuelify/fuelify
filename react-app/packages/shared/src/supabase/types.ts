@@ -30,6 +30,7 @@ export interface Database {
           onboarded: boolean;
           onboarding_step: number;
           meal_plan_config: Record<string, unknown>;
+          grocery_config: Record<string, unknown>;
           created_at: string;
           updated_at: string;
         };
@@ -56,6 +57,7 @@ export interface Database {
           onboarded?: boolean;
           onboarding_step?: number;
           meal_plan_config?: Record<string, unknown>;
+          grocery_config?: Record<string, unknown>;
         };
         Update: {
           first_name?: string | null;
@@ -79,6 +81,7 @@ export interface Database {
           onboarded?: boolean;
           onboarding_step?: number;
           meal_plan_config?: Record<string, unknown>;
+          grocery_config?: Record<string, unknown>;
         };
         Relationships: [];
       };

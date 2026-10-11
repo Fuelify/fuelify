@@ -192,3 +192,21 @@ eas submit --platform android
    └─────────┘   │  (Mindee) │   │ (Claude)  │
                  └───────────┘   └───────────┘
 ```
+
+## Grocery store connections (Premium)
+
+Store APIs are called only from the server routes in `apps/web/app/api/grocery/*`.
+Add these in Vercel → Project → Settings → Environment Variables (Production), then
+redeploy. A store with no keys shows "Not set up yet" in Profile → Grocery stores.
+
+| Store | Sign up | Variables |
+| --- | --- | --- |
+| Kroger (and Kroger-family stores) | https://developer.kroger.com — create an app with the `product.compact` scope | `KROGER_CLIENT_ID`, `KROGER_CLIENT_SECRET` |
+| Walmart | https://walmart.io — Affiliate (product) API; upload an RSA public key | `WALMART_CONSUMER_ID`, `WALMART_PRIVATE_KEY` (PEM; `\n` escapes are fine), `WALMART_KEY_VERSION` (default `1`), optional `WALMART_PUBLISHER_ID` |
+| Instacart (Publix and others) | https://www.instacart.com/company/business/developers — Developer Platform API key | `INSTACART_API_KEY`, optional `INSTACART_API_BASE` (`https://connect.dev.instacart.tools` for development keys) |
+
+What each does today:
+- **Kroger** — product search with local prices and promos at the store nearest the
+  user's ZIP. Adding to a customer's Kroger cart needs Kroger sign-in (OAuth, `cart.basic:write`), not built yet.
+- **Walmart** — product search with prices; "Open Walmart cart" uses Walmart's add-to-cart link.
+- **Instacart** — no price search; sends the list to Instacart, where the user picks the store (e.g. Publix).
