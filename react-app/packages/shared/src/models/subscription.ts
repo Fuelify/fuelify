@@ -37,8 +37,13 @@ export const PREMIUM_FEATURES: readonly PremiumFeature[] = [
   },
   {
     id: 'auto-shopping-list',
-    title: 'One-tap shopping list',
-    body: "Everything the week's plan needs that isn't in your pantry goes straight into the household cart.",
+    title: 'Shopping list built from your meal plan',
+    body: "Everything the week's plan needs that isn't already in your pantry goes straight into the household cart, combined and grouped by aisle.",
+  },
+  {
+    id: 'store-optimizer',
+    title: 'Smart store picks',
+    body: 'Fuelify works out which stores to buy each item from, based on your shopping preferences: your weekly budget, how price-sensitive you are and whether you hunt for deals.',
   },
   {
     id: 'unlimited-ideas',
