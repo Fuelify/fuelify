@@ -35,6 +35,16 @@ export interface PlanGenerationActions {
    * remain; on the last one, plans a fresh batch that skips recipes already shown.
    */
   shuffle: (mealId: string, householdId?: string | null) => Promise<void>;
+  /**
+   * Personalised picks for one meal (best first), without saving anything.
+   * Same rules as generation: diet, allergens, dislikes, favourites, pantry,
+   * and recipes already planned nearby go last, as do `skip` (e.g. picks already shown).
+   */
+  suggest: (
+    date: string,
+    mealType: MealType,
+    options?: { householdId?: string | null; count?: number; skip?: string[] },
+  ) => Promise<PlannerRecipe[]>;
   /** Remove generated meals on `dates` (meals the user added stay). Resolves true on success. */
   clearGenerated: (dates: string[]) => Promise<boolean>;
   clearResult: () => void;
@@ -185,6 +195,25 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
         set({ error: (err as Error).message });
       } finally {
         set((s) => ({ shufflingMealIds: s.shufflingMealIds.filter((id) => id !== mealId) }));
+      }
+    },
+
+    suggest: async (date, mealType, { householdId, count = 8, skip = [] } = {}) => {
+      set({ error: null });
+      try {
+        const { existing, base } = await loadContext(date, date, householdId);
+        const nearby = Object.values(existing).flat().map((m) => m.recipeId).filter((id): id is string => !!id);
+        const { meals: [pick] } = generateMealPlan({
+          ...base,
+          dates: [date],
+          slots: [mealType],
+          recentRecipeIds: [...nearby, ...skip],
+          alternatives: count - 1,
+        });
+        return pick ? [pick.recipe, ...pick.alternatives] : [];
+      } catch (err) {
+        set({ error: (err as Error).message });
+        return [];
       }
     },
 

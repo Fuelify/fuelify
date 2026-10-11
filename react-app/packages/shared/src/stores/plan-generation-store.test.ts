@@ -63,6 +63,15 @@ describe('plan generation store', () => {
     expect(store.getState().lastResult).toMatchObject({ cleared: 1 });
   });
 
+  it('suggests ranked recipes for one meal without saving anything', async () => {
+    const { store, meals } = setup();
+    const picks = await store.getState().suggest('2026-10-12', 'dinner', { count: 3 });
+    // d1 is already planned that day, so d2 leads
+    expect(picks.map((r) => r.id)).toEqual(['d2', 'd1']);
+    expect(meals.addGeneratedMeals).not.toHaveBeenCalled();
+    expect(meals.deleteGeneratedMeals).not.toHaveBeenCalled();
+  });
+
   it('explains when every meal is switched off', async () => {
     const { store, meals } = setup({ breakfast: false, lunch: false, dinner: false, snack: false });
     expect(await store.getState().generate(['2026-10-12'])).toBe(false);

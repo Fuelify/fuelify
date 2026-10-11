@@ -48,3 +48,38 @@ export function savedRecipes(
 export function totalTimeMinutes(recipe: Pick<Recipe, 'prepTimeMinutes' | 'cookTimeMinutes'>): number {
   return (recipe.prepTimeMinutes ?? 0) + (recipe.cookTimeMinutes ?? 0);
 }
+
+/**
+ * Catalog search for adding a meal. Every word must appear in the title,
+ * description, cuisine, diet or ingredients. With `mealType`, only recipes that
+ * fit that slot are returned. Title matches rank first, then recipes that fit
+ * `diet`, then recipes whose preferred slot is `mealType`, then catalog order.
+ */
+export function filterRecipes(
+  recipes: Recipe[],
+  query: string,
+  options: { mealType?: string; diet?: string | null } = {},
+): Recipe[] {
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const { mealType, diet } = options;
+  return recipes
+    .filter((r) => !mealType || r.mealTypes.includes(mealType))
+    .map((r, i) => {
+      const title = r.title.toLowerCase();
+      const haystack = [title, r.description, r.cuisine ?? '', r.dietType ?? '', ...r.ingredients].join('\n').toLowerCase();
+      return {
+        r,
+        i,
+        match: words.every((w) => haystack.includes(w)),
+        inTitle: words.length > 0 && words.every((w) => title.includes(w)),
+        preferred: !!mealType && r.mealTypes[0] === mealType,
+        fitsDiet: isCompatibleWithDiet(r, diet),
+      };
+    })
+    .filter((x) => x.match)
+    .sort(
+      (a, b) =>
+        Number(b.inTitle) - Number(a.inTitle) || Number(b.fitsDiet) - Number(a.fitsDiet) || Number(b.preferred) - Number(a.preferred) || a.i - b.i,
+    )
+    .map((x) => x.r);
+}
