@@ -58,3 +58,35 @@ export function sortByMealType<T extends { mealType: string; sortOrder?: number 
   };
   return [...meals].sort((a, b) => rank(a.mealType) - rank(b.mealType) || (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 }
+
+// ---------------------------------------------------------------------------
+// Swappable options for generated meals
+// ---------------------------------------------------------------------------
+
+/** A recipe a generated meal can be swapped to (stored in meals.alternatives). */
+export interface MealOption {
+  recipeId: string;
+  title: string;
+  description: string;
+}
+
+/**
+ * Swap to the next option. The current recipe goes to the back of the list,
+ * so repeated swaps cycle through every option and return to the first.
+ */
+export function nextMealOption(
+  current: MealOption,
+  alternatives: MealOption[],
+): { current: MealOption; alternatives: MealOption[] } | null {
+  if (alternatives.length === 0) return null;
+  const [next, ...rest] = alternatives;
+  return { current: next, alternatives: [...rest, current] };
+}
+
+/** Lenient read of meals.alternatives (JSONB). */
+export function readMealOptions(raw: unknown): MealOption[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (o): o is MealOption => typeof o === 'object' && o !== null && typeof o.recipeId === 'string' && typeof o.title === 'string',
+  ).map((o) => ({ recipeId: o.recipeId, title: o.title, description: typeof o.description === 'string' ? o.description : '' }));
+}

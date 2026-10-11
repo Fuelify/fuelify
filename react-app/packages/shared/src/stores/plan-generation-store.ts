@@ -114,6 +114,7 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
             mealType: m.mealType,
             recipeId: m.recipe.id,
             sortOrder: 0,
+            alternatives: m.alternatives.map((a) => ({ recipeId: a.id, title: a.title, description: a.description })),
           })),
         );
         await deps.mealPlanStore.getState().fetchMealPlan(first, last);

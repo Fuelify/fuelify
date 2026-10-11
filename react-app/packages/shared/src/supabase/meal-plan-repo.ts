@@ -3,6 +3,7 @@
 
 import type { TypedSupabaseClient } from './client';
 import type { MealRow } from './types';
+import { readMealOptions, type MealOption } from '../models/meal';
 
 export interface MealPlanMeal {
   id: string;
@@ -14,6 +15,8 @@ export interface MealPlanMeal {
   recipeId: string | null;
   /** Created by the meal plan generator (replaced on regenerate) */
   generated: boolean;
+  /** Ranked recipes this meal can be swapped to (generated meals only) */
+  alternatives: MealOption[];
 }
 
 function rowToMeal(row: MealRow): MealPlanMeal {
@@ -26,6 +29,7 @@ function rowToMeal(row: MealRow): MealPlanMeal {
     date: row.date,
     recipeId: row.recipe_id,
     generated: row.generated ?? false,
+    alternatives: readMealOptions(row.alternatives),
   };
 }
 
@@ -126,6 +130,7 @@ export class MealPlanRepository {
     mealType: string;
     recipeId: string;
     sortOrder: number;
+    alternatives: MealOption[];
   }[]): Promise<void> {
     if (meals.length === 0) return;
     const dates = [...new Set(meals.map((m) => m.date))];
@@ -148,10 +153,27 @@ export class MealPlanRepository {
         recipe_id: m.recipeId,
         sort_order: m.sortOrder,
         generated: true,
+        alternatives: m.alternatives,
       })),
     );
 
     if (error) throw new Error(`Failed to add generated meals: ${error.message}`);
+  }
+
+  /** Swap a generated meal to another recipe; it stays generated. */
+  async swapMeal(mealId: string, option: MealOption, alternatives: MealOption[]): Promise<void> {
+    const { error } = await this.supabase
+      .from('meals')
+      .update({
+        recipe_id: option.recipeId,
+        title: option.title,
+        description: option.description,
+        alternatives,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', mealId);
+
+    if (error) throw new Error(`Failed to swap meal: ${error.message}`);
   }
 
   /** Update an existing meal. Edited meals count as the user's own, so regenerating keeps them. */

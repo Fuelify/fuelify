@@ -8,7 +8,7 @@ const recipe = (id: string, mealTypes: string[]) => ({
   servings: null, cuisine: null, dietType: 'Omnivore', calories: null, mealTypes, createdBy: null,
 });
 const meal = (id: string, mealType: string, generated: boolean, recipeId: string | null = null): MealPlanMeal => ({
-  id, title: id, description: '', mealType, sortOrder: 0, date: '2026-10-12', recipeId, generated,
+  id, title: id, description: '', mealType, sortOrder: 0, date: '2026-10-12', recipeId, generated, alternatives: [],
 });
 
 function setup(slots: Record<string, boolean> = { breakfast: true, lunch: true, dinner: true, snack: false }) {
@@ -47,10 +47,45 @@ describe('plan generation store', () => {
     expect(store.getState().generatingDates).toEqual([]);
   });
 
+  it('saves the other dinner as a swap option', async () => {
+    const { store, meals } = setup();
+    await store.getState().generate(['2026-10-12']);
+    const added = (meals.addGeneratedMeals.mock.calls[0] as unknown as [string, { mealType: string; alternatives: { recipeId: string }[] }[]])[1];
+    expect(added.find((m) => m.mealType === 'dinner')?.alternatives.map((a) => a.recipeId)).toEqual(['d1']);
+  });
+
   it('explains when every meal is switched off', async () => {
     const { store, meals } = setup({ breakfast: false, lunch: false, dinner: false, snack: false });
     expect(await store.getState().generate(['2026-10-12'])).toBe(false);
     expect(store.getState().error).toMatch(/Turn on at least one meal/);
     expect(meals.deleteGeneratedMeals).not.toHaveBeenCalled();
+  });
+});
+
+describe('swapping a meal', () => {
+  const opt = (id: string) => ({ recipeId: id, title: id, description: '' });
+  const generatedMeal = { ...meal('m1', 'dinner', true, 'a'), title: 'a', alternatives: [opt('b'), opt('c')] };
+
+  async function loaded(swapMeal: () => Promise<void>) {
+    const repo = { getDayMealPlan: vi.fn(async () => [generatedMeal]), swapMeal: vi.fn(swapMeal) };
+    const store = createMealPlanStore(repo as unknown as MealPlanRepository, 'u1');
+    await store.getState().fetchDayMealPlan('2026-10-12');
+    return { store, repo };
+  }
+
+  it('shows the next option immediately and saves it', async () => {
+    const { store, repo } = await loaded(async () => undefined);
+    await store.getState().swapMeal('m1');
+    const m = store.getState().meals['2026-10-12'][0];
+    expect([m.recipeId, m.title]).toEqual(['b', 'b']);
+    expect(m.alternatives.map((a) => a.recipeId)).toEqual(['c', 'a']);
+    expect(repo.swapMeal).toHaveBeenCalledWith('m1', opt('b'), [opt('c'), opt('a')]);
+  });
+
+  it('puts the meal back if saving fails', async () => {
+    const { store } = await loaded(async () => { throw new Error('offline'); });
+    await store.getState().swapMeal('m1');
+    expect(store.getState().meals['2026-10-12'][0].recipeId).toBe('a');
+    expect(store.getState().error).toBe('offline');
   });
 });

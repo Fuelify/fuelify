@@ -14,8 +14,9 @@ import {
   weekDays,
 } from '@fuelify/shared';
 import { useMealPlanStore } from '@/lib/stores';
-import { FoodTile, Icon, PageHeader } from '@/components/ui';
+import { Icon, PageHeader } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
+import { PlannedMealCard } from '@/features/meals/PlannedMealCard';
 import { UpgradeBanner } from '@/features/premium/UpgradeBanner';
 import { useMealPlanGenerator } from '@/features/meal-plan/useMealPlanGenerator';
 
@@ -187,19 +188,7 @@ export default function PlanPage() {
                     Nothing planned for {t.label.toLowerCase()}
                   </button>
                 ) : (
-                  list.map((m) => (
-                    <button key={m.id} className="card card-button row" style={{ gap: 12 }} onClick={() => setSheet({ meal: m })}>
-                      <FoodTile title={m.title} size={48} />
-                      <div className="grow">
-                        <div className="row" style={{ gap: 6 }}>
-                          <span className="truncate" style={{ fontWeight: 700 }}>{m.title}</span>
-                          {m.generated && <span className="badge badge-tertiary" style={{ flexShrink: 0 }}>Auto</span>}
-                        </div>
-                        {m.description && <div className="small muted truncate">{m.description}</div>}
-                      </div>
-                      <span className="faint"><Icon name="chevronRight" size={18} /></span>
-                    </button>
-                  ))
+                  list.map((m) => <PlannedMealCard key={m.id} meal={m} onOpen={() => setSheet({ meal: m })} />)
                 )}
               </section>
             );
