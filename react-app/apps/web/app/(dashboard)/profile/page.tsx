@@ -7,6 +7,7 @@ import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGo
 import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
 import { Icon, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
+import { MealPlanSettings } from '@/features/meal-plan/MealPlanSettings';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
 // onboarding answers, units, household and account actions.
@@ -120,6 +121,13 @@ export default function ProfilePage() {
               onChange={(v) => setUnits(v)}
             />
           </div>
+
+          {/* Meal plan generator */}
+          <div className="section-title">
+            <span>Meal plan</span>
+            {!plan.premium && plan.plan && <span className="badge badge-premium" style={{ textTransform: 'none', letterSpacing: 0 }}>Premium</span>}
+          </div>
+          <MealPlanSettings />
 
           {/* Onboarding answers */}
           <div className="section-title">

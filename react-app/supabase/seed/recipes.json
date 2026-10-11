@@ -25,6 +25,10 @@
       "Grill or pan-sear chicken 6–7 minutes per side, then rest and slice.",
       "Dice cucumber, tomatoes and onion.",
       "Build bowls with rice, chicken and vegetables; top with tzatziki."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -52,6 +56,10 @@
       "Sear salmon skin-side down 4 minutes, flip, brush with glaze and cook 3 more minutes.",
       "Stir-fry bok choy with garlic for 3 minutes.",
       "Serve salmon over rice with greens; garnish with sesame and spring onion."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -79,6 +87,10 @@
       "Add tomatoes, coconut milk and chickpeas; simmer 15 minutes.",
       "Stir in spinach until wilted.",
       "Season and serve with rice or naan."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -104,6 +116,10 @@
       "Separate lettuce leaves into cups.",
       "Fill with turkey, pico de gallo, avocado and cheese.",
       "Finish with a squeeze of lime."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -130,6 +146,9 @@
       "Chop cucumber, tomatoes, olives and parsley.",
       "Whisk lemon juice with olive oil, salt and pepper.",
       "Toss everything together and top with feta."
+    ],
+    "meal_types": [
+      "lunch"
     ]
   },
   {
@@ -153,6 +172,9 @@
       "Stir oats, milk, yogurt, chia and maple syrup together in a jar.",
       "Refrigerate overnight.",
       "Top with berries in the morning."
+    ],
+    "meal_types": [
+      "breakfast"
     ]
   },
   {
@@ -180,6 +202,10 @@
       "Stir-fry broccoli 3 minutes with garlic and ginger.",
       "Return beef, add remaining soy and oyster sauce, toss 1 minute.",
       "Serve over rice."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -206,6 +232,10 @@
       "Warm black beans with a pinch of cumin.",
       "Warm tortillas.",
       "Fill with sweet potato, beans, avocado and cilantro; add lime."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -232,6 +262,10 @@
       "Add shrimp and cook 2 minutes per side.",
       "Add zucchini noodles and lemon juice; toss 2 minutes.",
       "Finish with parsley and parmesan."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -259,6 +293,9 @@
       "Add garlic and tomato paste for 1 minute.",
       "Add lentils, tomatoes, seasoning and 2 cups water; simmer 30 minutes.",
       "Cook pasta and toss with the sauce."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -283,6 +320,9 @@
       "Add spinach until wilted.",
       "Pour in whisked eggs and stir gently until just set.",
       "Top with feta and serve with toast."
+    ],
+    "meal_types": [
+      "breakfast"
     ]
   },
   {
@@ -308,6 +348,9 @@
       "Toss halved potatoes with oil, salt and rosemary; roast 15 minutes.",
       "Add chicken rubbed with garlic, lemon zest and oil; roast 20 minutes.",
       "Add green beans and lemon slices; roast 10 more minutes."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -335,6 +378,10 @@
       "Whisk tamari, lime juice and sugar.",
       "Toss noodles with sauce, tofu and sprouts over high heat for 2 minutes.",
       "Top with spring onions and crushed peanuts."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -361,6 +408,10 @@
       "Cube tuna and toss with soy sauce and sesame oil.",
       "Slice avocado and cucumber.",
       "Assemble bowls with rice, tuna, edamame, avocado and cucumber; garnish with ginger and nori."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -385,6 +436,10 @@
       "Fill with halved tomatoes and mozzarella.",
       "Roast 15 minutes.",
       "Top with basil and balsamic glaze."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -410,6 +465,9 @@
       "Spread hummus down the center.",
       "Layer julienned vegetables, avocado and sprouts.",
       "Roll tightly like a burrito and slice in half."
+    ],
+    "meal_types": [
+      "lunch"
     ]
   },
   {
@@ -436,6 +494,10 @@
       "Toss chicken, sliced peppers and onion with oil and seasoning on a sheet pan.",
       "Roast 20–25 minutes until the chicken is cooked through.",
       "Squeeze lime over the pan and serve in warm tortillas with sour cream and salsa."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -462,6 +524,9 @@
       "Brown meatballs in an oiled skillet, about 6 minutes.",
       "Add marinara, cover and simmer 15 minutes.",
       "Top with basil; serve over pasta or with crusty bread."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -490,6 +555,10 @@
       "Brown beef with garlic and ginger.",
       "Stir in soy sauce, sugar and sesame oil; simmer 2 minutes.",
       "Serve over rice with cucumbers and spring onions."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -517,6 +586,9 @@
       "Sear chicken until charred; set aside.",
       "Soften onion and garlic, add remaining paste and tomatoes; simmer 10 minutes.",
       "Stir in cream and chicken; simmer 8 minutes. Serve with rice and cilantro."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -544,6 +616,9 @@
       "Braise with orange and lime juice, onion and garlic, covered, at 325°F for 2 hours.",
       "Shred, then crisp under the broiler for 5 minutes.",
       "Serve over rice and beans with pico de gallo."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -567,6 +642,9 @@
       "Season and grill chicken 6 minutes per side; slice.",
       "Toss chopped romaine with dressing, parmesan and a squeeze of lemon.",
       "Fill tortillas with salad and chicken; roll tightly and halve."
+    ],
+    "meal_types": [
+      "lunch"
     ]
   },
   {
@@ -594,6 +672,9 @@
       "Add zucchini, spices, tomatoes and beans with 1 cup water.",
       "Simmer 30 minutes, stirring occasionally.",
       "Top with cheddar and sour cream."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -618,6 +699,10 @@
       "Brown chicken in olive oil; add garlic for 30 seconds.",
       "Add orzo and broth; simmer, stirring, 10–12 minutes.",
       "Stir in spinach, lemon zest and juice, and parmesan."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -642,6 +727,9 @@
       "Brown sausage, then scramble in the eggs.",
       "Fill tortillas with potatoes, eggs, sausage and cheese; roll.",
       "Serve with salsa, or wrap and freeze for busy mornings."
+    ],
+    "meal_types": [
+      "breakfast"
     ]
   },
   {
@@ -669,6 +757,10 @@
       "Add chicken and cook until browned.",
       "Add sauces and sugar; toss in basil until wilted.",
       "Serve over rice, topped with a fried egg if you like."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -694,6 +786,10 @@
       "Arrange cod and asparagus on a sheet pan.",
       "Brush with butter mixed with garlic, lemon zest and parsley.",
       "Bake 12–15 minutes; finish with lemon juice."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -719,6 +815,10 @@
       "Toss cabbage with yogurt, lime juice and salt.",
       "Season fish with spices and sear 3 minutes per side; flake.",
       "Warm tortillas and fill with fish and slaw; top with cilantro."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -744,6 +844,10 @@
       "Melt butter, add garlic and pepper flakes.",
       "Cook shrimp 2 minutes per side; finish with lemon.",
       "Serve over rice with green beans."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -768,6 +872,9 @@
       "Drain tuna and beans.",
       "Combine with chopped olives, onion, tomatoes and parsley.",
       "Dress with lemon juice and a drizzle of the tuna oil; season."
+    ],
+    "meal_types": [
+      "lunch"
     ]
   },
   {
@@ -792,6 +899,10 @@
       "Whisk miso, honey, vinegar and soy sauce.",
       "Brush over salmon; broil 8–10 minutes until caramelized.",
       "Roast broccoli at 425°F for 15 minutes; sprinkle with sesame."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -818,6 +929,10 @@
       "Sear shrimp with garlic; push aside and scramble eggs.",
       "Add broccoli and noodles with sauces and sugar.",
       "Toss over high heat 2–3 minutes until glossy."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -844,6 +959,9 @@
       "Toast bagels.",
       "Spread cream cheese and layer salmon, cucumber, onion and capers.",
       "Finish with lemon and black pepper."
+    ],
+    "meal_types": [
+      "breakfast"
     ]
   },
   {
@@ -869,6 +987,9 @@
       "Mix ricotta, spinach, egg and half the cheeses.",
       "Fill shells and arrange over marinara in a baking dish.",
       "Top with remaining cheese; bake at 375°F for 25 minutes."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -894,6 +1015,10 @@
       "Stir-fry garlic and vegetables 2 minutes.",
       "Add rice and soy sauce; fry until hot and slightly crisp.",
       "Fold in eggs, spring onions and sesame oil."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -921,6 +1046,10 @@
       "Add tomatoes and simmer 10 minutes.",
       "Make wells and crack in eggs; cover and cook 6–8 minutes.",
       "Crumble feta on top; serve with bread."
+    ],
+    "meal_types": [
+      "breakfast",
+      "dinner"
     ]
   },
   {
@@ -945,6 +1074,10 @@
       "Spread sauce over flatbreads; top with mozzarella and halved tomatoes.",
       "Bake 10–12 minutes until bubbling.",
       "Finish with basil and olive oil."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -966,6 +1099,10 @@
     "steps": [
       "Layer yogurt, berries and granola in a glass.",
       "Drizzle with honey and sprinkle with chia."
+    ],
+    "meal_types": [
+      "breakfast",
+      "snack"
     ]
   },
   {
@@ -991,6 +1128,10 @@
       "Fill tortillas with beans and cheese; fold.",
       "Cook in a dry skillet 3 minutes per side until golden.",
       "Cut into wedges; serve with salsa and guacamole."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1017,6 +1158,9 @@
       "Soften shallot, add rice and toast 1 minute; add wine.",
       "Add broth a ladle at a time, stirring, for about 20 minutes.",
       "Stir in mushrooms, butter, parmesan and thyme."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -1040,6 +1184,9 @@
       "Cook pasta, rinse under cold water and drain.",
       "Toss with tomatoes, mozzarella, basil and olive oil.",
       "Season and drizzle with balsamic glaze."
+    ],
+    "meal_types": [
+      "lunch"
     ]
   },
   {
@@ -1066,6 +1213,10 @@
       "Cook quinoa.",
       "Massage kale with a little lemon and salt.",
       "Whisk tahini, lemon and water; assemble bowls and drizzle."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1093,6 +1244,10 @@
       "Sauté onion, garlic and ginger; add to lentils with coconut milk.",
       "Sizzle cumin seeds in oil and pour over the dal.",
       "Top with cilantro; serve with rice."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1120,6 +1275,10 @@
       "Whisk peanut butter, soy sauce, lime, maple and warm water.",
       "Stir-fry sliced vegetables 3 minutes.",
       "Toss with noodles and sauce; top with peanuts."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1144,6 +1303,9 @@
       "Sauté onion and pepper until soft.",
       "Crumble in tofu with turmeric and nutritional yeast.",
       "Cook 5 minutes, then fold in spinach until wilted."
+    ],
+    "meal_types": [
+      "breakfast"
     ]
   },
   {
@@ -1171,6 +1333,10 @@
       "Add zucchini, tomatoes, beans and broth; simmer 15 minutes.",
       "Add pasta and cook until tender.",
       "Stir in spinach; season."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1196,6 +1362,9 @@
       "Mash chickpeas with a fork.",
       "Mix in diced celery and onion, mayo, Dijon and lemon.",
       "Build sandwiches with lettuce and tomato."
+    ],
+    "meal_types": [
+      "lunch"
     ]
   },
   {
@@ -1221,6 +1390,9 @@
       "Mix rice, beans, corn, salsa and cumin.",
       "Fill peppers, cover with foil and bake 30 minutes.",
       "Top with sliced avocado."
+    ],
+    "meal_types": [
+      "dinner"
     ]
   },
   {
@@ -1243,6 +1415,10 @@
       "Whisk chia, coconut milk, maple and vanilla.",
       "Refrigerate at least 4 hours or overnight.",
       "Top with diced mango."
+    ],
+    "meal_types": [
+      "breakfast",
+      "snack"
     ]
   },
   {
@@ -1267,6 +1443,10 @@
       "Blend basil, walnuts, garlic, olive oil and lemon into a pesto.",
       "Toss zucchini noodles with pesto.",
       "Top with halved tomatoes and season."
+    ],
+    "meal_types": [
+      "lunch",
+      "dinner"
     ]
   },
   {
@@ -1293,6 +1473,9 @@
       "Julienne mango, pepper and carrot.",
       "Whisk lime juice, maple and minced chili.",
       "Toss with cabbage and cilantro; top with cashews."
+    ],
+    "meal_types": [
+      "lunch"
     ]
   },
   {
@@ -1315,6 +1498,9 @@
     "steps": [
       "Blend banana, mango, spinach, almond milk and almond butter until thick.",
       "Pour into a bowl and add toppings."
+    ],
+    "meal_types": [
+      "breakfast"
     ]
   },
   {
@@ -1338,6 +1524,416 @@
       "Pulse almonds in a food processor until coarse.",
       "Add dates, cacao, chia, almond butter and salt; blend until sticky.",
       "Roll into 12 balls and chill 30 minutes."
+    ],
+    "meal_types": [
+      "snack"
+    ]
+  },
+  {
+    "title": "Avocado Toast with Tomatoes",
+    "description": "Smashed avocado on toasted sourdough with cherry tomatoes and chili flakes.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 340,
+    "prep_time_minutes": 8,
+    "cook_time_minutes": 4,
+    "servings": 2,
+    "ingredients": [
+      "2 slices sourdough bread",
+      "1 ripe avocado",
+      "1 cup cherry tomatoes",
+      "1/2 lemon",
+      "Chili flakes",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Toast the bread.",
+      "Mash avocado with lemon juice, salt and pepper.",
+      "Spread on toast and top with halved tomatoes and chili flakes."
+    ],
+    "meal_types": [
+      "breakfast"
+    ]
+  },
+  {
+    "title": "Banana Oat Pancakes",
+    "description": "Fluffy dairy-free pancakes made from oats and ripe banana.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 380,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 15,
+    "servings": 2,
+    "ingredients": [
+      "1 cup rolled oats",
+      "2 ripe bananas",
+      "3/4 cup oat milk",
+      "1 tsp baking powder",
+      "1/2 tsp cinnamon",
+      "Maple syrup to serve"
+    ],
+    "steps": [
+      "Blend oats, bananas, oat milk, baking powder and cinnamon until smooth.",
+      "Rest the batter 5 minutes.",
+      "Cook 1/4-cup portions in a lightly oiled pan, 2 minutes per side.",
+      "Serve with maple syrup."
+    ],
+    "meal_types": [
+      "breakfast"
+    ]
+  },
+  {
+    "title": "Sweet Potato Breakfast Hash",
+    "description": "Crispy sweet potato with peppers, onion and black beans.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 410,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 20,
+    "servings": 2,
+    "ingredients": [
+      "1 large sweet potato",
+      "1 bell pepper",
+      "1/2 red onion",
+      "1 can black beans",
+      "1 tsp smoked paprika",
+      "Olive oil, salt, pepper"
+    ],
+    "steps": [
+      "Dice sweet potato, pepper and onion.",
+      "Cook sweet potato in olive oil for 10 minutes until golden.",
+      "Add pepper, onion and paprika; cook 6 minutes.",
+      "Stir in rinsed beans until warm and season."
+    ],
+    "meal_types": [
+      "breakfast",
+      "lunch"
+    ]
+  },
+  {
+    "title": "Spinach Feta Omelette",
+    "description": "A quick three-egg omelette folded around wilted spinach and feta.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Vegetarian",
+    "calories": 360,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 8,
+    "servings": 1,
+    "ingredients": [
+      "3 eggs",
+      "1 cup baby spinach",
+      "1/4 cup crumbled feta",
+      "1 tsp butter",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Whisk eggs with salt and pepper.",
+      "Wilt spinach in butter, then pour in eggs.",
+      "Cook until nearly set, add feta and fold."
+    ],
+    "meal_types": [
+      "breakfast"
+    ]
+  },
+  {
+    "title": "Veggie Egg Muffins",
+    "description": "Make-ahead egg cups loaded with peppers, spinach and cheese.",
+    "cuisine": "American",
+    "diet_type": "Vegetarian",
+    "calories": 280,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 20,
+    "servings": 6,
+    "ingredients": [
+      "8 eggs",
+      "1 bell pepper",
+      "1 cup spinach",
+      "1/2 cup shredded cheddar",
+      "1/4 cup milk",
+      "Salt and pepper"
+    ],
+    "steps": [
+      "Heat oven to 375°F and grease a muffin tin.",
+      "Whisk eggs, milk, salt and pepper.",
+      "Divide chopped vegetables and cheese between cups and pour over the egg.",
+      "Bake 18–20 minutes until set."
+    ],
+    "meal_types": [
+      "breakfast",
+      "snack"
+    ]
+  },
+  {
+    "title": "Turkey Sausage Breakfast Skillet",
+    "description": "Turkey sausage, potatoes and peppers topped with fried eggs.",
+    "cuisine": "American",
+    "diet_type": "Omnivore",
+    "calories": 480,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 25,
+    "servings": 4,
+    "ingredients": [
+      "12 oz turkey sausage",
+      "1 lb baby potatoes",
+      "1 bell pepper",
+      "1/2 onion",
+      "4 eggs",
+      "Olive oil, salt, pepper"
+    ],
+    "steps": [
+      "Quarter potatoes and cook in olive oil for 12 minutes.",
+      "Add crumbled sausage, pepper and onion; cook through.",
+      "Make four wells and crack in the eggs.",
+      "Cover and cook until eggs are set."
+    ],
+    "meal_types": [
+      "breakfast"
+    ]
+  },
+  {
+    "title": "Salmon & Avocado Rice Cakes",
+    "description": "Crisp rice cakes topped with smoked salmon, avocado and dill.",
+    "cuisine": "Scandinavian",
+    "diet_type": "Pescatarian",
+    "calories": 320,
+    "prep_time_minutes": 8,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "4 rice cakes",
+      "4 oz smoked salmon",
+      "1 avocado",
+      "Fresh dill",
+      "1/2 lemon",
+      "Black pepper"
+    ],
+    "steps": [
+      "Mash avocado with lemon juice.",
+      "Spread on rice cakes.",
+      "Top with smoked salmon, dill and black pepper."
+    ],
+    "meal_types": [
+      "breakfast",
+      "snack"
+    ]
+  },
+  {
+    "title": "Raw Buckwheat Porridge",
+    "description": "Soaked buckwheat blended with banana and topped with fresh fruit.",
+    "cuisine": "Raw",
+    "diet_type": "Raw",
+    "calories": 330,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "1 cup raw buckwheat groats, soaked overnight",
+      "1 banana",
+      "1/2 cup water",
+      "1 tsp cinnamon",
+      "1 cup fresh berries",
+      "2 tbsp hemp seeds"
+    ],
+    "steps": [
+      "Drain and rinse the soaked buckwheat.",
+      "Blend with banana, water and cinnamon until creamy.",
+      "Top with berries and hemp seeds."
+    ],
+    "meal_types": [
+      "breakfast"
+    ]
+  },
+  {
+    "title": "Tropical Fruit & Coconut Bowl",
+    "description": "Mango, pineapple and kiwi with coconut flakes and lime.",
+    "cuisine": "Raw",
+    "diet_type": "Raw",
+    "calories": 290,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "1 mango",
+      "1 cup pineapple",
+      "2 kiwis",
+      "2 tbsp coconut flakes",
+      "1 lime",
+      "Fresh mint"
+    ],
+    "steps": [
+      "Dice all the fruit.",
+      "Toss with lime juice.",
+      "Top with coconut flakes and mint."
+    ],
+    "meal_types": [
+      "breakfast",
+      "snack"
+    ]
+  },
+  {
+    "title": "Hummus & Veggie Sticks",
+    "description": "Creamy hummus with crunchy carrot, cucumber and pepper sticks.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Vegan",
+    "calories": 210,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "1/2 cup hummus",
+      "2 carrots",
+      "1 cucumber",
+      "1 bell pepper"
+    ],
+    "steps": [
+      "Cut vegetables into sticks.",
+      "Serve with hummus for dipping."
+    ],
+    "meal_types": [
+      "snack"
+    ]
+  },
+  {
+    "title": "Apple Slices with Almond Butter",
+    "description": "Crisp apple wedges with almond butter and a pinch of cinnamon.",
+    "cuisine": "American",
+    "diet_type": "Vegan",
+    "calories": 220,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 0,
+    "servings": 1,
+    "ingredients": [
+      "1 apple",
+      "2 tbsp almond butter",
+      "Pinch of cinnamon"
+    ],
+    "steps": [
+      "Core and slice the apple.",
+      "Serve with almond butter sprinkled with cinnamon."
+    ],
+    "meal_types": [
+      "snack"
+    ]
+  },
+  {
+    "title": "Spiced Roasted Chickpeas",
+    "description": "Crunchy oven-roasted chickpeas with smoked paprika.",
+    "cuisine": "Mediterranean",
+    "diet_type": "Vegan",
+    "calories": 190,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 30,
+    "servings": 4,
+    "ingredients": [
+      "1 can chickpeas",
+      "1 tbsp olive oil",
+      "1 tsp smoked paprika",
+      "1/2 tsp garlic powder",
+      "Salt"
+    ],
+    "steps": [
+      "Heat oven to 400°F.",
+      "Dry the rinsed chickpeas well and toss with oil and spices.",
+      "Roast 25–30 minutes, shaking halfway, until crunchy."
+    ],
+    "meal_types": [
+      "snack"
+    ]
+  },
+  {
+    "title": "Edamame with Sea Salt",
+    "description": "Steamed edamame pods with flaky salt and lemon.",
+    "cuisine": "Japanese",
+    "diet_type": "Vegan",
+    "calories": 190,
+    "prep_time_minutes": 2,
+    "cook_time_minutes": 5,
+    "servings": 2,
+    "ingredients": [
+      "2 cups frozen edamame in pods",
+      "Flaky sea salt",
+      "1/2 lemon"
+    ],
+    "steps": [
+      "Boil or steam edamame for 5 minutes.",
+      "Drain and toss with salt and a squeeze of lemon."
+    ],
+    "meal_types": [
+      "snack"
+    ]
+  },
+  {
+    "title": "Cottage Cheese & Pineapple",
+    "description": "High-protein cottage cheese with juicy pineapple.",
+    "cuisine": "American",
+    "diet_type": "Vegetarian",
+    "calories": 200,
+    "prep_time_minutes": 3,
+    "cook_time_minutes": 0,
+    "servings": 1,
+    "ingredients": [
+      "3/4 cup cottage cheese",
+      "1/2 cup pineapple chunks",
+      "1 tsp honey"
+    ],
+    "steps": [
+      "Spoon cottage cheese into a bowl.",
+      "Top with pineapple and a drizzle of honey."
+    ],
+    "meal_types": [
+      "snack",
+      "breakfast"
+    ]
+  },
+  {
+    "title": "Turkey & Cheese Roll-Ups",
+    "description": "Sliced turkey rolled with cheese, cucumber and mustard.",
+    "cuisine": "American",
+    "diet_type": "Omnivore",
+    "calories": 230,
+    "prep_time_minutes": 5,
+    "cook_time_minutes": 0,
+    "servings": 1,
+    "ingredients": [
+      "4 slices deli turkey",
+      "2 slices Swiss cheese",
+      "1/2 cucumber",
+      "1 tsp Dijon mustard"
+    ],
+    "steps": [
+      "Lay out turkey and spread with mustard.",
+      "Add half a cheese slice and a cucumber strip to each.",
+      "Roll up tightly."
+    ],
+    "meal_types": [
+      "snack"
+    ]
+  },
+  {
+    "title": "Guacamole with Veggie Chips",
+    "description": "Fresh guacamole served with sliced jicama, radish and cucumber.",
+    "cuisine": "Mexican",
+    "diet_type": "Raw",
+    "calories": 240,
+    "prep_time_minutes": 10,
+    "cook_time_minutes": 0,
+    "servings": 2,
+    "ingredients": [
+      "2 avocados",
+      "1/2 red onion",
+      "1 tomato",
+      "1 lime",
+      "Cilantro",
+      "1 small jicama",
+      "4 radishes"
+    ],
+    "steps": [
+      "Mash avocados with lime juice and salt.",
+      "Fold in diced onion, tomato and cilantro.",
+      "Slice jicama, radishes and serve alongside."
+    ],
+    "meal_types": [
+      "snack"
     ]
   }
 ]

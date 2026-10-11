@@ -36,8 +36,8 @@ react-app/
 - **One composition root.** Repositories and stores are constructed only in
   `createUserStores()`; each app wraps that in its own hooks (`lib/stores.tsx`,
   `hooks/useStores.ts`).
-- **Typed JSON.** `profiles.goals` / `profiles.shopping` are read through
-  `readGoals()` / `readShopping()`, never cast ad hoc.
+- **Typed JSON.** `profiles.goals` / `profiles.shopping` / `profiles.meal_plan_config` are
+  read through `readGoals()` / `readShopping()` / `readMealPlanConfig()`, never cast ad hoc.
 - **Local dates.** Use the `utils/dates` helpers; `toISOString()` gives the UTC date.
 - **Imports (web):** framework → `@fuelify/shared` → `@/…` (app code) → relative.
 - **Styling (web):** design tokens and component classes in `app/globals.css`;
@@ -50,6 +50,10 @@ react-app/
   The preference (System / Light / Dark) lives in the shared preferences store;
   `lib/theme-constants.ts` sets `data-theme` before first paint and
   `lib/theme.tsx` keeps it in sync with the store and the OS.
+- **Plans:** the subscription plan is per household (`households.plan`, owner-only).
+  The meal plan generator (Premium) is the pure `generateMealPlan()` in
+  `services/plan-generator.ts`; `plan-generation-store` loads its inputs, replaces
+  only meals marked `generated`, and never touches meals the user added or edited.
 
 ## Commands (from `react-app/`)
 

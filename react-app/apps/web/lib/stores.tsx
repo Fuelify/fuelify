@@ -89,6 +89,7 @@ export const useHouseholdStore = storeHook(UserStoresContext, (s) => s.household
 export const useShoppingCartStore = storeHook(UserStoresContext, (s) => s.shoppingCartStore, NO_USER);
 export const usePantryStore = storeHook(UserStoresContext, (s) => s.pantryStore, NO_USER);
 export const useMealSuggestionStore = storeHook(UserStoresContext, (s) => s.mealSuggestionStore, NO_USER);
+export const usePlanGenerationStore = storeHook(UserStoresContext, (s) => s.planGenerationStore, NO_USER);
 
 /** True once a user is signed in and the per-user stores exist. */
 export function useDataStoresReady(): boolean {
