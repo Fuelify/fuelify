@@ -18,7 +18,7 @@ type Source = 'link' | 'text';
 /** Ask the server to read a recipe page (it fetches on our behalf). */
 function useFetchRecipe() {
   const supabase = useSupabase();
-  return async (url: string): Promise<{ recipe?: RecipeDraft; error?: string; partial?: Partial<RecipeDraft> }> => {
+  return async (url: string): Promise<{ recipe?: RecipeDraft; error?: string; code?: 'blocked'; partial?: Partial<RecipeDraft> }> => {
     const { data } = await supabase.auth.getSession();
     const res = await fetch('/api/recipes/import', {
       method: 'POST',
@@ -43,13 +43,15 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<RecipeDraft | null>(null);
+  // A link the site wouldn't let us fetch; kept as the source of the pasted text
+  const [pastedFrom, setPastedFrom] = useState<string | null>(null);
 
   const read = async () => {
     setError(null);
     if (source === 'text') {
       const parsed = parseRecipeText(text);
       if (!parsed) setError('Couldn’t find ingredients or steps. Put the title on the first line, then “Ingredients” and “Instructions” sections.');
-      setDraft(parsed);
+      setDraft(parsed && pastedFrom ? { ...parsed, sourceUrl: pastedFrom } : parsed);
       return;
     }
     const problem = recipeUrlError(url);
@@ -66,6 +68,9 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
       // Keep what the page did tell us, and let the user paste the rest
       if (res.partial?.title) {
         setText(`${res.partial.title}\n\nIngredients\n\nInstructions\n`);
+        setSource('text');
+      } else if (res.code === 'blocked') {
+        setPastedFrom(url.trim());
         setSource('text');
       }
     }
@@ -103,7 +108,11 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
           <label htmlFor="import-text">Recipe</label>
           <textarea id="import-text" className="textarea" rows={9} value={text} onChange={(e) => setText(e.target.value)}
             placeholder={'Grandma’s chili\n\nIngredients\n1 lb ground beef\n1 can kidney beans\n\nInstructions\nBrown the beef…'} />
-          <span className="hint">From a cookbook, a note or a message. Title first, then ingredients and steps.</span>
+          <span className="hint">
+            {pastedFrom
+              ? 'On the recipe page: select all, copy, then paste here. Extra page text is ignored.'
+              : 'From a cookbook, a note, a message or a whole recipe page. Title first, then ingredients and steps.'}
+          </span>
         </div>
       )}
       {error && <div className="alert" role="alert">{error}</div>}
