@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import {
   BRAND_COLORS,
   LOGO_LEAVES,
@@ -15,12 +18,47 @@ export function foodBackground(title: string): string {
   return `linear-gradient(135deg, ${a}, ${b})`;
 }
 
-export function FoodTile({ title, size = 52 }: { title: string; size?: number }) {
+/**
+ * A dish's picture: the recipe photo when there is one, otherwise (or if it
+ * fails to load) generated artwork from the title. Fills its container.
+ */
+export function FoodImage({
+  title,
+  imageUrl,
+  emojiSize,
+  className,
+  style,
+  children,
+}: {
+  title: string;
+  imageUrl?: string | null;
+  emojiSize?: number | string;
+  className?: string;
+  style?: CSSProperties;
+  /** Overlays (e.g. swipe hints) */
+  children?: ReactNode;
+}) {
+  const [failed, setFailed] = useState<string | null>(null);
+  const showPhoto = !!imageUrl && failed !== imageUrl;
   return (
-    <div className="food-tile" style={{ width: size, height: size, fontSize: size * 0.5, background: foodBackground(title) }} aria-hidden="true">
-      {foodEmoji(title)}
+    <div
+      className={`food-image${className ? ` ${className}` : ''}`}
+      style={{ background: showPhoto ? 'var(--surface-3)' : foodBackground(title), fontSize: emojiSize, ...style }}
+      aria-hidden="true"
+    >
+      {showPhoto ? (
+        // eslint-disable-next-line @next/next/no-img-element -- remote recipe photos, sized by CSS
+        <img src={imageUrl} alt="" loading="lazy" decoding="async" onError={() => setFailed(imageUrl)} />
+      ) : (
+        foodEmoji(title)
+      )}
+      {children}
     </div>
   );
+}
+
+export function FoodTile({ title, imageUrl, size = 52 }: { title: string; imageUrl?: string | null; size?: number }) {
+  return <FoodImage className="food-tile" title={title} imageUrl={imageUrl} emojiSize={size * 0.5} style={{ width: size, height: size }} />;
 }
 
 export function Avatar({ first, last, size }: { first?: string | null; last?: string | null; size?: 'md' | 'lg' }) {

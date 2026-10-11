@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { daysUntil, formatLong, greeting, initialsOf, sortByMealType, todayISO } from '@fuelify/shared';
 import { useHouseholdStore, useMealPlanStore, usePantryStore, useProfileStore, useShoppingCartStore } from '@/lib/stores';
 import { FoodTile, Icon, LogoMark, type IconName } from '@/components/ui';
+import { useRecipeImage } from '@/features/recipes/useRecipeImage';
 
 // The Flutter Home tab was a placeholder; this is a daily overview built from
 // the data the app already tracks (plan, pantry, cart, onboarding status).
@@ -96,7 +97,7 @@ export default function HomePage() {
             <div className="list">
               {todayMeals.map((m) => (
                 <Link key={m.id} href="/plan" className="list-row">
-                  <FoodTile title={m.title} size={40} />
+                  <MealThumb title={m.title} recipeId={m.recipeId} />
                   <div className="grow">
                     <div className="truncate" style={{ fontWeight: 600 }}>{m.title}</div>
                     <div className="tiny faint" style={{ textTransform: 'capitalize' }}>{m.mealType}</div>
@@ -181,4 +182,8 @@ function Action({ href, icon, title, body }: { href: string; icon: IconName; tit
       <span className="tiny muted">{body}</span>
     </Link>
   );
+}
+
+function MealThumb({ title, recipeId }: { title: string; recipeId: string | null }) {
+  return <FoodTile title={title} imageUrl={useRecipeImage(recipeId)} size={40} />;
 }

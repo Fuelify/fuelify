@@ -31,7 +31,7 @@ export function SavedRecipes({ recipes, onOpen, onDiscover }: { recipes: Recipe[
           <div className="stack-sm">
             {saved.map(({ recipe, kind }) => (
               <button key={recipe.id} className="card card-button row" style={{ gap: 12 }} onClick={() => onOpen(recipe)}>
-                <FoodTile title={recipe.title} size={56} />
+                <FoodTile title={recipe.title} imageUrl={recipe.imageUrl} size={56} />
                 <div className="grow stack-sm" style={{ gap: 4 }}>
                   <div className="truncate" style={{ fontWeight: 700 }}>{recipe.title}</div>
                   <div className="small muted">

@@ -3,6 +3,7 @@
 import type { MealPlanMeal } from '@fuelify/shared';
 import { useHouseholdStore, usePlanGenerationStore } from '@/lib/stores';
 import { FoodTile, Icon } from '@/components/ui';
+import { useRecipeImage } from '@/features/recipes/useRecipeImage';
 
 /**
  * A meal on the Plan page. Generated meals get a shuffle button: it swaps to the
@@ -13,11 +14,12 @@ export function PlannedMealCard({ meal, onOpen }: { meal: MealPlanMeal; onOpen: 
   const busy = usePlanGenerationStore((s) => s.shufflingMealIds.includes(meal.id));
   const householdId = useHouseholdStore((s) => s.activeHouseholdId);
   const swappable = meal.generated && !!meal.recipeId;
+  const imageUrl = useRecipeImage(meal.recipeId);
 
   return (
     <div className="card row" style={{ gap: 4, padding: 0 }}>
       <button className="card-button row grow" style={{ gap: 12, padding: 14, minWidth: 0, background: 'transparent', borderRadius: 'var(--radius)' }} onClick={onOpen}>
-        <FoodTile title={meal.title} size={48} />
+        <FoodTile title={meal.title} imageUrl={imageUrl} size={48} />
         <div className="grow" style={{ minWidth: 0 }}>
           <div className="row" style={{ gap: 6 }}>
             <span className="truncate" style={{ fontWeight: 700 }}>{meal.title}</span>

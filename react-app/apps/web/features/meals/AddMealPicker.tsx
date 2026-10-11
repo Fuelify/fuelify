@@ -152,7 +152,7 @@ function CatalogSearch({ mealType, onPick }: { mealType: MealType; onPick: (r: R
 }
 
 type ListRecipe = Pick<Recipe, 'id' | 'title' | 'description' | 'dietType'> &
-  Partial<Pick<Recipe, 'calories' | 'prepTimeMinutes' | 'cookTimeMinutes'>>;
+  Partial<Pick<Recipe, 'calories' | 'prepTimeMinutes' | 'cookTimeMinutes' | 'imageUrl'>>;
 
 function RecipeList<T extends ListRecipe>({ recipes, onPick, highlightFirst, diet }: { recipes: T[]; onPick: (r: T) => void; highlightFirst?: boolean; diet?: string | null }) {
   return (
@@ -162,7 +162,7 @@ function RecipeList<T extends ListRecipe>({ recipes, onPick, highlightFirst, die
         const meta = [r.calories != null ? `${r.calories} kcal` : null, time > 0 ? `${time} min` : null, r.dietType].filter(Boolean).join(' · ');
         return (
           <button key={r.id} className="list-row" onClick={() => onPick(r)} aria-label={`Add ${r.title}`} style={{ gap: 12, textAlign: 'left' }}>
-            <FoodTile title={r.title} size={40} />
+            <FoodTile title={r.title} imageUrl={r.imageUrl} size={40} />
             <div className="grow" style={{ minWidth: 0 }}>
               <div className="row" style={{ gap: 6 }}>
                 <span className="truncate" style={{ fontWeight: 600 }}>{r.title}</span>

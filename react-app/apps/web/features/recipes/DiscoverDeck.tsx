@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import { buildDiscoverDeck, foodEmoji, type Recipe } from '@fuelify/shared';
+import { buildDiscoverDeck, type Recipe } from '@fuelify/shared';
 import { useRecipeStore } from '@/lib/stores';
-import { EmptyState, Icon, foodBackground } from '@/components/ui';
+import { EmptyState, FoodImage, Icon } from '@/components/ui';
 import { RecipeMeta } from './RecipeSheet';
 
 // Mirrors lib/screens/discovery_screen.dart: drag right = like, left = dislike,
@@ -119,8 +119,7 @@ function RecipeCard({ recipe, hint, style, ...handlers }: { recipe: Recipe; hint
         display: 'flex', flexDirection: 'column', userSelect: 'none', ...style,
       }}
     >
-      <div style={{ flex: 1, minHeight: 120, background: foodBackground(recipe.title), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 'min(28vw, 120px)', position: 'relative' }} aria-hidden="true">
-        {foodEmoji(recipe.title)}
+      <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} emojiSize="min(28vw, 120px)" style={{ flex: 1, minHeight: 120 }}>
         {hint && (
           <span style={{
             position: 'absolute', top: 18, left: hint === 'NOPE' ? undefined : 18, right: hint === 'NOPE' ? 18 : undefined,
@@ -128,7 +127,7 @@ function RecipeCard({ recipe, hint, style, ...handlers }: { recipe: Recipe; hint
             transform: `rotate(${hint === 'NOPE' ? 12 : -12}deg)`, letterSpacing: '0.05em',
           }}>{hint}</span>
         )}
-      </div>
+      </FoodImage>
       <div className="stack-sm" style={{ padding: 16, flexShrink: 0 }}>
         <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em' }}>{recipe.title}</h2>
         <p className="muted small" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{recipe.description}</p>
