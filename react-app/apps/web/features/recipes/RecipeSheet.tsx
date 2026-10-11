@@ -52,7 +52,7 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
       >
         {recipe && (
           <div className="stack-lg">
-            <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} emojiSize={72} style={{ height: 180, borderRadius: 'var(--radius)' }} />
+            <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} iconSize={56} style={{ height: 180, borderRadius: 'var(--radius)' }} />
             <p className="muted">{recipe.description}</p>
             <RecipeMeta recipe={recipe} />
 

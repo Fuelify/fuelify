@@ -1,38 +1,44 @@
 'use client';
 
 import { useState, type CSSProperties, type ReactNode } from 'react';
+import { Icon } from './Icon';
 import {
   BRAND_COLORS,
   LOGO_LEAVES,
   LOGO_STROKES,
   LOGO_STROKE_WIDTH,
   LOGO_VIEWBOX,
-  foodEmoji,
+  foodIcon,
   foodGradientColors,
   initialsOf,
 } from '@fuelify/shared';
 
-/** CSS background for a dish's generated artwork. */
+/** CSS background for a dish's generated artwork: a soft brand tint. */
 export function foodBackground(title: string): string {
   const [a, b] = foodGradientColors(title);
-  return `linear-gradient(135deg, ${a}, ${b})`;
+  return `linear-gradient(135deg, ${a}33, ${b}4D)`;
+}
+
+/** Icon colour that sits on foodBackground. */
+export function foodInk(title: string): string {
+  return foodGradientColors(title)[1];
 }
 
 /**
  * A dish's picture: the recipe photo when there is one, otherwise (or if it
- * fails to load) generated artwork from the title. Fills its container.
+ * fails to load) a line icon for the dish on a soft tint. Fills its container.
  */
 export function FoodImage({
   title,
   imageUrl,
-  emojiSize,
+  iconSize = 24,
   className,
   style,
   children,
 }: {
   title: string;
   imageUrl?: string | null;
-  emojiSize?: number | string;
+  iconSize?: number;
   className?: string;
   style?: CSSProperties;
   /** Overlays (e.g. swipe hints) */
@@ -43,14 +49,14 @@ export function FoodImage({
   return (
     <div
       className={`food-image${className ? ` ${className}` : ''}`}
-      style={{ background: showPhoto ? 'var(--surface-3)' : foodBackground(title), fontSize: emojiSize, ...style }}
+      style={{ background: showPhoto ? 'var(--surface-3)' : foodBackground(title), color: foodInk(title), ...style }}
       aria-hidden="true"
     >
       {showPhoto ? (
         // eslint-disable-next-line @next/next/no-img-element -- remote recipe photos, sized by CSS
         <img src={imageUrl} alt="" loading="lazy" decoding="async" onError={() => setFailed(imageUrl)} />
       ) : (
-        foodEmoji(title)
+        <Icon name={foodIcon(title)} size={iconSize} />
       )}
       {children}
     </div>
@@ -58,11 +64,11 @@ export function FoodImage({
 }
 
 export function FoodTile({ title, imageUrl, size = 52 }: { title: string; imageUrl?: string | null; size?: number }) {
-  return <FoodImage className="food-tile" title={title} imageUrl={imageUrl} emojiSize={size * 0.5} style={{ width: size, height: size }} />;
+  return <FoodImage className="food-tile" title={title} imageUrl={imageUrl} iconSize={Math.round(size * 0.46)} style={{ width: size, height: size }} />;
 }
 
 export function Avatar({ first, last, size }: { first?: string | null; last?: string | null; size?: 'md' | 'lg' }) {
-  return <div className={`avatar${size === 'lg' ? ' avatar-lg' : ''}`}>{initialsOf(first, last) || '🙂'}</div>;
+  return <div className={`avatar${size === 'lg' ? ' avatar-lg' : ''}`}>{initialsOf(first, last) || <Icon name="user" size={size === 'lg' ? 28 : 20} />}</div>;
 }
 
 /** The Fuelify mark, rendered from the shared geometry so it stays crisp at any size. */

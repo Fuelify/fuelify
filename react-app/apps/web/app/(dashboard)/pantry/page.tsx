@@ -15,12 +15,12 @@ import {
   daysUntil,
 } from '@fuelify/shared';
 import { useHouseholdStore, usePantryStore } from '@/lib/stores';
-import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet } from '@/components/ui';
+import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet, type IconName } from '@/components/ui';
 import { BarcodeScannerSheet } from '@/features/pantry/BarcodeScannerSheet';
 import { ReceiptImportSheet } from '@/features/pantry/ReceiptImportSheet';
 import { MealIdeasSheet } from '@/features/pantry/MealIdeasSheet';
 
-const ZONE_ICON: Record<StorageZone, string> = { dry: '🥫', cool: '🧊', frozen: '❄️' };
+const ZONE_ICON: Record<StorageZone, IconName> = { dry: 'package', cool: 'fridge', frozen: 'snowflake' };
 const STATUS_BADGE: Record<ItemStatus, string> = { sealed: 'badge-accent', open: 'badge-primary', expired: 'badge-danger' };
 
 export default function PantryPage() {
@@ -124,7 +124,7 @@ export default function PantryPage() {
         <div className="chips-scroll">
           {(['all', ...STORAGE_ZONES] as const).map((z) => (
             <button key={z} className="chip" aria-pressed={activeZone === z} onClick={() => setActiveZone(z)}>
-              {z === 'all' ? 'All' : `${ZONE_ICON[z]} ${STORAGE_ZONE_LABELS[z]}`}
+              {z === 'all' ? 'All' : <><Icon name={ZONE_ICON[z]} size={16} /> {STORAGE_ZONE_LABELS[z]}</>}
               <span className="faint" style={{ fontWeight: 500 }}>{zoneCount(z)}</span>
             </button>
           ))}
@@ -217,7 +217,7 @@ function TotalCard({ total, onClick }: { total: PantryItemTotal; onClick: () => 
   return (
     <button className="card card-button stack-sm" onClick={onClick} style={{ gap: 8 }}>
       <div className="row" style={{ gap: 12 }}>
-        <span style={{ fontSize: 24, width: 32, textAlign: 'center' }} aria-hidden="true">{ZONE_ICON[total.storageZones[0] ?? 'dry']}</span>
+        <span style={{ width: 32, display: 'flex', justifyContent: 'center', color: 'var(--text-2)' }} aria-hidden="true"><Icon name={ZONE_ICON[total.storageZones[0] ?? 'dry']} size={22} /></span>
         <div className="grow">
           <div className="truncate" style={{ fontWeight: 700 }}>{total.items[0]?.name ?? total.name}</div>
           <div className="small muted">

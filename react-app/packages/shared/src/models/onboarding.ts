@@ -72,10 +72,10 @@ export const DEFAULT_WEEKLY_BUDGET = 100;
 export const MAX_WEEKLY_BUDGET = 500;
 
 export const ACTIVITY_OPTIONS = [
-  { title: 'Sedentary', emoji: '🪑', body: 'Most of your day is spent sitting (e.g. desk job)' },
-  { title: 'Lightly Active', emoji: '🚶', body: 'Some of your day is spent standing or walking (e.g. teacher)' },
-  { title: 'Moderately Active', emoji: '🏃', body: 'A good part of your day is spent up and moving (e.g. food server, delivery person)' },
-  { title: 'Very Active', emoji: '🏗️', body: 'Most of your day is spent doing hard physical activity (e.g. construction worker)' },
+  { title: 'Sedentary', icon: 'armchair', body: 'Most of your day is spent sitting (e.g. desk job)' },
+  { title: 'Lightly Active', icon: 'footprints', body: 'Some of your day is spent standing or walking (e.g. teacher)' },
+  { title: 'Moderately Active', icon: 'activity', body: 'A good part of your day is spent up and moving (e.g. food server, delivery person)' },
+  { title: 'Very Active', icon: 'dumbbell', body: 'Most of your day is spent doing hard physical activity (e.g. construction worker)' },
 ] as const;
 
 export const DEVICE_OPTIONS = [

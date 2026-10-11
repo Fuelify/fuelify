@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { sortByMealType, toMealType } from './meal';
 import { readGoals, readShopping } from './profile-answers';
-import { foodEmoji, foodGradientColors, initialsOf } from '../utils/food-visuals';
+import { foodIcon, foodGradientColors, initialsOf } from '../utils/food-visuals';
 
 describe('meal types', () => {
   it('orders breakfast → snack, then by sort order', () => {
@@ -36,8 +36,11 @@ describe('profile answers', () => {
 
 describe('food visuals', () => {
   it('picks an emoji from the dish name, with a fallback', () => {
-    expect(foodEmoji('Salmon Teriyaki')).toBe('🐟');
-    expect(foodEmoji('Mystery dish')).toBe('🍽️');
+    expect(foodIcon('Salmon Teriyaki')).toBe('fish');
+    expect(foodIcon('Shakshuka')).toBe('egg');
+    expect(foodIcon('Veggie Fried Rice')).toBe('wheat');
+    expect(foodIcon('Egg & Veggie Breakfast Scramble')).toBe('egg');
+    expect(foodIcon('Mystery dish')).toBe('utensils');
   });
 
   it('gives a stable gradient per title', () => {

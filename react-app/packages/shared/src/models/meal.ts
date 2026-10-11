@@ -28,14 +28,15 @@ export function mealToJSON(meal: Meal): Record<string, unknown> {
 }
 
 // ---------------------------------------------------------------------------
-// Meal types (matches the Postgres `meal_type` enum)
+// Meal types (matches the Postgres `meal_type` enum). `icon` names a line
+// icon each app draws (time of day for meals, an apple for snacks).
 // ---------------------------------------------------------------------------
 
 export const MEAL_TYPES = [
-  { value: 'breakfast', label: 'Breakfast', emoji: '🌅' },
-  { value: 'lunch', label: 'Lunch', emoji: '🥪' },
-  { value: 'dinner', label: 'Dinner', emoji: '🍽️' },
-  { value: 'snack', label: 'Snack', emoji: '🍎' },
+  { value: 'breakfast', label: 'Breakfast', icon: 'sunrise' },
+  { value: 'lunch', label: 'Lunch', icon: 'sun' },
+  { value: 'dinner', label: 'Dinner', icon: 'moon' },
+  { value: 'snack', label: 'Snack', icon: 'apple' },
 ] as const;
 
 export type MealType = (typeof MEAL_TYPES)[number]['value'];
