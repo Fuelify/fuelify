@@ -38,9 +38,16 @@ export default function PlanPage() {
 
   const generator = useMealPlanGenerator();
   // "Generate week" plans 7 days from today, or from the start of a future week being viewed
+  // Once those days hold generated meals, the button clears them instead (meals you added stay)
   const generateFrom = weekStart > today ? weekStart : today;
-  const generateWeek = () => {
-    generator.generateDays(Array.from({ length: 7 }, (_, i) => addDays(generateFrom, i)));
+  const weekDates = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(generateFrom, i)), [generateFrom]);
+  const weekGenerated = weekDates.some((d) => meals[d]?.some((m) => m.generated));
+  const onWeekButton = () => {
+    if (weekGenerated) {
+      generator.clearDays(weekDates);
+      return;
+    }
+    generator.generateDays(weekDates);
     if (selectedDate < today) setSelectedDate(today);
   };
   const canGenerateDay = selectedDate >= today;
@@ -84,12 +91,13 @@ export default function PlanPage() {
               <button className="btn btn-secondary btn-sm" onClick={() => setSelectedDate(today)}>Today</button>
             )}
             <button
-              className="btn btn-primary btn-sm"
+              className={`btn btn-sm ${weekGenerated ? 'btn-secondary' : 'btn-primary'}`}
               disabled={generator.isGenerating()}
-              onClick={generateWeek}
-              title={generator.premium ? 'Plan the next 7 days' : 'Premium feature'}
+              onClick={onWeekButton}
+              title={weekGenerated ? 'Remove generated meals from the next 7 days' : generator.premium ? 'Plan the next 7 days' : 'Premium feature'}
             >
-              <Icon name="sparkles" size={16} /> {generator.isGenerating() && !generatingDay ? 'Planning…' : 'Generate week'}
+              <Icon name={weekGenerated ? 'trash' : 'sparkles'} size={16} />{' '}
+              {generator.isGenerating() && !generatingDay ? (weekGenerated ? 'Clearing…' : 'Planning…') : weekGenerated ? 'Clear week' : 'Generate week'}
             </button>
           </div>
         }

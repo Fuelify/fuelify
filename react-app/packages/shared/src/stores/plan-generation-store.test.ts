@@ -54,6 +54,15 @@ describe('plan generation store', () => {
     expect(added.find((m) => m.mealType === 'dinner')?.alternatives.map((a) => a.recipeId)).toEqual(['d1']);
   });
 
+  it('clears generated meals for the given days and keeps hand-added ones', async () => {
+    const { store, meals, deps } = setup();
+    await deps.mealPlanStore.getState().fetchMealPlan('2026-10-12', '2026-10-12');
+    expect(await store.getState().clearGenerated(['2026-10-12'])).toBe(true);
+    expect(meals.deleteGeneratedMeals).toHaveBeenCalledWith('u1', ['2026-10-12']);
+    expect(meals.addGeneratedMeals).not.toHaveBeenCalled();
+    expect(store.getState().lastResult).toMatchObject({ cleared: 1 });
+  });
+
   it('explains when every meal is switched off', async () => {
     const { store, meals } = setup({ breakfast: false, lunch: false, dinner: false, snack: false });
     expect(await store.getState().generate(['2026-10-12'])).toBe(false);
