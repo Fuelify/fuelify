@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { filterRecipes, isCompatibleWithDiet, totalTimeMinutes, type MealType, type PlannerRecipe, type Recipe } from '@fuelify/shared';
 import { useHouseholdStore, usePlanGenerationStore, useProfileStore, useRecipeStore } from '@/lib/stores';
 import { usePlan } from '@/features/premium/usePlan';
+import { RecipeImport } from '@/features/recipes/RecipeImport';
 import { FoodTile, Icon, Segmented, Spinner } from '@/components/ui';
 
-export type AddMealSource = 'suggested' | 'search' | 'custom';
+export type AddMealSource = 'suggested' | 'search' | 'import' | 'custom';
 
 const SOURCES: { value: AddMealSource; label: string }[] = [
   { value: 'suggested', label: 'Suggested' },
   { value: 'search', label: 'Search' },
+  { value: 'import', label: 'Import' },
   { value: 'custom', label: 'Custom' },
 ];
 
@@ -20,7 +22,8 @@ const BROWSE_LIMIT = 25;
 
 /**
  * Source tabs for adding a meal: personalised suggestions (Premium), the
- * recipe catalog, or a custom entry (rendered by the parent as `custom`).
+ * recipe catalog, a recipe imported from a link or text, or a custom entry
+ * (rendered by the parent as `custom`).
  */
 export function AddMealPicker({
   date,
@@ -42,6 +45,7 @@ export function AddMealPicker({
       <Segmented options={SOURCES} value={source} onChange={onSourceChange} />
       {source === 'suggested' && <Suggestions date={date} mealType={mealType} onPick={onPick} onSearch={() => onSourceChange('search')} />}
       {source === 'search' && <CatalogSearch mealType={mealType} onPick={onPick} />}
+      {source === 'import' && <RecipeImport onSaved={onPick} saveLabel="Save & add to plan" />}
       {source === 'custom' && custom}
     </div>
   );

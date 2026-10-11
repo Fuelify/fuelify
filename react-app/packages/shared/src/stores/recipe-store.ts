@@ -3,6 +3,7 @@
 
 import { createStore } from 'zustand/vanilla';
 import type { RecipeRepository, Recipe, RecipeClassification } from '../supabase/recipe-repo';
+import type { RecipeDraft } from '../services/recipe-import';
 
 export interface RecipeState {
   recipes: Recipe[];
@@ -20,6 +21,8 @@ export interface RecipeActions {
   getSimilarRecipes: (recipeId: string) => Promise<void>;
   addRecipe: (recipe: { title: string; description?: string; ingredients?: string[]; steps?: string[] }) => Promise<void>;
   deleteRecipe: (recipeId: string) => Promise<void>;
+  /** Save an imported recipe as the user's own and add it to their saved recipes. Resolves to the new recipe, or null on failure. */
+  saveImportedRecipe: (draft: RecipeDraft) => Promise<Recipe | null>;
   classifyRecipe: (recipeId: string, classification: 'liked' | 'disliked' | 'favorited') => Promise<void>;
   getClassifiedRecipes: (type?: 'liked' | 'disliked' | 'favorited') => Promise<void>;
   addReview: (recipeId: string, review: { rating: number; reviewText?: string }) => Promise<void>;
@@ -82,6 +85,34 @@ export function createRecipeStore(repo: RecipeRepository, userId: string) {
         set((state) => ({ recipes: [created, ...state.recipes] }));
       } catch (err) {
         set({ error: (err as Error).message });
+      }
+    },
+
+    saveImportedRecipe: async (draft) => {
+      set({ error: null });
+      try {
+        const created = await repo.addRecipe({
+          title: draft.title.trim() || 'Imported recipe',
+          description: draft.description,
+          imageUrl: draft.imageUrl ?? undefined,
+          ingredients: draft.ingredients,
+          steps: draft.steps,
+          prepTimeMinutes: draft.prepTimeMinutes ?? undefined,
+          cookTimeMinutes: draft.cookTimeMinutes ?? undefined,
+          servings: draft.servings ?? undefined,
+          cuisine: draft.cuisine ?? undefined,
+          dietType: draft.dietType ?? undefined,
+          calories: draft.calories ?? undefined,
+          mealTypes: draft.mealTypes,
+          sourceUrl: draft.sourceUrl ?? undefined,
+          createdBy: userId,
+        });
+        set((state) => ({ recipes: [...state.recipes, created] }));
+        await get().classifyRecipe(created.id, 'favorited');
+        return created;
+      } catch (err) {
+        set({ error: (err as Error).message });
+        return null;
       }
     },
 

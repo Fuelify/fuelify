@@ -54,6 +54,11 @@ react-app/
   The meal plan generator (Premium) is the pure `generateMealPlan()` in
   `services/plan-generator.ts`; `plan-generation-store` loads its inputs, replaces
   only meals marked `generated`, and never touches meals the user added or edited.
+- **Recipe import:** `services/recipe-import.ts` parses schema.org JSON-LD or pasted
+  text into a `RecipeDraft`. Pages are fetched only by the web API route
+  `app/api/recipes/import` (signed-in users; public hosts only, re-checked on every
+  redirect; time- and size-limited — see `lib/fetch-recipe-page.ts`). Users read the
+  catalog plus their own and their household's recipes (RLS `recipes_read`).
 
 ## Commands (from `react-app/`)
 

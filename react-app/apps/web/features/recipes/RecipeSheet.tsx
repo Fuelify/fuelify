@@ -55,6 +55,11 @@ export function RecipeSheet({ recipe, onClose }: { recipe: Recipe | null; onClos
             <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} iconSize={56} style={{ height: 180, borderRadius: 'var(--radius)' }} />
             <p className="muted">{recipe.description}</p>
             <RecipeMeta recipe={recipe} />
+            {recipe.sourceUrl && (
+              <a href={recipe.sourceUrl} target="_blank" rel="noopener noreferrer" className="small row" style={{ gap: 6, color: 'var(--primary)', fontWeight: 600 }}>
+                <Icon name="link" size={16} /> View original on {new URL(recipe.sourceUrl).hostname.replace(/^www\./, '')}
+              </a>
+            )}
 
             <div className="row" style={{ gap: 8 }}>
               <ClassifyButton label="Like" icon="heart" active={current === 'liked'} onClick={() => classifyRecipe(recipe.id, 'liked')} />

@@ -10,7 +10,7 @@ import { addDays } from '../utils/dates';
 import type { MealPlanRepository } from '../supabase/meal-plan-repo';
 import type { PantryRepository } from '../supabase/pantry-repo';
 import type { ProfileRepository } from '../supabase/profile-repo';
-import type { Recipe, RecipeRepository } from '../supabase/recipe-repo';
+import type { RecipeRepository } from '../supabase/recipe-repo';
 import type { MealPlanStore } from './meal-plan-store';
 
 export interface PlanGenerationState {
@@ -65,15 +65,8 @@ export interface PlanGenerationDeps {
 const VARIETY_WINDOW_DAYS = 6;
 
 export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: string) {
-  // The catalog rarely changes; load it once per session
-  let catalog: Promise<Recipe[]> | null = null;
-  const loadCatalog = () => {
-    catalog ??= deps.recipes.listAllRecipes().catch((err) => {
-      catalog = null;
-      throw err;
-    });
-    return catalog;
-  };
+  // Loaded per run (it's small) so recipes the user just imported are included
+  const loadCatalog = () => deps.recipes.listAllRecipes();
 
   /** Everything the planner needs around `first`..`last`, loaded in parallel. */
   async function loadContext(first: string, last: string, householdId?: string | null) {

@@ -3,25 +3,33 @@
 import { useMemo, useState } from 'react';
 import { savedRecipes, totalTimeMinutes, type Recipe } from '@fuelify/shared';
 import { useRecipeStore } from '@/lib/stores';
-import { EmptyState, FoodTile, Icon } from '@/components/ui';
+import { EmptyState, FoodTile, Icon, Sheet } from '@/components/ui';
+import { RecipeImport } from './RecipeImport';
 
 // Liked and favorited recipes — replaces the Flutter "Food" tab.
 
 export function SavedRecipes({ recipes, onOpen, onDiscover }: { recipes: Recipe[]; onOpen: (r: Recipe) => void; onDiscover: () => void }) {
   const classifications = useRecipeStore((s) => s.classifications);
   const [filter, setFilter] = useState<'all' | 'favorited' | 'liked'>('all');
+  const [importing, setImporting] = useState(false);
 
   const saved = useMemo(() => savedRecipes(recipes, classifications, filter), [recipes, classifications, filter]);
 
   return (
+    <>
     <div className="screen-scroll">
       <div className="screen-pad stack" style={{ paddingTop: 0 }}>
-        <div className="chips">
-          {(['all', 'favorited', 'liked'] as const).map((f) => (
-            <button key={f} className="chip" aria-pressed={filter === f} onClick={() => setFilter(f)}>
-              {f === 'all' ? 'All' : f === 'favorited' ? 'Favorites' : 'Liked'}
-            </button>
-          ))}
+        <div className="row-between" style={{ gap: 8 }}>
+          <div className="chips">
+            {(['all', 'favorited', 'liked'] as const).map((f) => (
+              <button key={f} className="chip" aria-pressed={filter === f} onClick={() => setFilter(f)}>
+                {f === 'all' ? 'All' : f === 'favorited' ? 'Favorites' : 'Liked'}
+              </button>
+            ))}
+          </div>
+          <button className="btn btn-secondary btn-sm" onClick={() => setImporting(true)} style={{ flexShrink: 0 }}>
+            <Icon name="download" size={16} /> Import
+          </button>
         </div>
         {saved.length === 0 ? (
           <EmptyState icon="bookmark" title="Nothing saved yet" action={<button className="btn btn-primary" onClick={onDiscover}>Start discovering</button>}>
@@ -47,5 +55,17 @@ export function SavedRecipes({ recipes, onOpen, onDiscover }: { recipes: Recipe[
         )}
       </div>
     </div>
+    <Sheet open={importing} onClose={() => setImporting(false)} title="Import a recipe">
+      {/* Remount per opening so the form starts fresh */}
+      {importing && (
+        <RecipeImport
+          onSaved={(recipe) => {
+            setImporting(false);
+            onOpen(recipe);
+          }}
+        />
+      )}
+    </Sheet>
+    </>
   );
 }
