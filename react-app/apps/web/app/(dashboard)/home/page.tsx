@@ -52,7 +52,7 @@ export default function HomePage() {
   return (
     <div className="screen-scroll">
       <header className="page-header" style={{ paddingBottom: 4 }}>
-        <LogoMark size={32} />
+        <LogoMark size={52} />
         <div className="grow">
           <p className="small muted">{formatLong(today)}</p>
           <h1 style={{ fontSize: 24, fontWeight: 800, letterSpacing: '-0.02em' }}>

@@ -2,7 +2,7 @@
 // out, priced, split by store). Saved in household_grocery.cart so choices
 // stick until it's rebuilt.
 
-import { offerPrice, type GroceryConfig, type GroceryStoreId, type ProductOffer } from './grocery';
+import { dealSaving, offerPrice, type GroceryConfig, type GroceryStoreId, type ProductOffer } from './grocery';
 import { effectivePrice, STORE_COST } from '../services/basket-optimizer';
 
 export interface CartLine {
@@ -60,7 +60,7 @@ export function summarizeCart(cart: GroceryCart): CartSummary {
     stores,
     missing,
     total: round2(stores.reduce((s, g) => s + g.subtotal, 0)),
-    dealSavings: round2(chosen.reduce((s, o) => s + (o.price - offerPrice(o)), 0)),
+    dealSavings: round2(chosen.reduce((s, o) => s + dealSaving(o), 0)),
   };
 }
 

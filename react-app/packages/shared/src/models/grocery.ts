@@ -90,5 +90,18 @@ export interface ProductOffer {
 
 export const offerPrice = (o: Pick<ProductOffer, 'price' | 'promoPrice'>) => (o.promoPrice != null && o.promoPrice < o.price ? o.promoPrice : o.price);
 
+/**
+ * A "was" price more than this many times the price paid isn't a real deal:
+ * stores' list prices (e.g. Walmart's msrp) are sometimes wildly off.
+ */
+export const MAX_DEAL_RATIO = 2;
+
+/** What a deal saves on this offer; 0 when there's no believable regular price. */
+export function dealSaving(o: Pick<ProductOffer, 'price' | 'promoPrice'>): number {
+  if (o.promoPrice == null || o.promoPrice <= 0 || o.promoPrice >= o.price) return 0;
+  if (o.price > o.promoPrice * MAX_DEAL_RATIO) return 0;
+  return Math.round((o.price - o.promoPrice) * 100) / 100;
+}
+
 /** Which stores the server has credentials for (from GET /api/grocery/status). */
 export type GroceryProviderStatus = Record<GroceryStoreId, boolean>;
