@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Icon, type IconName } from './Icon';
+import { LogoMark } from './Brand';
 
 export function EmptyState({ icon, title, children, action }: { icon: IconName; title: string; children?: ReactNode; action?: ReactNode }) {
   return (
@@ -16,10 +17,11 @@ export function Spinner() {
   return <div className="spinner" role="status" aria-label="Loading" />;
 }
 
+/** Page or section loading: the logo, gently pulsing. */
 export function LoadingBlock() {
   return (
-    <div className="center-fill">
-      <Spinner />
+    <div className="center-fill" role="status" aria-label="Loading">
+      <span className="brand-loader"><LogoMark size={56} title="" /></span>
     </div>
   );
 }

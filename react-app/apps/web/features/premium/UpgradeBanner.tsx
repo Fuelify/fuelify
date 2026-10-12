@@ -8,7 +8,7 @@ import {
   isSnoozed,
 } from '@fuelify/shared';
 import { usePreferencesStore } from '@/lib/stores';
-import { Icon } from '@/components/ui';
+import { Icon, LogoMark } from '@/components/ui';
 import { usePlan } from './usePlan';
 
 /**
@@ -27,10 +27,10 @@ export function UpgradeBanner({ style }: { style?: React.CSSProperties }) {
     <aside className="promo" aria-label="Upgrade to Premium" style={style}>
       <div className="row" style={{ alignItems: 'flex-start', gap: 12, padding: '14px 6px 14px 14px', position: 'relative', zIndex: 1 }}>
         <span
-          style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           aria-hidden="true"
         >
-          <Icon name="sparkles" size={22} />
+          <LogoMark size={32} title="" />
         </span>
         <div className="grow stack-sm" style={{ gap: 4 }}>
           <div style={{ fontWeight: 800, fontSize: 16, lineHeight: 1.25 }}>Let Premium plan your week</div>

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, PLAN_LABELS } from '@fuelify/shared';
 import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
-import { Icon, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
+import { Icon, Logo, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { MealPlanSettings } from '@/features/meal-plan/MealPlanSettings';
 import { GrocerySettings } from '@/features/grocery/GrocerySettings';
@@ -169,7 +169,7 @@ export default function ProfilePage() {
             <span style={{ color: 'var(--primary)' }}><Icon name="users" /></span>
             <div className="grow">
               <div style={{ fontWeight: 700 }}>{household?.name ?? '—'}</div>
-              <div className="small muted">{members.length} member{members.length === 1 ? '' : 's'} share the cart and pantry</div>
+              <div className="small muted">{members.length === 1 ? '1 member shares' : `${members.length} members share`} the cart and pantry</div>
             </div>
           </div>
 
@@ -188,7 +188,10 @@ export default function ProfilePage() {
               </Link>
             )}
           </div>
-          <p className="tiny faint center" style={{ marginTop: 8 }}>Fuelify · {planLabel} plan</p>
+          <div className="stack-sm" style={{ alignItems: 'center', marginTop: 20, gap: 6 }}>
+            <Logo size={26} />
+            <p className="tiny faint">{planLabel} plan</p>
+          </div>
         </div>
       </div>
 
