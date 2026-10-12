@@ -13,12 +13,16 @@ import {
   type PantryItemTotal,
   type StorageZone,
   daysUntil,
+  spokenItemToPantryDraft,
 } from '@fuelify/shared';
 import { useHouseholdStore, usePantryStore } from '@/lib/stores';
 import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet, type IconName } from '@/components/ui';
 import { BarcodeScannerSheet } from '@/features/pantry/BarcodeScannerSheet';
 import { ReceiptImportSheet } from '@/features/pantry/ReceiptImportSheet';
 import { MealIdeasSheet } from '@/features/pantry/MealIdeasSheet';
+import { VoiceButton } from '@/features/voice/VoiceButton';
+import { VoiceItemsSheet } from '@/features/voice/VoiceItemsSheet';
+import { useSpeechInput } from '@/lib/useSpeechInput';
 
 const ZONE_ICON: Record<StorageZone, IconName> = { dry: 'package', cool: 'fridge', frozen: 'snowflake' };
 const STATUS_BADGE: Record<ItemStatus, string> = { sealed: 'badge-accent', open: 'badge-primary', expired: 'badge-danger' };
@@ -41,6 +45,8 @@ export default function PantryPage() {
   const [started, setStarted] = useState(false);
   const [query, setQuery] = useState('');
   const [addOpen, setAddOpen] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  const canListen = useSpeechInput().supported;
   const [draft, setDraft] = useState<PantryItemDraft | null>(null);
   const [groupName, setGroupName] = useState<string | null>(null);
   const [scannerOpen, setScannerOpen] = useState(false);
@@ -113,6 +119,11 @@ export default function PantryPage() {
             <button className="icon-btn icon-btn-filled" aria-label="Import receipt" onClick={() => setReceiptOpen(true)}>
               <Icon name="receipt" size={20} />
             </button>
+            {canListen && (
+              <button className="icon-btn icon-btn-filled" aria-label="Say items" onClick={() => setVoiceOpen(true)}>
+                <Icon name="mic" size={20} />
+              </button>
+            )}
             <button className="icon-btn" aria-label="Add item" onClick={() => openAdd()} style={{ background: 'var(--primary)', color: 'var(--on-primary)' }}>
               <Icon name="plus" size={22} />
             </button>
@@ -148,9 +159,12 @@ export default function PantryPage() {
           </button>
 
           {items.length > 6 && (
-            <div style={{ position: 'relative' }}>
-              <span className="faint" style={{ position: 'absolute', left: 12, top: 12 }}><Icon name="search" size={20} /></span>
-              <input className="input" style={{ paddingLeft: 40 }} placeholder="Search pantry" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search pantry" />
+            <div className="row" style={{ gap: 8 }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <span className="faint" style={{ position: 'absolute', left: 12, top: 12 }}><Icon name="search" size={20} /></span>
+                <input className="input" style={{ paddingLeft: 40 }} placeholder="Search pantry" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search pantry" />
+              </div>
+              <VoiceButton label="Search pantry by voice" onText={setQuery} />
             </div>
           )}
 
@@ -184,6 +198,15 @@ export default function PantryPage() {
         </div>
       </div>
 
+      <VoiceItemsSheet
+        open={voiceOpen}
+        title="Say what you have"
+        destination="pantry"
+        onClose={() => setVoiceOpen(false)}
+        onAdd={async (spoken) => {
+          if (activeHouseholdId) await addItems(activeHouseholdId, spoken.map(spokenItemToPantryDraft));
+        }}
+      />
       <AddItemSheet
         open={addOpen}
         draft={draft}

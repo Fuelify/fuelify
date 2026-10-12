@@ -13,6 +13,7 @@ import {
 } from '@fuelify/shared';
 import { useGroceryStore, useProfileStore } from '@/lib/stores';
 import { FoodTile, Icon, Segmented, Sheet, Spinner } from '@/components/ui';
+import { VoiceButton } from '@/features/voice/VoiceButton';
 import { SwapOptions } from './SwapOptions';
 
 const usd = (n: number) => `$${n.toFixed(2)}`;
@@ -148,6 +149,7 @@ export function StoreCartView({ premium }: { premium: boolean }) {
         <form className="row" style={{ gap: 8, marginTop: 10 }} onSubmit={(e) => { e.preventDefault(); searchProducts(query); }}>
           <input className="input" type="search" placeholder="e.g. pepper jack cheese" aria-label="Search all stores" value={query} onChange={(e) => setQuery(e.target.value)} />
           <button className="btn btn-secondary" disabled={!query.trim() || busy === 'searching'} aria-label="Search"><Icon name="search" size={18} /></button>
+          <VoiceButton label="Search stores by voice" onText={(q) => { setQuery(q); searchProducts(q); }} />
         </form>
         {busy === 'searching' && <div className="center" style={{ marginTop: 10 }}><Spinner /></div>}
         {searchResults && (
@@ -259,6 +261,7 @@ function CartLineSheet({ line, onClose }: { line: CartLine | null; onClose: () =
             <form className="row" style={{ gap: 8 }} onSubmit={(e) => { e.preventDefault(); searchLine(line.key, query); }}>
               <input className="input" type="search" aria-label="Search for a product" value={query} onChange={(e) => setQuery(e.target.value)} />
               <button className="btn btn-secondary" disabled={!query.trim() || busy}>{busy ? <Spinner /> : <Icon name="search" size={18} />}</button>
+              <VoiceButton label="Search for a product by voice" onText={(q) => { setQuery(q); searchLine(line.key, q); }} />
             </form>
             {line.choice?.url && (
               <a className="small" href={line.choice.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)' }}>
