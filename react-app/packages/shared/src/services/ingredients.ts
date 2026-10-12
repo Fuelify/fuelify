@@ -160,34 +160,64 @@ export function pantryCovers(pantryNames: string[], key: string): boolean {
   });
 }
 
+/** Where a list item comes from: one ingredient line of one planned meal. */
+export interface ListSource {
+  mealId: string;
+  /** The recipe's line as written (what a swap replaces) */
+  original: string;
+  /** The line after any swap */
+  line: string;
+}
+
+export interface ListItem extends ShoppingNeed {
+  /** The pantry already has it (the cart leaves it out) */
+  inPantry: boolean;
+  sources: ListSource[];
+}
+
 /**
- * Combine the ingredients of several recipes into one list: same item summed
- * per unit, staples (water, salt, pepper) dropped, and anything already in the
- * pantry skipped (returned separately so the app can say so).
+ * The week's shopping list: every ingredient of the planned meals, the same
+ * item combined across meals (summed per unit), staples dropped, and items the
+ * pantry covers flagged rather than removed.
+ */
+export function buildPlanList(
+  meals: { mealId: string; title: string; lines: { original: string; line: string }[] }[],
+  pantryNames: string[] = [],
+): ListItem[] {
+  const byKey = new Map<string, ListItem>();
+  for (const meal of meals) {
+    for (const { original, line } of meal.lines) {
+      const p = parseIngredient(line);
+      if (!p.key || STAPLES.test(p.name)) continue;
+      const item = byKey.get(p.key) ?? {
+        key: p.key, name: p.name, amounts: [], category: categorizeIngredient(p.key), recipes: [],
+        inPantry: pantryCovers(pantryNames, p.key), sources: [],
+      };
+      const same = item.amounts.find((a) => a.unit === p.unit);
+      if (same && same.quantity != null && p.quantity != null) same.quantity = Math.round((same.quantity + p.quantity) * 1000) / 1000;
+      else if (!same) item.amounts.push({ quantity: p.quantity, unit: p.unit });
+      if (!item.recipes.includes(meal.title)) item.recipes.push(meal.title);
+      item.sources.push({ mealId: meal.mealId, original, line });
+      byKey.set(p.key, item);
+    }
+  }
+  return [...byKey.values()].sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+}
+
+/**
+ * Combine the ingredients of several recipes into one list, leaving out what
+ * the pantry covers (returned separately so the app can say so).
  */
 export function buildShoppingList(
   recipes: { title: string; ingredients: string[] }[],
   pantryNames: string[] = [],
 ): { needs: ShoppingNeed[]; inPantry: string[] } {
-  const byKey = new Map<string, ShoppingNeed>();
-  const inPantry = new Set<string>();
-  for (const recipe of recipes) {
-    for (const line of recipe.ingredients) {
-      const p = parseIngredient(line);
-      if (!p.key || STAPLES.test(p.name)) continue;
-      if (pantryCovers(pantryNames, p.key)) {
-        inPantry.add(p.name);
-        continue;
-      }
-      const need = byKey.get(p.key) ?? { key: p.key, name: p.name, amounts: [], category: categorizeIngredient(p.key), recipes: [] };
-      const same = need.amounts.find((a) => a.unit === p.unit);
-      if (same && same.quantity != null && p.quantity != null) same.quantity = Math.round((same.quantity + p.quantity) * 1000) / 1000;
-      else if (!same) need.amounts.push({ quantity: p.quantity, unit: p.unit });
-      if (!need.recipes.includes(recipe.title)) need.recipes.push(recipe.title);
-      byKey.set(p.key, need);
-    }
-  }
-  return { needs: [...byKey.values()].sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name)), inPantry: [...inPantry] };
+  const items = buildPlanList(
+    recipes.map((r, i) => ({ mealId: String(i), title: r.title, lines: r.ingredients.map((l) => ({ original: l, line: l })) })),
+    pantryNames,
+  );
+  const strip = ({ inPantry: _p, sources: _s, ...need }: ListItem): ShoppingNeed => need;
+  return { needs: items.filter((i) => !i.inPantry).map(strip), inPantry: items.filter((i) => i.inPantry).map((i) => i.name) };
 }
 
 /** "2 cup + 1" style label for a combined need. */

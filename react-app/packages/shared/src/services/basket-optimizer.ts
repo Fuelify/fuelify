@@ -33,7 +33,7 @@ export interface OptimizedBasket {
 }
 
 /** Extra "cost" of each additional store, by strategy (USD-equivalent). */
-const STORE_COST: Record<GroceryConfig['strategy'], number> = { cheapest: 0.5, balanced: 4, 'fewest-stores': 15 };
+export const STORE_COST: Record<GroceryConfig['strategy'], number> = { cheapest: 0.5, balanced: 4, 'fewest-stores': 15 };
 /** Leaving an item out costs more than any sensible price difference. */
 const MISSING_COST = 25;
 

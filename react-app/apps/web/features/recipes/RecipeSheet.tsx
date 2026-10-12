@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { NUTRIENTS, type Recipe, todayISO, totalTimeMinutes } from '@fuelify/shared';
+import { NUTRIENTS, applySwaps, type IngredientSwap, type Recipe, todayISO, totalTimeMinutes } from '@fuelify/shared';
 import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
 import { FoodImage, Icon, Sheet } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
+import { SwapOptions } from '@/features/grocery/SwapOptions';
 
 /**
  * Recipe detail: ingredients, steps, nutrition, like/favorite, add ingredients
@@ -15,10 +16,16 @@ export function RecipeSheet({
   recipe,
   onClose,
   primaryAction,
+  swaps = [],
+  onSwap,
 }: {
   recipe: Recipe | null;
   onClose: () => void;
   primaryAction?: { label: string; icon: 'edit' | 'calendar'; onClick: () => void };
+  /** A planned meal's swaps; with `onSwap`, ingredients can be tapped to swap */
+  swaps?: IngredientSwap[];
+  /** Swap one of the recipe's lines (replacement name, or null to undo) */
+  onSwap?: (original: string, replacementName: string | null) => Promise<void> | void;
 }) {
   const classifications = useRecipeStore((s) => s.classifications);
   const classifyRecipe = useRecipeStore((s) => s.classifyRecipe);
@@ -26,6 +33,16 @@ export function RecipeSheet({
   const addCartItem = useShoppingCartStore((s) => s.addItem);
 
   const [planOpen, setPlanOpen] = useState(false);
+  const [swapping, setSwapping] = useState<string | null>(null);
+  const [swapBusy, setSwapBusy] = useState(false);
+  const shown = recipe ? applySwaps(recipe.ingredients, swaps) : [];
+  const doSwap = async (original: string, name: string | null) => {
+    if (!onSwap) return;
+    setSwapBusy(true);
+    await onSwap(original, name);
+    setSwapBusy(false);
+    setSwapping(null);
+  };
   const [cartState, setCartState] = useState<'idle' | 'adding' | 'added'>('idle');
 
   const current = recipe ? classifications.find((c) => c.recipeId === recipe.id)?.classification : undefined;
@@ -47,7 +64,7 @@ export function RecipeSheet({
   return (
     <>
       <Sheet
-        open={!!recipe && !planOpen}
+        open={!!recipe && !planOpen && swapping === null}
         onClose={close}
         title={recipe?.title ?? ''}
         footer={
@@ -88,10 +105,31 @@ export function RecipeSheet({
             {recipe.ingredients.length > 0 && (
               <section className="stack-sm">
                 <h3 className="h3">Ingredients</h3>
+                {onSwap && <p className="tiny faint">Tap an ingredient to swap it for this meal.</p>}
                 <ul className="list" style={{ listStyle: 'none' }}>
-                  {recipe.ingredients.map((ing) => (
-                    <li key={ing} className="list-row" style={{ minHeight: 44 }}>{ing}</li>
-                  ))}
+                  {recipe.ingredients.map((original, i) => {
+                    const line = shown[i];
+                    const swapped = line !== original;
+                    const body = (
+                      <span className="grow">
+                        <span style={{ display: 'block' }}>{line}</span>
+                        {swapped && <span className="tiny faint">Swapped from {original}</span>}
+                      </span>
+                    );
+                    return (
+                      <li key={`${i}-${original}`} style={{ listStyle: 'none' }}>
+                        {onSwap ? (
+                          <button className="list-row" style={{ minHeight: 44, width: '100%', textAlign: 'left', gap: 8 }} onClick={() => setSwapping(original)}>
+                            {body}
+                            {swapped && <span className="badge badge-tertiary">Swapped</span>}
+                            <Icon name="shuffle" size={16} />
+                          </button>
+                        ) : (
+                          <div className="list-row" style={{ minHeight: 44 }}>{body}</div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             )}
@@ -111,6 +149,20 @@ export function RecipeSheet({
             )}
 
             <NutritionPanel recipe={recipe} />
+          </div>
+        )}
+      </Sheet>
+
+      <Sheet open={!!recipe && swapping !== null} onClose={() => setSwapping(null)} title="Swap ingredient">
+        {swapping && (
+          <div className="stack">
+            <p className="small muted">In this meal: <strong>{applySwaps([swapping], swaps)[0]}</strong></p>
+            {swaps.some((s) => s.original === swapping) && (
+              <button className="btn btn-secondary btn-block" onClick={() => doSwap(swapping, null)} disabled={swapBusy}>
+                Back to {swapping}
+              </button>
+            )}
+            <SwapOptions ingredient={swapping} busy={swapBusy} onSwap={(name) => doSwap(swapping, name)} />
           </div>
         )}
       </Sheet>

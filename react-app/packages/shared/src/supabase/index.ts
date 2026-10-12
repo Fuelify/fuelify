@@ -25,3 +25,4 @@ export { ShoppingCartRepository } from './shopping-cart-repo';
 export { PantryRepository } from './pantry-repo';
 export { displayName, fetchDisplayProfiles, withAddedByNames } from './profile-names';
 export type { DisplayProfile } from './profile-names';
+export * from './grocery-repo';

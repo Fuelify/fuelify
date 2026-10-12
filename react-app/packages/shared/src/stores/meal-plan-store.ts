@@ -5,6 +5,7 @@ import { createStore } from 'zustand/vanilla';
 import type { MealPlanRepository, MealPlanMeal } from '../supabase/meal-plan-repo';
 import { addDays, todayISO } from '../utils/dates';
 import { nextMealOption, type MealSwapState } from '../models/meal';
+import type { IngredientSwap } from '../services/substitutions';
 
 export interface MealPlanState {
   meals: Record<string, MealPlanMeal[]>; // keyed by date string (YYYY-MM-DD)
@@ -22,6 +23,8 @@ export interface MealPlanActions {
   deleteMeal: (mealId: string) => Promise<void>;
   /** Instantly swap a generated meal to its next saved option (saved in the background). No-op on the last option. */
   swapMeal: (mealId: string) => Promise<void>;
+  /** Set a meal's ingredient swaps (shown immediately, saved in the background). */
+  setMealSwaps: (mealId: string, swaps: IngredientSwap[]) => Promise<boolean>;
   /** Show a swap immediately and save it; rolls back if saving fails. */
   applySwap: (mealId: string, swap: MealSwapState) => Promise<void>;
   addFeedback: (mealId: string, feedback: { rating?: number; comment?: string }) => Promise<void>;
@@ -112,6 +115,22 @@ export function createMealPlanStore(repo: MealPlanRepository, userId: string) {
         seenRecipeIds: meal.seenRecipeIds,
       });
       if (next) await get().applySwap(mealId, next);
+    },
+
+    setMealSwaps: async (mealId, swaps) => {
+      const date = Object.keys(get().meals).find((d) => get().meals[d].some((m) => m.id === mealId));
+      const before = date ? get().meals[date].find((m) => m.id === mealId) : undefined;
+      const put = (m: MealPlanMeal) =>
+        date && set((state) => ({ meals: { ...state.meals, [date]: (state.meals[date] ?? []).map((x) => (x.id === mealId ? m : x)) } }));
+      if (before) put({ ...before, ingredientSwaps: swaps });
+      try {
+        await repo.setIngredientSwaps(mealId, swaps);
+        return true;
+      } catch (err) {
+        if (before) put(before);
+        set({ error: (err as Error).message });
+        return false;
+      }
     },
 
     applySwap: async (mealId, swap) => {

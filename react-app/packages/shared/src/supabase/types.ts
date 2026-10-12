@@ -1,4 +1,5 @@
 import type { MealOption } from '../models/meal';
+import type { IngredientSwap } from '../services/substitutions';
 
 // Supabase Database types for the Fuelify PostgreSQL schema
 // Maps to the tables created in supabase/migrations/00001_initial_schema.sql
@@ -121,6 +122,7 @@ export interface Database {
           generated: boolean;
           alternatives: MealOption[];
           seen_recipe_ids: string[];
+          ingredient_swaps: IngredientSwap[];
           date: string;
           created_at: string;
           updated_at: string;
@@ -137,6 +139,7 @@ export interface Database {
           generated?: boolean;
           alternatives?: MealOption[];
           seen_recipe_ids?: string[];
+          ingredient_swaps?: IngredientSwap[];
           date: string;
           created_at?: string;
           updated_at?: string;
@@ -152,6 +155,7 @@ export interface Database {
           generated?: boolean;
           alternatives?: MealOption[];
           seen_recipe_ids?: string[];
+          ingredient_swaps?: IngredientSwap[];
           date?: string;
           updated_at?: string;
         };
@@ -286,6 +290,27 @@ export interface Database {
           rating?: number;
           review_text?: string | null;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      household_grocery: {
+        Row: {
+          household_id: string;
+          cart: Record<string, unknown> | null;
+          skipped_keys: string[];
+          updated_by: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          household_id: string;
+          cart?: Record<string, unknown> | null;
+          skipped_keys?: string[];
+          updated_by?: string | null;
+        };
+        Update: {
+          cart?: Record<string, unknown> | null;
+          skipped_keys?: string[];
+          updated_by?: string | null;
         };
         Relationships: [];
       };

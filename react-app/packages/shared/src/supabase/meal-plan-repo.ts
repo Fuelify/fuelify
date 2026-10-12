@@ -4,6 +4,7 @@
 import type { TypedSupabaseClient } from './client';
 import type { MealRow } from './types';
 import { readMealOptions, type MealOption, type MealSwapState } from '../models/meal';
+import { readSwaps, type IngredientSwap } from '../services/substitutions';
 
 export interface MealPlanMeal {
   id: string;
@@ -19,6 +20,8 @@ export interface MealPlanMeal {
   alternatives: MealOption[];
   /** Recipes already shown while shuffling this meal */
   seenRecipeIds: string[];
+  /** Ingredient swaps for this meal's recipe */
+  ingredientSwaps: IngredientSwap[];
 }
 
 function rowToMeal(row: MealRow): MealPlanMeal {
@@ -33,6 +36,7 @@ function rowToMeal(row: MealRow): MealPlanMeal {
     generated: row.generated ?? false,
     alternatives: readMealOptions(row.alternatives),
     seenRecipeIds: row.seen_recipe_ids ?? [],
+    ingredientSwaps: readSwaps(row.ingredient_swaps),
   };
 }
 
@@ -162,6 +166,12 @@ export class MealPlanRepository {
     );
 
     if (error) throw new Error(`Failed to add generated meals: ${error.message}`);
+  }
+
+  /** Save a meal's ingredient swaps. */
+  async setIngredientSwaps(mealId: string, swaps: IngredientSwap[]): Promise<void> {
+    const { error } = await this.supabase.from('meals').update({ ingredient_swaps: swaps, updated_at: new Date().toISOString() }).eq('id', mealId);
+    if (error) throw new Error(`Failed to save swaps: ${error.message}`);
   }
 
   /** Swap a generated meal to another recipe; it stays generated. */
