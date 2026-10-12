@@ -126,8 +126,8 @@ function ListItemSheet({ item, onClose }: { item: ListItem | null; onClose: () =
           ingredient={item.name}
           busy={busy === 'swapping'}
           label={`Swap in ${item.recipes.length === 1 ? item.recipes[0] : `all ${item.recipes.length} meals`}`}
-          onSwap={async (name) => {
-            await swapListItem(item, name);
+          onSwap={async (name, meta) => {
+            await swapListItem(item, name, meta);
             onClose();
           }}
         />

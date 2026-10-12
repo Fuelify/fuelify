@@ -30,8 +30,8 @@ export function PlannedMealRecipe({ meal, onClose, onEdit }: { meal: MealPlanMea
       swaps={live?.ingredientSwaps}
       onSwap={
         live
-          ? async (original, name) => {
-              await setMealSwaps(live.id, withSwap(live.ingredientSwaps, original, name ? swapLine(original, name) : null));
+          ? async (original, name, meta) => {
+              await setMealSwaps(live.id, withSwap(live.ingredientSwaps, original, name ? swapLine(original, name) : null), { surface: 'recipe', ...meta });
             }
           : undefined
       }

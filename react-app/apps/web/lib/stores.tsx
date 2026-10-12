@@ -59,6 +59,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     auth.getState().initialize();
   }, [auth]);
 
+  // Write queued behavior events before the tab is hidden or closed, and when the user changes
+  useEffect(() => {
+    if (!userStores) return;
+    const flush = () => {
+      if (document.visibilityState === 'hidden') void userStores.behaviorLog.flush();
+    };
+    document.addEventListener('visibilitychange', flush);
+    return () => {
+      document.removeEventListener('visibilitychange', flush);
+      void userStores.behaviorLog.flush();
+    };
+  }, [userStores]);
+
   return (
     <AppStoresContext.Provider value={appStores.current}>
       <UserStoresContext.Provider value={userStores}>{children}</UserStoresContext.Provider>

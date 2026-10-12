@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { MEAL_TYPES, type MealPlanMeal, type MealType } from '@fuelify/shared';
 import { useMealPlanStore } from '@/lib/stores';
 import { usePlan } from '@/features/premium/usePlan';
-import { AddMealPicker, type AddMealSource } from './AddMealPicker';
+import { AddMealPicker, type AddMealSource, type PickMeta } from './AddMealPicker';
 import { Segmented, Sheet } from '@/components/ui';
 
 // Re-exported so feature code can import meal types alongside the sheet
@@ -63,17 +63,17 @@ export function MealSheet({
       await updateMeal(meal.id, { title: title.trim(), description: description.trim(), mealType });
       if (date !== meal.date) await moveMeal(meal.id, date);
     } else {
-      await addMeal({ title: title.trim(), description: description.trim(), date, mealType, recipeId: preset?.recipeId });
+      await addMeal({ title: title.trim(), description: description.trim(), date, mealType, recipeId: preset?.recipeId }, { source: preset?.recipeId ? 'recipe' : 'custom' });
     }
     setBusy(false);
     onClose();
   };
 
   /** Picking a recipe adds it straight to the plan */
-  const handlePick = async (recipe: { id: string; title: string; description: string }) => {
+  const handlePick = async (recipe: { id: string; title: string; description: string }, meta: PickMeta) => {
     if (!date) return;
     setBusy(true);
-    await addMeal({ title: recipe.title, description: recipe.description, date, mealType, recipeId: recipe.id });
+    await addMeal({ title: recipe.title, description: recipe.description, date, mealType, recipeId: recipe.id }, meta);
     setBusy(false);
     onClose();
   };

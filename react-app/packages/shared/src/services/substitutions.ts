@@ -49,6 +49,7 @@ const SWAP_RULES: [RegExp, SwapSuggestion[]][] = [
   [/\b(heavy cream|whipping cream)\b/, [S('half-and-half', 'Lighter', 'Vegetarian'), S('coconut cream', 'Dairy-free', 'Vegan')]],
   [/\bcream of (mushroom|chicken|celery) soup\b/, [S('cream of mushroom soup (low sodium)', 'Less salt', 'Vegetarian'), S('dairy-free cream of mushroom soup', 'Dairy-free', 'Vegan')]],
   [/\b(whole |2% |skim )?milk\b/, [S('oat milk', 'Dairy-free', 'Vegan'), S('almond milk', 'Dairy-free', 'Vegan'), S('2% milk', 'Lighter', 'Vegetarian')]],
+  [/\b(almond|cashew|sunflower seed|sunflower) butter\b/, [S('peanut butter', 'Budget', 'Vegan'), S('sunflower seed butter', 'Nut-free', 'Vegan')]],
   [/\bpeanut butter\b/, [S('almond butter', 'Peanut-free', 'Vegan'), S('sunflower seed butter', 'Nut-free', 'Vegan')]],
   [/\bbutter\b/, [S('olive oil', 'Dairy-free', 'Vegan'), S('vegan butter', 'Dairy-free', 'Vegan')]],
   [/\byogurt\b/, [S('skyr', 'More protein', 'Vegetarian'), S('coconut yogurt', 'Dairy-free', 'Vegan')]],

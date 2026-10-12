@@ -12,6 +12,7 @@ import type { PantryRepository } from '../supabase/pantry-repo';
 import type { ProfileRepository } from '../supabase/profile-repo';
 import type { RecipeRepository } from '../supabase/recipe-repo';
 import type { MealPlanStore } from './meal-plan-store';
+import { NO_BEHAVIOR_LOG, type BehaviorLog } from './behavior-log';
 
 export interface PlanGenerationState {
   /** Dates currently being generated, empty when idle */
@@ -59,12 +60,15 @@ export interface PlanGenerationDeps {
   pantry: PantryRepository;
   /** Refreshed after saving so the plan view updates */
   mealPlanStore: StoreApi<MealPlanStore>;
+  /** Records what was generated (what the household was shown) */
+  log?: BehaviorLog;
 }
 
 /** Days either side of the generated range whose recipes count as "recent". */
 const VARIETY_WINDOW_DAYS = 6;
 
 export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: string) {
+  const log = deps.log ?? NO_BEHAVIOR_LOG;
   // Loaded per run (it's small) so recipes the user just imported are included
   const loadCatalog = () => deps.recipes.listAllRecipes();
 
@@ -138,6 +142,18 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
           })),
         );
         await deps.mealPlanStore.getState().fetchMealPlan(first, last);
+        // What the planner offered, slot by slot: the baseline later shuffles, swaps and removals are measured against
+        log.track({
+          type: 'meal_plan_generated',
+          surface: 'generator',
+          householdId: householdId ?? null,
+          payload: {
+            dates: sorted,
+            slots,
+            unfilled: result.unfilled,
+            meals: result.meals.map((m) => ({ date: m.date, mealType: m.mealType, recipeId: m.recipe.id, alternatives: m.alternatives.map((a) => a.id) })),
+          },
+        });
 
         set({
           generatingDates: [],
@@ -183,7 +199,7 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
           current: toOption(fresh.recipe),
           alternatives: fresh.alternatives.map(toOption),
           seenRecipeIds: exhausted ? [meal.recipeId] : seen,
-        });
+        }, 'fresh_batch');
       } catch (err) {
         set({ error: (err as Error).message });
       } finally {
@@ -219,7 +235,11 @@ export function createPlanGenerationStore(deps: PlanGenerationDeps, userId: stri
         .reduce((n, [, day]) => n + day.filter((m) => m.generated).length, 0);
       set({ generatingDates: sorted, error: null, lastResult: null });
       try {
+        const removed = Object.entries(deps.mealPlanStore.getState().meals)
+          .filter(([date]) => targets.has(date))
+          .flatMap(([, day]) => day.filter((m) => m.generated).map((m) => ({ mealId: m.id, date: m.date, mealType: m.mealType, recipeId: m.recipeId })));
         await deps.meals.deleteGeneratedMeals(userId, sorted);
+        log.track({ type: 'meal_plan_cleared', surface: 'plan', payload: { dates: sorted, meals: removed } });
         await deps.mealPlanStore.getState().fetchMealPlan(sorted[0], sorted[sorted.length - 1]);
         set({ generatingDates: [], lastResult: { dates: sorted, added: 0, unfilled: [], cleared } });
         return true;
