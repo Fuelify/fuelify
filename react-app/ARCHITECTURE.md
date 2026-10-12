@@ -59,6 +59,14 @@ react-app/
   `app/api/recipes/import` (signed-in users; public hosts only, re-checked on every
   redirect; time- and size-limited — see `lib/fetch-recipe-page.ts`). Users read the
   catalog plus their own and their household's recipes (RLS `recipes_read`).
+- **Voice input:** speech-to-text uses the browser's built-in recognizer
+  (`lib/useSpeechInput.ts`; Chrome, Edge and Safari, not Firefox) and nothing
+  is sent to our servers. Turning words into content is pure, tested code in
+  `services/voice-parse.ts`: `parseSpokenItems` for lists and pantry,
+  `spokenRecipeToText` feeding `parseRecipeText`, and `spokenQuery` for search.
+  The UI pieces are in `features/voice`: `VoiceButton` for one phrase,
+  `VoiceSheet` for dictation and `VoiceItemsSheet`. They render nothing where
+  the browser can't listen.
 - **Behavior events (learning data):** every choice that says something about a
   household's habits is appended to `behavior_events` (migration 00015) through
   the `behaviorLog` built in `createUserStores()`. This covers ingredient swaps

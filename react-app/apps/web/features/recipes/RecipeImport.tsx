@@ -5,6 +5,7 @@ import {
   DIET_OPTIONS,
   MEAL_TYPES,
   parseRecipeText,
+  spokenRecipeToText,
   titleFromUrl,
   recipeUrlError,
   type MealType,
@@ -13,6 +14,8 @@ import {
 } from '@fuelify/shared';
 import { useRecipeStore, useSupabase } from '@/lib/stores';
 import { FoodImage, Icon, Segmented, Spinner } from '@/components/ui';
+import { VoiceSheet } from '@/features/voice/VoiceSheet';
+import { useSpeechInput } from '@/lib/useSpeechInput';
 
 type Source = 'link' | 'text';
 
@@ -46,6 +49,8 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
   const [draft, setDraft] = useState<RecipeDraft | null>(null);
   // A link the site wouldn't let us fetch; kept as the source of the pasted text
   const [pastedFrom, setPastedFrom] = useState<string | null>(null);
+  const [dictating, setDictating] = useState(false);
+  const canListen = useSpeechInput().supported;
 
   const read = async () => {
     setError(null);
@@ -95,7 +100,7 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
   return (
     <div className="stack-sm">
       <Segmented
-        options={[{ value: 'link', label: 'From a link' }, { value: 'text', label: 'Paste text' }]}
+        options={[{ value: 'link', label: 'From a link' }, { value: 'text', label: canListen ? 'Write or say it' : 'Paste text' }]}
         value={source}
         onChange={(s) => { setSource(s); setError(null); }}
       />
@@ -108,6 +113,11 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
         </div>
       ) : (
         <div className="field">
+          {canListen && (
+            <button type="button" className="btn btn-secondary btn-block" onClick={() => setDictating(true)} style={{ marginBottom: 8 }}>
+              <Icon name="mic" size={18} /> Say the recipe
+            </button>
+          )}
           <label htmlFor="import-text">Recipe</label>
           <textarea id="import-text" className="textarea" rows={9} value={text} onChange={(e) => setText(e.target.value)}
             placeholder={'Grandma’s chili\n\nIngredients\n1 lb ground beef\n1 can kidney beans\n\nInstructions\nBrown the beef…'} />
@@ -119,6 +129,35 @@ export function RecipeImport({ onSaved, saveLabel = 'Save recipe' }: { onSaved: 
         </div>
       )}
       {error && <div className="alert" role="alert">{error}</div>}
+      <VoiceSheet
+        open={dictating}
+        title="Say the recipe"
+        hint="Say its name, then “ingredients” and each one with its amount, then “steps” and what to do, using “then” between steps."
+        example="Taco pasta. Ingredients: one pound ground beef, two cups of shells. Steps: boil the shells, then brown the beef…"
+        onClose={() => setDictating(false)}
+        preview={(said) => {
+          const d = parseRecipeText(spokenRecipeToText(said));
+          if (!d) return <p className="hint">Keep going: say “ingredients” and “steps”.</p>;
+          return (
+            <div className="card stack-sm">
+              <strong>{d.title}</strong>
+              {d.ingredients.length > 0 && <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>{d.ingredients.map((i, n) => <li key={n}>{i}</li>)}</ul>}
+              {d.steps.length > 0 && <ol className="small" style={{ margin: 0, paddingLeft: 18 }}>{d.steps.map((s, n) => <li key={n}>{s}</li>)}</ol>}
+            </div>
+          );
+        }}
+        canSubmit={(said) => !!parseRecipeText(spokenRecipeToText(said))}
+        actionLabel={() => 'Use this recipe'}
+        onSubmit={(said) => {
+          const written = spokenRecipeToText(said);
+          setText(written);
+          setError(null);
+          const parsed = parseRecipeText(written);
+          // Straight to review; Back returns to the text to fix anything
+          if (parsed) setDraft(parsed);
+          return true;
+        }}
+      />
       <button className="btn btn-primary btn-block" onClick={read} disabled={busy || (source === 'link' ? !url.trim() : !text.trim())}>
         {busy ? <><Spinner /> Reading recipe…</> : <><Icon name="download" size={18} /> Get recipe</>}
       </button>

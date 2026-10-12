@@ -9,6 +9,8 @@ import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented } from '@/compone
 import { usePlan } from '@/features/premium/usePlan';
 import { ShoppingListView } from '@/features/grocery/ShoppingListView';
 import { StoreCartView } from '@/features/grocery/StoreCartView';
+import { VoiceItemsSheet } from '@/features/voice/VoiceItemsSheet';
+import { useSpeechInput } from '@/lib/useSpeechInput';
 
 // Groceries: the week's shopping List (from the meal plan, plus items added by
 // hand) and the store Cart (the list priced and split by store). Checked-off
@@ -40,6 +42,8 @@ function Groceries() {
   const addPantryItems = usePantryStore((s) => s.addItems);
 
   const [newItem, setNewItem] = useState('');
+  const [voiceOpen, setVoiceOpen] = useState(false);
+  const canListen = useSpeechInput().supported;
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
   // List (what the week needs) vs Cart (priced and split by store)
@@ -114,7 +118,20 @@ function Groceries() {
             <button type="submit" className="btn btn-primary" disabled={!newItem.trim()} aria-label="Add item" style={{ padding: '0 14px' }}>
               <Icon name="plus" />
             </button>
+            {canListen && (
+              <button type="button" className="btn btn-secondary" aria-label="Say items" onClick={() => setVoiceOpen(true)} style={{ padding: '0 14px' }}>
+                <Icon name="mic" />
+              </button>
+            )}
           </form>
+          <VoiceItemsSheet
+            open={voiceOpen}
+            onClose={() => setVoiceOpen(false)}
+            onAdd={async (spoken) => {
+              if (!activeHouseholdId) return;
+              for (const i of spoken) await addItem(activeHouseholdId, { name: i.name, quantity: i.quantity, unit: i.unit ?? undefined });
+            }}
+          />
 
           {cartLoading && items.length === 0 ? (
             <LoadingBlock />

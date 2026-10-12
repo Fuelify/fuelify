@@ -7,6 +7,7 @@ import { useHouseholdStore, usePlanGenerationStore, useProfileStore, useRecipeSt
 import { usePlan } from '@/features/premium/usePlan';
 import { RecipeImport } from '@/features/recipes/RecipeImport';
 import { FoodTile, Icon, Segmented, Spinner } from '@/components/ui';
+import { VoiceButton } from '@/features/voice/VoiceButton';
 
 export type AddMealSource = 'suggested' | 'search' | 'import' | 'custom';
 
@@ -128,7 +129,8 @@ function CatalogSearch({ mealType, onPick }: { mealType: MealType; onPick: OnPic
 
   return (
     <div className="stack-sm">
-      <div className="search-field" style={{ position: 'relative' }}>
+      <div className="row" style={{ gap: 8 }}>
+        <div className="search-field" style={{ position: 'relative', flex: 1 }}>
         <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-3)', display: 'flex' }}>
           <Icon name="search" size={18} />
         </span>
@@ -141,6 +143,8 @@ function CatalogSearch({ mealType, onPick }: { mealType: MealType; onPick: OnPic
           onChange={(e) => setQuery(e.target.value)}
           style={{ paddingLeft: 38 }}
         />
+      </div>
+        <VoiceButton label="Search recipes by voice" onText={setQuery} />
       </div>
       <button className="chip" aria-pressed={anyMeal} onClick={() => setAnyMeal((v) => !v)} style={{ alignSelf: 'flex-start' }}>
         Include all meal types

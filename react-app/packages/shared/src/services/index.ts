@@ -6,3 +6,4 @@ export * from './recipe-import';
 export * from './ingredients';
 export * from './basket-optimizer';
 export * from './substitutions';
+export * from './voice-parse';

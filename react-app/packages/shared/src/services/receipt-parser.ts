@@ -51,7 +51,7 @@ const KEYWORD_CATEGORIES: Array<[RegExp, PantryCategory, StorageZone?]> = [
   [/\b(deli|salami|prosciutto|pastrami)\b/i, 'Deli', 'cool'],
 ];
 
-function guessCategoryAndZone(description: string): { category?: PantryCategory; storageZone?: StorageZone } {
+export function guessCategoryAndZone(description: string): { category?: PantryCategory; storageZone?: StorageZone } {
   for (const [pattern, category, zone] of KEYWORD_CATEGORIES) {
     if (pattern.test(description)) return { category, storageZone: zone };
   }

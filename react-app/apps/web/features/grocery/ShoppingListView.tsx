@@ -85,7 +85,7 @@ export function ShoppingListView({ householdId, premium }: { householdId: string
           </div>
         ))
       )}
-      {list.mealsWithoutRecipe > 0 && <p className="hint">{list.mealsWithoutRecipe} meal{list.mealsWithoutRecipe === 1 ? '' : 's'} you typed in yourself have no ingredient list.</p>}
+      {list.mealsWithoutRecipe > 0 && <p className="hint">{list.mealsWithoutRecipe === 1 ? '1 meal you typed in yourself has' : `${list.mealsWithoutRecipe} meals you typed in yourself have`} no ingredient list.</p>}
 
       <ListItemSheet item={open} onClose={() => setOpen(null)} />
     </section>
