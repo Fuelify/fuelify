@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   GROCERY_STORE_INFO,
+  dealSaving,
   offerPrice,
   readGroceryConfig,
   summarizeCart,
@@ -182,7 +183,7 @@ function CartRow({ line, onOpen }: { line: CartLine; onOpen: () => void }) {
 }
 
 function Price({ offer }: { offer: ProductOffer }) {
-  const deal = offer.promoPrice != null && offer.promoPrice < offer.price;
+  const deal = dealSaving(offer) > 0;
   return (
     <span style={{ textAlign: 'right', flexShrink: 0 }}>
       <strong style={{ display: 'block', color: deal ? 'var(--accent)' : undefined }}>{usd(offerPrice(offer))}</strong>

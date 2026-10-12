@@ -2,7 +2,7 @@
 // choose where to buy what. Trades total cost against the number of stores
 // (the user's strategy), and honours organic / store-brand preferences.
 
-import { offerPrice, type GroceryConfig, type GroceryStoreId, type ProductOffer } from '../models/grocery';
+import { dealSaving, offerPrice, type GroceryConfig, type GroceryStoreId, type ProductOffer } from '../models/grocery';
 
 export interface BasketItem {
   key: string;
@@ -106,7 +106,7 @@ export function optimizeBasket(
     .map(([store, picks]) => ({ store, picks, subtotal: round2(picks.reduce((sum, p) => sum + offerPrice(p.offer), 0)) }))
     .sort((a, b) => b.picks.length - a.picks.length);
   const total = round2(stores.reduce((sum, s) => sum + s.subtotal, 0));
-  const dealSavings = round2(best.picks.reduce((sum, p) => sum + (p.offer.price - offerPrice(p.offer)), 0));
+  const dealSavings = round2(best.picks.reduce((sum, p) => sum + dealSaving(p.offer), 0));
 
   // Compare with one-stop shopping where a single store covers everything we found
   const oneStoreTotals = storesWithOffers

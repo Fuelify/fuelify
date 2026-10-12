@@ -4,7 +4,7 @@
 // walmart.io), WALMART_KEY_VERSION (default "1"), optional WALMART_PUBLISHER_ID.
 
 import { createSign } from 'node:crypto';
-import type { ProductOffer } from '@fuelify/shared';
+import { MAX_DEAL_RATIO, type ProductOffer } from '@fuelify/shared';
 import { fetchJson, money, ProviderError, type GroceryProvider } from './provider';
 
 const SEARCH = 'https://developer.api.walmart.com/api-proxy/service/affil/product/v2/search';
@@ -52,7 +52,10 @@ export const walmart: GroceryProvider = {
     const data = await fetchJson<{ items?: WalmartItem[] }>(`${SEARCH}?${params}`, { headers: signedHeaders() }, 'Walmart');
     return (data.items ?? []).flatMap((i): ProductOffer[] => {
       const sale = money(i.salePrice);
-      const regular = money(i.msrp);
+      // msrp is a list price that can be far from anything Walmart charges
+      // (e.g. $1,400 on a $3 bottle); only count it as a deal when believable
+      const listed = money(i.msrp);
+      const regular = listed && sale && listed > sale * MAX_DEAL_RATIO ? null : listed;
       const price = regular && sale && regular > sale ? regular : sale ?? regular;
       if (!price) return [];
       return [{

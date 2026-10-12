@@ -150,6 +150,14 @@ describe('cart helpers', () => {
     expect(s.dealSavings).toBe(0.5);
   });
 
+  it('ignores unbelievable list prices as deals', () => {
+    // Walmart sometimes reports an msrp of hundreds of dollars on a $3 item
+    const bogus: GroceryCart = { ...cart, lines: [{ ...cart.lines[0], choice: offer('walmart', 'a', 1400, { promoPrice: 2.67 }) }] };
+    const s = summarizeCart(bogus);
+    expect(s.total).toBe(2.67);
+    expect(s.dealSavings).toBe(0);
+  });
+
   it('recommends a store already in the cart unless another is clearly cheaper', () => {
     const walmartOnly: GroceryCart = { ...cart, lines: [cart.lines[0]] };
     const options = [offer('walmart', 'x', 3), offer('kroger', 'x', 2)];
