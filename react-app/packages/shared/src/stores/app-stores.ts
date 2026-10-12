@@ -17,6 +17,7 @@ import { createShoppingCartStore } from './shopping-cart-store';
 import { createPantryStore } from './pantry-store';
 import { createMealSuggestionStore } from './meal-suggestion-store';
 import { createPlanGenerationStore } from './plan-generation-store';
+import { GroceryRepository } from '../supabase/grocery-repo';
 import { createGroceryStore, UNAVAILABLE_GROCERY_API, type GroceryApi } from './grocery-store';
 
 /** App-specific services the shared stores need. */
@@ -42,7 +43,7 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
     householdStore: createHouseholdStore(new HouseholdRepository(supabase), userId),
     shoppingCartStore,
     groceryStore: createGroceryStore(
-      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, cartStore: shoppingCartStore },
+      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore },
       userId,
     ),
     pantryStore: createPantryStore(pantry, userId),

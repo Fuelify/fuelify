@@ -39,4 +39,4 @@ export { createUserStores } from './app-stores';
 export type { UserStores, UserStoreServices } from './app-stores';
 
 export { createGroceryStore, UNAVAILABLE_GROCERY_API } from './grocery-store';
-export type { GroceryStore, GroceryState, GroceryActions, GroceryApi, GroceryDeps, ListPreview, CheckoutItem } from './grocery-store';
+export type { GroceryStore, GroceryState, GroceryActions, GroceryApi, GroceryDeps, ShoppingList, CheckoutItem } from './grocery-store';

@@ -1,17 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import type { CartItem } from '@fuelify/shared';
 import { useAuthStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '@/lib/stores';
-import { EmptyState, Icon, LoadingBlock, PageHeader } from '@/components/ui';
+import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
-import { FromPlanSheet } from '@/features/grocery/FromPlanSheet';
-import { BestPricesSheet } from '@/features/grocery/BestPricesSheet';
+import { ShoppingListView } from '@/features/grocery/ShoppingListView';
+import { StoreCartView } from '@/features/grocery/StoreCartView';
 
-// Shared household shopping list. Checked items can be moved straight into the pantry.
+// Groceries: the week's shopping List (from the meal plan, plus items added by
+// hand) and the store Cart (the list priced and split by store). Checked-off
+// hand-added items can be moved straight into the pantry.
 export default function CartPage() {
+  return (
+    <Suspense fallback={<LoadingBlock />}>
+      <Groceries />
+    </Suspense>
+  );
+}
+
+function Groceries() {
   const userId = useAuthStore((s) => s.userId);
 
   const households = useHouseholdStore((s) => s.households);
@@ -32,12 +42,12 @@ export default function CartPage() {
   const [newItem, setNewItem] = useState('');
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
-  // Premium store tools
+  // List (what the week needs) vs Cart (priced and split by store)
   const router = useRouter();
+  const params = useSearchParams();
+  const view = params.get('view') === 'cart' ? 'cart' : 'list';
+  const setView = (v: 'list' | 'cart') => router.replace(v === 'cart' ? '/cart?view=cart' : '/cart');
   const { premium } = usePlan();
-  const [tool, setTool] = useState<'plan' | 'prices' | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
-  const openTool = (t: 'plan' | 'prices') => (premium ? setTool(t) : router.push('/premium'));
 
   useEffect(() => {
     ensureHousehold().finally(() => setStarted(true));
@@ -84,38 +94,32 @@ export default function CartPage() {
         }
       />
 
-      <form onSubmit={handleAdd} className="row" style={{ padding: '0 var(--gutter) 12px', flexShrink: 0 }}>
-        <input className="input" placeholder="Add an item…" value={newItem} onChange={(e) => setNewItem(e.target.value)} aria-label="New item" />
-        <button type="submit" className="btn btn-primary" disabled={!newItem.trim()} aria-label="Add item" style={{ padding: '0 14px' }}>
-          <Icon name="plus" />
-        </button>
-      </form>
-
-      <div className="row" style={{ padding: '0 var(--gutter) 12px', gap: 8, flexShrink: 0 }}>
-        <button className="btn btn-secondary btn-sm grow" onClick={() => openTool('plan')}>
-          <Icon name="calendar" size={16} /> From meal plan
-        </button>
-        <button className="btn btn-secondary btn-sm grow" onClick={() => openTool('prices')} disabled={premium && unchecked.length === 0}>
-          <Icon name="sparkles" size={16} /> Best prices
-        </button>
+      <div style={{ padding: '0 var(--gutter) 12px', flexShrink: 0 }}>
+        <Segmented options={[{ value: 'list', label: 'List' }, { value: 'cart', label: 'Cart' }]} value={view} onChange={setView} />
       </div>
 
       <div className="screen-scroll">
         <div className="screen-pad stack" style={{ paddingTop: 0, paddingBottom: 32 }}>
           {(cartError || hhError) && <div className="alert">{cartError ?? hhError}</div>}
-          {notice && (
-            <div className="alert alert-info row" role="status" style={{ gap: 8 }}>
-              <span className="grow">{notice}</span>
-              <button className="icon-btn" aria-label="Dismiss" style={{ width: 28, height: 28, color: 'inherit' }} onClick={() => setNotice(null)}><Icon name="x" size={16} /></button>
-            </div>
-          )}
+
+          {view === 'cart' ? (
+            <StoreCartView premium={premium} />
+          ) : (
+          <>
+          {activeHouseholdId && <ShoppingListView householdId={activeHouseholdId} premium={premium} />}
+
+          <div className="section-title" style={{ marginBottom: 0 }}><span>Other items</span></div>
+          <form onSubmit={handleAdd} className="row">
+            <input className="input" placeholder="Add an item…" value={newItem} onChange={(e) => setNewItem(e.target.value)} aria-label="New item" />
+            <button type="submit" className="btn btn-primary" disabled={!newItem.trim()} aria-label="Add item" style={{ padding: '0 14px' }}>
+              <Icon name="plus" />
+            </button>
+          </form>
 
           {cartLoading && items.length === 0 ? (
             <LoadingBlock />
           ) : items.length === 0 ? (
-            <EmptyState icon="cart" title="Your cart is empty">
-              Add items above, or add a recipe&apos;s ingredients from Discover.
-            </EmptyState>
+            <p className="hint">Anything else you need: add it above. These go in the cart too.</p>
           ) : (
             <>
               {unchecked.length > 0 && (
@@ -129,7 +133,7 @@ export default function CartPage() {
               {checked.length > 0 && (
                 <>
                   <div className="section-title" style={{ marginBottom: 0 }}>
-                    <span>In the cart · {checked.length}</span>
+                    <span>Got it · {checked.length}</span>
                   </div>
                   <div className="list">
                     {checked.map((item) => (
@@ -138,7 +142,7 @@ export default function CartPage() {
                   </div>
                   <div className="row">
                     <button className="btn btn-secondary grow" disabled={busy}
-                      onClick={() => activeHouseholdId && window.confirm('Remove all checked items from the cart?') && clearChecked(activeHouseholdId)}>
+                      onClick={() => activeHouseholdId && window.confirm('Remove all checked-off items?') && clearChecked(activeHouseholdId)}>
                       Clear checked
                     </button>
                     <button className="btn btn-primary grow" disabled={busy} onClick={moveCheckedToPantry}>
@@ -149,18 +153,11 @@ export default function CartPage() {
               )}
             </>
           )}
+          </>
+          )}
         </div>
       </div>
 
-      {activeHouseholdId && (
-        <FromPlanSheet
-          open={tool === 'plan'}
-          onClose={() => setTool(null)}
-          householdId={activeHouseholdId}
-          onAdded={(n) => setNotice(n ? `Added ${n} item${n === 1 ? '' : 's'} from your meal plan.` : null)}
-        />
-      )}
-      <BestPricesSheet open={tool === 'prices'} onClose={() => setTool(null)} items={unchecked} />
     </>
   );
 }

@@ -13,3 +13,4 @@ export * from './subscription';
 export * from './meal-plan-config';
 export * from './nutrition';
 export * from './grocery';
+export * from './grocery-cart';
