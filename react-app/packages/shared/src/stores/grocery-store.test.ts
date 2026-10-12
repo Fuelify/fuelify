@@ -7,6 +7,8 @@ import { DEFAULT_GROCERY_CONFIG, type ProductOffer } from '../models/grocery';
 import type { IngredientSwap } from '../services/substitutions';
 import type { MealPlanRepository } from '../supabase/meal-plan-repo';
 import type { ShoppingCartRepository } from '../supabase/shopping-cart-repo';
+import type { BehaviorEvent } from '../models/behavior-event';
+import type { BehaviorLog } from './behavior-log';
 
 const recipe = (id: string, title: string, ingredients: string[]) => ({ id, title, ingredients });
 const offer = (store: ProductOffer['store'], name: string, price: number, extra: Partial<ProductOffer> = {}): ProductOffer => ({
@@ -39,7 +41,9 @@ function setup() {
     ),
     checkout: vi.fn(async () => 'https://example.com'),
   };
-  const mealPlanStore = createMealPlanStore(mealRepo as unknown as MealPlanRepository, 'u1');
+  const events: BehaviorEvent[] = [];
+  const log: BehaviorLog = { track: (e) => void events.push(e), flush: async () => {} };
+  const mealPlanStore = createMealPlanStore(mealRepo as unknown as MealPlanRepository, 'u1', log);
   const cartStore = createShoppingCartStore({ getItems: vi.fn(async () => []) } as unknown as ShoppingCartRepository, 'u1');
   const deps = {
     api,
@@ -56,8 +60,9 @@ function setup() {
     },
     cartStore,
     mealPlanStore,
+    log,
   } as unknown as GroceryDeps;
-  return { store: createGroceryStore(deps, 'u1'), meals, api, saved };
+  return { store: createGroceryStore(deps, 'u1'), meals, api, saved, events };
 }
 
 const WEEK = ['2026-10-12', '2026-10-13'];
@@ -154,5 +159,60 @@ describe('cart helpers', () => {
     expect(recommendOffer(options, walmartOnly, { ...DEFAULT_GROCERY_CONFIG, strategy: 'cheapest' })?.store).toBe('kroger');
     // One store max: never add another
     expect(recommendOffer([offer('walmart', 'x', 9), offer('kroger', 'x', 1)], walmartOnly, { ...DEFAULT_GROCERY_CONFIG, strategy: 'cheapest', maxStores: 1 })?.store).toBe('walmart');
+  });
+});
+
+describe('behavior events', () => {
+  it('logs one swap per meal with normalized keys, categories and the suggestion taken, and logs the undo', async () => {
+    const { store, events } = setup();
+    await store.getState().loadList('h1', WEEK);
+    const beef = store.getState().list!.items.find((i) => i.key === 'ground beef')!;
+    await store.getState().swapListItem(beef, 'ground turkey', { suggestionRank: 0, suggestionCount: 5, suggestion: { diet: 'Omnivore' } });
+    const swaps = events.filter((e) => e.type === 'ingredient_swapped');
+    expect(swaps.map((e) => e.mealId)).toEqual(['m1', 'm2']);
+    expect(swaps[0]).toMatchObject({
+      surface: 'list',
+      recipeId: 'r1',
+      fromText: '1 pound ground beef',
+      toText: '1 pound ground turkey',
+      fromKey: 'ground beef',
+      toKey: 'ground turkey',
+      suggestionRank: 0,
+      suggestionCount: 5,
+    });
+    expect(swaps[0].fromCategory).toBe(swaps[0].toCategory);
+
+    const turkey = store.getState().list!.items.find((i) => i.key === 'ground turkey')!;
+    await store.getState().unswapListItem(turkey);
+    const undo = events.filter((e) => e.type === 'ingredient_swap_reverted');
+    expect(undo).toHaveLength(2);
+    expect(undo[0]).toMatchObject({ fromKey: 'ground beef', toKey: 'ground turkey', toText: '1 pound ground turkey' });
+  });
+
+  it('logs skips, cart builds, product picks against the recommendation, and removals', async () => {
+    const { store, events } = setup();
+    await store.getState().loadList('h1', WEEK);
+    await store.getState().toggleSkip('kidney bean');
+    expect(events.at(-1)).toMatchObject({ type: 'list_item_skipped', householdId: 'h1', fromKey: 'kidney bean', payload: { recipes: ['Chili'] } });
+
+    await store.getState().buildCart();
+    expect(events.at(-1)).toMatchObject({ type: 'cart_built', payload: { lines: 2, strategy: 'balanced' } });
+
+    const line = store.getState().cart!.lines.find((l) => l.key === 'ground beef')!;
+    const kroger = line.options.find((o) => o.store === 'kroger')!;
+    await store.getState().chooseOffer('ground beef', kroger);
+    // Walmart was the pick ($3 vs $4), so choosing Kroger goes against it
+    expect(events.at(-1)).toMatchObject({ type: 'cart_product_chosen', fromKey: 'ground beef', store: 'kroger', price: 4, recommended: false, suggestionRank: 1, payload: { previous: { store: 'walmart' }, recommendedOffer: { store: 'walmart' } } });
+
+    await store.getState().removeLine('cheddar cheese');
+    expect(events.at(-1)).toMatchObject({ type: 'cart_line_removed', fromKey: 'cheddar cheese', store: 'walmart' });
+  });
+
+  it('logs a cart swap with the cart as its surface', async () => {
+    const { store, events } = setup();
+    await store.getState().loadList('h1', WEEK);
+    await store.getState().buildCart();
+    await store.getState().swapCartLine('cheddar cheese', 'pepper jack cheese', { suggestionRank: 0, suggestionCount: 5 });
+    expect(events.find((e) => e.type === 'ingredient_swapped')).toMatchObject({ surface: 'cart', fromKey: 'cheddar cheese', toKey: 'pepper jack cheese', mealId: 'm1' });
   });
 });

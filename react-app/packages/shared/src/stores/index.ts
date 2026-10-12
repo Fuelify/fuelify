@@ -40,3 +40,6 @@ export type { UserStores, UserStoreServices } from './app-stores';
 
 export { createGroceryStore, UNAVAILABLE_GROCERY_API } from './grocery-store';
 export type { GroceryStore, GroceryState, GroceryActions, GroceryApi, GroceryDeps, ShoppingList, CheckoutItem } from './grocery-store';
+
+export { createBehaviorLog, NO_BEHAVIOR_LOG } from './behavior-log';
+export type { BehaviorLog } from './behavior-log';

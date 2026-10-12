@@ -12,6 +12,7 @@ describe('suggestSwaps', () => {
     const cheese = suggestSwaps('1 cup shredded sharp Cheddar cheese', { allergens: ['Dairy (Lactose)'] }).map((s) => s.name);
     expect(cheese).toEqual(['dairy-free cheddar shreds']);
     expect(suggestSwaps('2 tbsp peanut butter', { allergens: ['Tree Nuts'] }).map((s) => s.name)).toEqual(['sunflower seed butter']);
+    expect(suggestSwaps('1 tbsp almond butter').map((s) => s.name)).toEqual(['peanut butter', 'sunflower seed butter']);
   });
 
   it('suggests pepper jack for cheddar and nothing for unknown items', () => {

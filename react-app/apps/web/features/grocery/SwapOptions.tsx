@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { suggestSwaps } from '@fuelify/shared';
+import { suggestSwaps, type SuggestionMeta } from '@fuelify/shared';
 import { useProfileStore } from '@/lib/stores';
 import { Icon } from '@/components/ui';
 
@@ -18,7 +18,8 @@ export function SwapOptions({
 }: {
   /** The ingredient line or name to find swaps for */
   ingredient: string;
-  onSwap: (name: string) => void;
+  /** `meta` records which suggestion was taken (or that they typed their own) */
+  onSwap: (name: string, meta: SuggestionMeta) => void;
   busy?: boolean;
   label?: string;
 }) {
@@ -31,8 +32,8 @@ export function SwapOptions({
       <span className="label">{label}</span>
       {ideas.length > 0 && (
         <div className="list">
-          {ideas.map((s) => (
-            <button key={s.name} className="list-row" onClick={() => onSwap(s.name)} disabled={busy} style={{ textAlign: 'left', gap: 10 }}>
+          {ideas.map((s, i) => (
+            <button key={s.name} className="list-row" onClick={() => onSwap(s.name, { suggestionRank: i, suggestionCount: ideas.length, suggestion: { note: s.note, diet: s.diet } })} disabled={busy} style={{ textAlign: 'left', gap: 10 }}>
               <span className="grow">
                 <span style={{ fontWeight: 600, display: 'block' }}>{s.name}</span>
                 <span className="tiny muted">{s.note}</span>
@@ -48,7 +49,7 @@ export function SwapOptions({
         style={{ gap: 8 }}
         onSubmit={(e) => {
           e.preventDefault();
-          if (custom.trim()) onSwap(custom.trim());
+          if (custom.trim()) onSwap(custom.trim(), { suggestionRank: null, suggestionCount: ideas.length });
         }}
       >
         <input className="input" placeholder={ideas.length ? 'Or type something else…' : 'What to use instead…'} aria-label="Use instead" value={custom} onChange={(e) => setCustom(e.target.value)} />

@@ -293,6 +293,73 @@ export interface Database {
         };
         Relationships: [];
       };
+      behavior_events: {
+        Row: {
+          id: string;
+          household_id: string | null;
+          user_id: string;
+          event_type: string;
+          surface: string | null;
+          occurred_at: string;
+          client_ts: string | null;
+          session_id: string | null;
+          meal_id: string | null;
+          meal_date: string | null;
+          meal_type: string | null;
+          recipe_id: string | null;
+          recipe_title: string | null;
+          from_text: string | null;
+          to_text: string | null;
+          from_key: string | null;
+          to_key: string | null;
+          from_category: string | null;
+          to_category: string | null;
+          suggestion_rank: number | null;
+          suggestion_count: number | null;
+          store: string | null;
+          product_id: string | null;
+          product_name: string | null;
+          price: number | null;
+          recommended: boolean | null;
+          context: Record<string, unknown>;
+          payload: Record<string, unknown>;
+          schema_version: number;
+        };
+        Insert: {
+          id?: string;
+          household_id?: string | null;
+          user_id: string;
+          event_type: string;
+          surface?: string | null;
+          occurred_at?: string;
+          client_ts?: string | null;
+          session_id?: string | null;
+          meal_id?: string | null;
+          meal_date?: string | null;
+          meal_type?: string | null;
+          recipe_id?: string | null;
+          recipe_title?: string | null;
+          from_text?: string | null;
+          to_text?: string | null;
+          from_key?: string | null;
+          to_key?: string | null;
+          from_category?: string | null;
+          to_category?: string | null;
+          suggestion_rank?: number | null;
+          suggestion_count?: number | null;
+          store?: string | null;
+          product_id?: string | null;
+          product_name?: string | null;
+          price?: number | null;
+          recommended?: boolean | null;
+          context?: Record<string, unknown>;
+          payload?: Record<string, unknown>;
+          schema_version?: number;
+        };
+        // Append-only: no updates
+        Update: Record<string, never>;
+        Relationships: [];
+      };
       household_grocery: {
         Row: {
           household_id: string;

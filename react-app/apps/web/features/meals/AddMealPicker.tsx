@@ -2,13 +2,17 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { filterRecipes, isCompatibleWithDiet, totalTimeMinutes, type MealType, type PlannerRecipe, type Recipe } from '@fuelify/shared';
+import { filterRecipes, isCompatibleWithDiet, totalTimeMinutes, type MealType, type PlannerRecipe, type Recipe, type SuggestionMeta } from '@fuelify/shared';
 import { useHouseholdStore, usePlanGenerationStore, useProfileStore, useRecipeStore } from '@/lib/stores';
 import { usePlan } from '@/features/premium/usePlan';
 import { RecipeImport } from '@/features/recipes/RecipeImport';
 import { FoodTile, Icon, Segmented, Spinner } from '@/components/ui';
 
 export type AddMealSource = 'suggested' | 'search' | 'import' | 'custom';
+
+/** How a recipe was picked, for the behavior log */
+export type PickMeta = SuggestionMeta & { source: AddMealSource };
+type OnPick<T> = (recipe: T, meta: PickMeta) => void;
 
 const SOURCES: { value: AddMealSource; label: string }[] = [
   { value: 'suggested', label: 'Suggested' },
@@ -37,7 +41,7 @@ export function AddMealPicker({
   mealType: MealType;
   source: AddMealSource;
   onSourceChange: (s: AddMealSource) => void;
-  onPick: (recipe: Pick<Recipe, 'id' | 'title' | 'description'>) => void;
+  onPick: OnPick<Pick<Recipe, 'id' | 'title' | 'description'>>;
   custom: React.ReactNode;
 }) {
   return (
@@ -45,13 +49,13 @@ export function AddMealPicker({
       <Segmented options={SOURCES} value={source} onChange={onSourceChange} />
       {source === 'suggested' && <Suggestions date={date} mealType={mealType} onPick={onPick} onSearch={() => onSourceChange('search')} />}
       {source === 'search' && <CatalogSearch mealType={mealType} onPick={onPick} />}
-      {source === 'import' && <RecipeImport onSaved={onPick} saveLabel="Save & add to plan" />}
+      {source === 'import' && <RecipeImport onSaved={(r) => onPick(r, { source: 'import' })} saveLabel="Save & add to plan" />}
       {source === 'custom' && custom}
     </div>
   );
 }
 
-function Suggestions({ date, mealType, onPick, onSearch }: { date: string; mealType: MealType; onPick: (r: PlannerRecipe) => void; onSearch: () => void }) {
+function Suggestions({ date, mealType, onPick, onSearch }: { date: string; mealType: MealType; onPick: OnPick<PlannerRecipe>; onSearch: () => void }) {
   const { premium, plan } = usePlan();
   const suggest = usePlanGenerationStore((s) => s.suggest);
   const householdId = useHouseholdStore((s) => s.activeHouseholdId);
@@ -101,13 +105,13 @@ function Suggestions({ date, mealType, onPick, onSearch }: { date: string; mealT
       {picks.length === 0 ? (
         <p className="hint">No recipes fit this meal with your diet yet. Try Search or Custom.</p>
       ) : (
-        <RecipeList recipes={picks} onPick={onPick} highlightFirst />
+        <RecipeList recipes={picks} onPick={(r, i) => onPick(r, { source: 'suggested', suggestionRank: i, suggestionCount: picks.length, suggestion: { shownBefore: shown.length - picks.length } })} highlightFirst />
       )}
     </div>
   );
 }
 
-function CatalogSearch({ mealType, onPick }: { mealType: MealType; onPick: (r: Recipe) => void }) {
+function CatalogSearch({ mealType, onPick }: { mealType: MealType; onPick: OnPick<Recipe> }) {
   const recipes = useRecipeStore((s) => s.recipes);
   const loadCatalog = useRecipeStore((s) => s.loadCatalog);
   const isLoading = useRecipeStore((s) => s.isLoading);
@@ -147,7 +151,7 @@ function CatalogSearch({ mealType, onPick }: { mealType: MealType; onPick: (r: R
         <p className="hint">No recipes match. Try another word, or add it as a custom meal.</p>
       ) : (
         <>
-          <RecipeList recipes={shown} onPick={onPick} diet={diet} />
+          <RecipeList recipes={shown} onPick={(r, i) => onPick(r, { source: 'search', suggestionRank: i, suggestionCount: shown.length, suggestion: { query: query.trim(), allMealTypes: anyMeal } })} diet={diet} />
           {shown.length < results.length && <p className="hint center">Showing {shown.length} of {results.length}. Search to narrow down.</p>}
         </>
       )}
@@ -158,14 +162,14 @@ function CatalogSearch({ mealType, onPick }: { mealType: MealType; onPick: (r: R
 type ListRecipe = Pick<Recipe, 'id' | 'title' | 'description' | 'dietType'> &
   Partial<Pick<Recipe, 'calories' | 'prepTimeMinutes' | 'cookTimeMinutes' | 'imageUrl'>>;
 
-function RecipeList<T extends ListRecipe>({ recipes, onPick, highlightFirst, diet }: { recipes: T[]; onPick: (r: T) => void; highlightFirst?: boolean; diet?: string | null }) {
+function RecipeList<T extends ListRecipe>({ recipes, onPick, highlightFirst, diet }: { recipes: T[]; onPick: (r: T, index: number) => void; highlightFirst?: boolean; diet?: string | null }) {
   return (
     <div className="list">
       {recipes.map((r, i) => {
         const time = totalTimeMinutes({ prepTimeMinutes: r.prepTimeMinutes ?? null, cookTimeMinutes: r.cookTimeMinutes ?? null });
         const meta = [r.calories != null ? `${r.calories} kcal` : null, time > 0 ? `${time} min` : null, r.dietType].filter(Boolean).join(' · ');
         return (
-          <button key={r.id} className="list-row" onClick={() => onPick(r)} aria-label={`Add ${r.title}`} style={{ gap: 12, textAlign: 'left' }}>
+          <button key={r.id} className="list-row" onClick={() => onPick(r, i)} aria-label={`Add ${r.title}`} style={{ gap: 12, textAlign: 'left' }}>
             <FoodTile title={r.title} imageUrl={r.imageUrl} size={40} />
             <div className="grow" style={{ minWidth: 0 }}>
               <div className="row" style={{ gap: 6 }}>

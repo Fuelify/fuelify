@@ -18,6 +18,10 @@ import { createPantryStore } from './pantry-store';
 import { createMealSuggestionStore } from './meal-suggestion-store';
 import { createPlanGenerationStore } from './plan-generation-store';
 import { GroceryRepository } from '../supabase/grocery-repo';
+import { BehaviorRepository } from '../supabase/behavior-repo';
+import { readGroceryConfig } from '../models/grocery';
+import { createBehaviorLog } from './behavior-log';
+import { selectActiveHousehold } from './household-store';
 import { createGroceryStore, UNAVAILABLE_GROCERY_API, type GroceryApi } from './grocery-store';
 
 /** App-specific services the shared stores need. */
@@ -32,18 +36,37 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
   const meals = new MealPlanRepository(supabase);
   const recipes = new RecipeRepository(supabase);
   const pantry = new PantryRepository(supabase);
-  const mealPlanStore = createMealPlanStore(meals, userId);
+  // Every choice worth learning from goes to behavior_events, stamped with the
+  // settings in force at the time (read lazily from the stores below)
+  const behaviorLog = createBehaviorLog(new BehaviorRepository(supabase), userId, () => {
+    const profile = profileStore.getState().profile;
+    const households = householdStore.getState();
+    const household = selectActiveHousehold(households);
+    const grocery = readGroceryConfig(profile);
+    return {
+      diet: profile?.diet ?? null,
+      allergens: profile?.allergens ?? [],
+      groceryStrategy: grocery.strategy,
+      maxStores: grocery.maxStores,
+      householdPlan: household?.plan ?? null,
+      householdSize: households.members.length || undefined,
+    };
+  });
+  const profileStore = createProfileStore(profiles, userId);
+  const householdStore = createHouseholdStore(new HouseholdRepository(supabase), userId);
+  const mealPlanStore = createMealPlanStore(meals, userId, behaviorLog);
   const shoppingCartStore = createShoppingCartStore(new ShoppingCartRepository(supabase), userId);
   return {
     userId,
-    profileStore: createProfileStore(profiles, userId),
+    behaviorLog,
+    profileStore,
     mealPlanStore,
-    planGenerationStore: createPlanGenerationStore({ profiles, recipes, meals, pantry, mealPlanStore }, userId),
+    planGenerationStore: createPlanGenerationStore({ profiles, recipes, meals, pantry, mealPlanStore, log: behaviorLog }, userId),
     recipeStore: createRecipeStore(recipes, userId),
-    householdStore: createHouseholdStore(new HouseholdRepository(supabase), userId),
+    householdStore,
     shoppingCartStore,
     groceryStore: createGroceryStore(
-      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore },
+      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore, log: behaviorLog },
       userId,
     ),
     pantryStore: createPantryStore(pantry, userId),

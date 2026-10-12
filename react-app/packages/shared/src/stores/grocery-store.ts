@@ -8,7 +8,8 @@
 
 import { createStore, type StoreApi } from 'zustand/vanilla';
 import { readGroceryConfig, type GroceryConfig, type GroceryProviderStatus, type GroceryStoreId, type ProductOffer } from '../models/grocery';
-import { recommendOffer, type CartLine, type GroceryCart } from '../models/grocery-cart';
+import { recommendOffer, summarizeCart, type CartLine, type GroceryCart } from '../models/grocery-cart';
+import { describeIngredient, type SuggestionMeta } from '../models/behavior-event';
 import { buildPlanList, formatAmounts, ingredientKey, type ListItem } from '../services/ingredients';
 import { optimizeBasket } from '../services/basket-optimizer';
 import { applySwaps, swapLine, withSwap } from '../services/substitutions';
@@ -19,6 +20,7 @@ import type { ProfileRepository } from '../supabase/profile-repo';
 import type { RecipeRepository } from '../supabase/recipe-repo';
 import type { MealPlanStore } from './meal-plan-store';
 import type { ShoppingCartStore } from './shopping-cart-store';
+import { NO_BEHAVIOR_LOG, type BehaviorLog } from './behavior-log';
 
 export interface GroceryApi {
   /** Which stores are connected on the server */
@@ -79,7 +81,7 @@ export interface GroceryActions {
    * Use something else for a list item (e.g. ground beef → ground turkey): saved
    * as a swap on every planned meal that uses it, keeping each meal's amount.
    */
-  swapListItem: (item: ListItem, replacementName: string) => Promise<boolean>;
+  swapListItem: (item: ListItem, replacementName: string, meta?: SuggestionMeta) => Promise<boolean>;
   /** Undo swaps on a list item, back to each recipe's original. */
   unswapListItem: (item: ListItem) => Promise<boolean>;
   /** Build (or rebuild) the store cart from the list: price everything, choose stores. Keeps the user's own picks. */
@@ -89,7 +91,7 @@ export interface GroceryActions {
   /** Search the user's stores for a line (e.g. "pepper jack cheese"); results join its options. */
   searchLine: (key: string, query: string) => Promise<ProductOffer[]>;
   /** Change what a cart line is for (and its meals), then pick the best product for it. */
-  swapCartLine: (key: string, replacementName: string) => Promise<void>;
+  swapCartLine: (key: string, replacementName: string, meta?: SuggestionMeta) => Promise<void>;
   removeLine: (key: string) => Promise<void>;
   clearCart: () => Promise<void>;
   /** Search one product across all the user's stores. */
@@ -111,6 +113,8 @@ export interface GroceryDeps {
   grocery: GroceryRepository;
   cartStore: StoreApi<ShoppingCartStore>;
   mealPlanStore: StoreApi<MealPlanStore>;
+  /** Records skips, product picks, swaps and checkouts */
+  log?: BehaviorLog;
 }
 
 /** A big week's list is ~100 items */
@@ -120,6 +124,7 @@ const PARALLEL_BATCHES = 2;
 
 export function createGroceryStore(deps: GroceryDeps, userId: string) {
   const config = async () => readGroceryConfig(await deps.profiles.getProfile(userId));
+  const log = deps.log ?? NO_BEHAVIOR_LOG;
 
   return createStore<GroceryStore>()((set, get) => {
     const saveCart = async (cart: GroceryCart | null) => {
@@ -147,7 +152,7 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
     };
 
     /** Swap every source line of a list item to `replacementName` (or back, when null). */
-    const applyToMeals = async (item: ListItem, replacementName: string | null) => {
+    const applyToMeals = async (item: ListItem, replacementName: string | null, meta: SuggestionMeta = {}) => {
       const plan = deps.mealPlanStore.getState();
       const meals = Object.values(plan.meals).flat();
       const byMeal = new Map<string, typeof item.sources>();
@@ -156,7 +161,7 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
         [...byMeal.entries()].map(([mealId, sources]) => {
           let swaps = meals.find((m) => m.id === mealId)?.ingredientSwaps ?? [];
           for (const s of sources) swaps = withSwap(swaps, s.original, replacementName ? swapLine(s.original, replacementName) : null);
-          return plan.setMealSwaps(mealId, swaps);
+          return plan.setMealSwaps(mealId, swaps, meta);
         }),
       );
       return results.every(Boolean);
@@ -215,14 +220,24 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
         if (!list) return;
         const skipped = list.skipped.includes(key) ? list.skipped.filter((k) => k !== key) : [...list.skipped, key];
         set({ list: { ...list, skipped } });
+        const item = list.items.find((i) => i.key === key);
+        log.track({
+          type: skipped.includes(key) ? 'list_item_skipped' : 'list_item_unskipped',
+          surface: 'list',
+          householdId: list.householdId,
+          fromText: item?.name ?? key,
+          fromKey: key,
+          fromCategory: item?.category ?? describeIngredient(key).category,
+          payload: { dates: list.dates, amounts: item?.amounts ?? [], recipes: item?.recipes ?? [], mealIds: item?.sources.map((x) => x.mealId) ?? [] },
+        });
         await deps.grocery.save(list.householdId, userId, { skippedKeys: skipped }).catch((err: Error) => set({ error: err.message }));
       },
 
-      swapListItem: async (item, replacementName) => {
+      swapListItem: async (item, replacementName, meta = {}) => {
         const list = get().list;
         if (!list || !replacementName.trim()) return false;
         set({ busy: 'swapping', error: null });
-        const ok = await applyToMeals(item, replacementName.trim());
+        const ok = await applyToMeals(item, replacementName.trim(), { surface: 'list', ...meta });
         set({ busy: null });
         await get().loadList(list.householdId, list.dates);
         return ok;
@@ -232,7 +247,7 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
         const list = get().list;
         if (!list) return false;
         set({ busy: 'swapping', error: null });
-        const ok = await applyToMeals(item, null);
+        const ok = await applyToMeals(item, null, { surface: 'list' });
         set({ busy: null });
         await get().loadList(list.householdId, list.dates);
         return ok;
@@ -267,6 +282,23 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
           });
           const cart: GroceryCart = { generatedAt: new Date().toISOString(), dates: list.dates, lines };
           await saveCart(cart);
+          const summary = summarizeCart(cart);
+          log.track({
+            type: 'cart_built',
+            surface: 'cart',
+            householdId: list.householdId,
+            price: summary.total,
+            payload: {
+              dates: list.dates,
+              strategy: cfg.strategy,
+              maxStores: cfg.maxStores,
+              lines: lines.length,
+              keptUserPicks: lines.filter((l) => l.chosenBy === 'user').length,
+              notFound: summary.missing.map((l) => l.key),
+              stores: summary.stores.map((g) => ({ store: g.store, items: g.lines.length, subtotal: g.subtotal })),
+              dealSavings: summary.dealSavings,
+            },
+          });
           set({ busy: null });
           return cart;
         } catch (err) {
@@ -276,8 +308,38 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
       },
 
       chooseOffer: async (key, offer) => {
+        const before = get().cart;
+        const line = before?.lines.find((l) => l.key === key);
         const cart = updateLine(key, (l) => ({ ...l, choice: offer, chosenBy: 'user', options: offer && !l.options.some((o) => o.store === offer.store && o.productId === offer.productId) ? [offer, ...l.options] : l.options }));
         if (cart) await saveCart(cart);
+        if (line) {
+          const best = recommendOffer(line.options, before, await config().catch(() => null) ?? readGroceryConfig(null), key);
+          const same = (a: ProductOffer | null | undefined, b: ProductOffer | null | undefined) => !!a && !!b && a.store === b.store && a.productId === b.productId;
+          const { category } = describeIngredient(line.name);
+          log.track({
+            type: 'cart_product_chosen',
+            surface: 'cart',
+            householdId: get().list?.householdId ?? null,
+            fromText: line.name,
+            fromKey: key,
+            fromCategory: category,
+            store: offer?.store ?? null,
+            productId: offer?.productId ?? null,
+            productName: offer?.name ?? null,
+            price: offer ? (offer.promoPrice ?? offer.price) : null,
+            recommended: offer ? same(offer, best) : null,
+            // Rank by price among the options shown (0 = cheapest)
+            suggestionRank: offer ? [...line.options].sort((x, y) => (x.promoPrice ?? x.price) - (y.promoPrice ?? y.price)).findIndex((o) => same(o, offer)) : null,
+            suggestionCount: line.options.length,
+            payload: {
+              previous: line.choice ? { store: line.choice.store, productId: line.choice.productId, name: line.choice.name, price: line.choice.promoPrice ?? line.choice.price, chosenBy: line.chosenBy } : null,
+              recommendedOffer: best ? { store: best.store, productId: best.productId, name: best.name, price: best.promoPrice ?? best.price } : null,
+              organic: offer?.organic ?? null,
+              storeBrand: offer?.storeBrand ?? null,
+              brand: offer?.brand ?? null,
+            },
+          });
+        }
       },
 
       searchLine: async (key, query) => {
@@ -285,6 +347,7 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
         set((s) => ({ lineBusy: [...s.lineBusy, key], error: null }));
         try {
           const found = (await deps.api.search([{ key, query: query.trim() }], await config()))[key] ?? [];
+          log.track({ type: 'product_searched', surface: 'cart', householdId: get().list?.householdId ?? null, fromKey: key, toText: query.trim(), payload: { results: found.length } });
           const cart = updateLine(key, (l) => {
             const seen = new Set(l.options.map((o) => `${o.store}:${o.productId}`));
             return { ...l, options: [...l.options, ...found.filter((o) => !seen.has(`${o.store}:${o.productId}`))] };
@@ -299,13 +362,13 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
         }
       },
 
-      swapCartLine: async (key, replacementName) => {
+      swapCartLine: async (key, replacementName, meta = {}) => {
         const name = replacementName.trim();
         if (!name) return;
         const newKey = ingredientKey(name);
         // Meals first, so the list agrees
         const item = get().list?.items.find((i) => i.key === key);
-        if (item) await applyToMeals(item, name);
+        if (item) await applyToMeals(item, name, { surface: 'cart', ...meta });
         set((s) => ({ lineBusy: [...s.lineBusy, newKey] }));
         try {
           const cfg = await config();
@@ -323,17 +386,38 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
       },
 
       removeLine: async (key) => {
+        const line = get().cart?.lines.find((l) => l.key === key);
         const cart = updateLine(key, () => null);
         if (cart) await saveCart(cart);
+        if (line) {
+          log.track({
+            type: 'cart_line_removed',
+            surface: 'cart',
+            householdId: get().list?.householdId ?? null,
+            fromText: line.name,
+            fromKey: key,
+            fromCategory: describeIngredient(line.name).category,
+            store: line.choice?.store ?? null,
+            productId: line.choice?.productId ?? null,
+            productName: line.choice?.name ?? null,
+            price: line.choice ? (line.choice.promoPrice ?? line.choice.price) : null,
+            payload: { recipes: line.recipes, amount: line.amount },
+          });
+        }
       },
 
-      clearCart: async () => saveCart(null),
+      clearCart: async () => {
+        const cart = get().cart;
+        await saveCart(null);
+        if (cart) log.track({ type: 'cart_cleared', surface: 'cart', householdId: get().list?.householdId ?? null, price: summarizeCart(cart).total, payload: { lines: cart.lines.length } });
+      },
 
       searchProducts: async (query) => {
         if (!query.trim()) return;
         set({ busy: 'searching', error: null, searchResults: null });
         try {
           const offers = await deps.api.search([{ key: 'q', query: query.trim() }], await config());
+          log.track({ type: 'product_searched', surface: 'search', householdId: get().list?.householdId ?? null, toText: query.trim(), payload: { results: offers.q?.length ?? 0 } });
           set({ searchResults: (offers.q ?? []).sort((a, b) => (a.promoPrice ?? a.price) - (b.promoPrice ?? b.price)), busy: null });
         } catch (err) {
           set({ busy: null, error: (err as Error).message });
@@ -343,7 +427,15 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
       checkout: async (store, items) => {
         set({ error: null });
         try {
-          return await deps.api.checkout(store, items, await config());
+          const url = await deps.api.checkout(store, items, await config());
+          log.track({
+            type: 'cart_checkout_started',
+            surface: 'cart',
+            householdId: get().list?.householdId ?? null,
+            store,
+            payload: { items: items.map((i) => ({ name: i.name, quantity: i.quantity, productId: i.productId ?? null })) },
+          });
+          return url;
         } catch (err) {
           set({ error: (err as Error).message });
           return null;

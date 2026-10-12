@@ -271,9 +271,9 @@ function CartLineSheet({ line, onClose }: { line: CartLine | null; onClose: () =
             ingredient={line.name}
             busy={busy}
             label={line.recipes.length ? `Use instead (updates ${line.recipes.join(', ')})` : 'Use instead'}
-            onSwap={async (name) => {
+            onSwap={async (name, meta) => {
               onClose();
-              await swapCartLine(line.key, name);
+              await swapCartLine(line.key, name, meta);
             }}
           />
         )}

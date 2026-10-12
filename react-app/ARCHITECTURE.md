@@ -59,6 +59,19 @@ react-app/
   `app/api/recipes/import` (signed-in users; public hosts only, re-checked on every
   redirect; time- and size-limited — see `lib/fetch-recipe-page.ts`). Users read the
   catalog plus their own and their household's recipes (RLS `recipes_read`).
+- **Behavior events (learning data):** every choice that says something about a
+  household's habits is appended to `behavior_events` (migration 00015) through
+  the `behaviorLog` built in `createUserStores()`. This covers ingredient swaps
+  and undos, meal adds, removals, moves, shuffles and ratings, generated plans,
+  list skips, cart builds, product picks (against the recommendation), searches
+  and checkouts. Stores call `log.track()`; never write the table directly.
+  Rows are append-only (no update or delete policies). They carry typed columns
+  (from → to, normalized `ingredientKey`s, aisle categories, suggestion rank,
+  store, product and price), a `context` snapshot of the settings at the time,
+  and a versioned `payload`. Views `household_ingredient_swap_stats`,
+  `household_recipe_stats` and `household_product_choice_stats` aggregate it per
+  household. A new decision point in the app should add an event type (in
+  `models/behavior-event.ts` and the table's CHECK) rather than going unlogged.
 
 ## Commands (from `react-app/`)
 

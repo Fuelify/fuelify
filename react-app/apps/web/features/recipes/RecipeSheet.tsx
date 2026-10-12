@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { NUTRIENTS, applySwaps, type IngredientSwap, type Recipe, todayISO, totalTimeMinutes } from '@fuelify/shared';
+import { NUTRIENTS, applySwaps, type IngredientSwap, type Recipe, type SuggestionMeta, todayISO, totalTimeMinutes } from '@fuelify/shared';
 import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
 import { FoodImage, Icon, Sheet } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
@@ -25,7 +25,7 @@ export function RecipeSheet({
   /** A planned meal's swaps; with `onSwap`, ingredients can be tapped to swap */
   swaps?: IngredientSwap[];
   /** Swap one of the recipe's lines (replacement name, or null to undo) */
-  onSwap?: (original: string, replacementName: string | null) => Promise<void> | void;
+  onSwap?: (original: string, replacementName: string | null, meta?: SuggestionMeta) => Promise<void> | void;
 }) {
   const classifications = useRecipeStore((s) => s.classifications);
   const classifyRecipe = useRecipeStore((s) => s.classifyRecipe);
@@ -36,10 +36,10 @@ export function RecipeSheet({
   const [swapping, setSwapping] = useState<string | null>(null);
   const [swapBusy, setSwapBusy] = useState(false);
   const shown = recipe ? applySwaps(recipe.ingredients, swaps) : [];
-  const doSwap = async (original: string, name: string | null) => {
+  const doSwap = async (original: string, name: string | null, meta?: SuggestionMeta) => {
     if (!onSwap) return;
     setSwapBusy(true);
-    await onSwap(original, name);
+    await onSwap(original, name, meta);
     setSwapBusy(false);
     setSwapping(null);
   };
@@ -162,7 +162,7 @@ export function RecipeSheet({
                 Back to {swapping}
               </button>
             )}
-            <SwapOptions ingredient={swapping} busy={swapBusy} onSwap={(name) => doSwap(swapping, name)} />
+            <SwapOptions ingredient={swapping} busy={swapBusy} onSwap={(name, meta) => doSwap(swapping, name, meta)} />
           </div>
         )}
       </Sheet>
