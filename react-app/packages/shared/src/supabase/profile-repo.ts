@@ -62,8 +62,40 @@ function rowToProfile(row: ProfileRow): UserProfile {
   };
 }
 
+export const AVATAR_BUCKET = 'avatars';
+
 export class ProfileRepository {
   constructor(private supabase: TypedSupabaseClient) {}
+
+  /**
+   * Upload a profile picture (already resized; JPEG) to `avatars/<user>/…`,
+   * point the profile at it and remove the user's older pictures.
+   */
+  async uploadAvatar(userId: string, image: Blob): Promise<UserProfile> {
+    const storage = this.supabase.storage.from(AVATAR_BUCKET);
+    // A new name each time so browsers and CDNs never show a cached old picture
+    const path = `${userId}/avatar-${Date.now()}.jpg`;
+    const { error } = await storage.upload(path, image, { contentType: 'image/jpeg', upsert: false, cacheControl: '31536000' });
+    if (error) throw new Error(`Failed to upload picture: ${error.message}`);
+    const { data } = storage.getPublicUrl(path);
+    const profile = await this.updateProfile(userId, { imageUrl: data.publicUrl });
+    await this.removeAvatars(userId, path).catch(() => {});
+    return profile;
+  }
+
+  /** Remove the profile picture. */
+  async deleteAvatar(userId: string): Promise<UserProfile> {
+    const profile = await this.updateProfile(userId, { imageUrl: null });
+    await this.removeAvatars(userId).catch(() => {});
+    return profile;
+  }
+
+  private async removeAvatars(userId: string, keep?: string): Promise<void> {
+    const storage = this.supabase.storage.from(AVATAR_BUCKET);
+    const { data } = await storage.list(userId, { limit: 100 });
+    const old = (data ?? []).map((f) => `${userId}/${f.name}`).filter((p) => p !== keep);
+    if (old.length) await storage.remove(old);
+  }
 
   /** Get the current user's profile */
   async getProfile(userId: string): Promise<UserProfile> {

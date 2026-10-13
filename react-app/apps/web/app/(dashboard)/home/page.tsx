@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { daysUntil, formatLong, greeting, initialsOf, sortByMealType, todayISO } from '@fuelify/shared';
+import { daysUntil, formatLong, greeting, sortByMealType, todayISO } from '@fuelify/shared';
 import { useHouseholdStore, useMealPlanStore, usePantryStore, useProfileStore, useShoppingCartStore } from '@/lib/stores';
-import { FoodTile, Icon, LogoMark, type IconName } from '@/components/ui';
+import { Avatar, FoodTile, Icon, LogoMark, type IconName } from '@/components/ui';
 import { useRecipeImage } from '@/features/recipes/useRecipeImage';
 
 // The Flutter Home tab was a placeholder; this is a daily overview built from
@@ -59,8 +59,8 @@ export default function HomePage() {
             {greeting()}{name ? `, ${name}` : ''}
           </h1>
         </div>
-        <Link href="/profile" className="avatar" aria-label="Profile">
-          {initialsOf(profile?.firstName, profile?.lastName) || <Icon name="user" size={20} />}
+        <Link href="/profile" aria-label="Profile" style={{ borderRadius: '50%' }}>
+          <Avatar first={profile?.firstName} last={profile?.lastName} imageUrl={profile?.imageUrl} />
         </Link>
       </header>
 
