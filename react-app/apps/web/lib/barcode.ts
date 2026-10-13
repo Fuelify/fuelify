@@ -1,47 +1,57 @@
-// Barcode → product (server only). Tries, in order: products people already
-// identified (barcode_products), Open Food Facts, then Walmart and Kroger
-// when they're connected. Grocery items missing from Open Food Facts are
-// common in the US; the stores know almost every UPC they sell.
+// Barcode → product (server only). Asks every source at once: products
+// people already identified (barcode_products), Open Food Facts, and Walmart
+// and Kroger when connected, then combines them (see mergeProductInfo).
+// Grocery items missing from Open Food Facts are common in the US; the stores
+// know almost every UPC they sell and have proper product photos.
 
 import { createClient } from '@supabase/supabase-js';
-import { gtinForms, lookupBarcode, parsePackageSize, type ProductInfo } from '@fuelify/shared';
+import { guessCategoryAndZone, gtinForms, lookupBarcode, mergeProductInfo, parsePackageSize, type ProductInfo, type ProductSource } from '@fuelify/shared';
 import { walmartByUpc } from './grocery/walmart';
 import { krogerByProductId } from './grocery/kroger';
 
-export type BarcodeSource = 'saved' | 'openfoodfacts' | 'walmart' | 'kroger';
+export type BarcodeSource = ProductSource;
 
-export async function findProduct(code: string, userToken: string): Promise<{ product: ProductInfo; source: BarcodeSource } | null> {
+type StoreProduct = { name: string; brand: string | null; size: string | null; imageUrl: string | null } | null;
+const fromStore = (p: StoreProduct): Partial<ProductInfo> | null =>
+  p ? { name: p.name, brand: p.brand ?? undefined, imageUrl: p.imageUrl ?? undefined, ...parsePackageSize(p.size) } : null;
+
+/**
+ * Everything every source knows about a barcode, combined field by field:
+ * Open Food Facts often lacks photos, brands or sizes, so the connected stores
+ * are always asked too (all at once, so it's no slower).
+ */
+export async function findProduct(code: string, userToken: string): Promise<{ product: ProductInfo; source: BarcodeSource; sources: BarcodeSource[] } | null> {
   const forms = gtinForms(code);
   if (!forms) return null;
 
-  // 1. Already identified (by anyone)
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: { headers: { Authorization: `Bearer ${userToken}` } },
   });
-  const { data: saved } = await supabase.from('barcode_products').select('*').eq('barcode', forms.ean13).maybeSingle();
-  if (saved) {
-    return {
-      source: 'saved',
-      product: { barcode: forms.ean13, name: saved.name, brand: saved.brand ?? undefined, category: saved.category ?? undefined, imageUrl: saved.image_url ?? undefined, quantity: saved.quantity == null ? undefined : Number(saved.quantity), unit: saved.unit ?? undefined },
-    };
-  }
 
-  // 2. Open Food Facts (as scanned, then the 13-digit form)
-  for (const c of [...new Set([code, forms.ean13, forms.upcA].filter((x): x is string => !!x))]) {
-    const off = await lookupBarcode(c, { signal: AbortSignal.timeout(6000) }).catch(() => null);
-    if (off) return { product: { ...off, barcode: forms.ean13 }, source: 'openfoodfacts' };
-  }
-
-  // 3. The stores
-  const fromStore = async (source: BarcodeSource, find: () => Promise<{ name: string; brand: string | null; size: string | null; imageUrl: string | null } | null>) => {
-    const p = await find().catch(() => null);
-    if (!p) return null;
-    const size = parsePackageSize(p.size);
-    return { source, product: { barcode: forms.ean13, name: p.name, brand: p.brand ?? undefined, imageUrl: p.imageUrl ?? undefined, ...size } };
+  const saved = async (): Promise<Partial<ProductInfo> | null> => {
+    const { data } = await supabase.from('barcode_products').select('*').eq('barcode', forms.ean13).maybeSingle();
+    return data
+      ? { name: data.name, brand: data.brand ?? undefined, category: data.category ?? undefined, imageUrl: data.image_url ?? undefined, quantity: data.quantity == null ? undefined : Number(data.quantity), unit: data.unit ?? undefined }
+      : null;
   };
-  return (
-    (forms.upcA ? await fromStore('walmart', () => walmartByUpc(forms.upcA!)) : null) ??
-    (await fromStore('kroger', () => krogerByProductId(forms.krogerId)))
-  );
+  const off = async (): Promise<Partial<ProductInfo> | null> => {
+    // As scanned, then the 13- and 12-digit forms
+    for (const c of [...new Set([code, forms.ean13, forms.upcA].filter((x): x is string => !!x))]) {
+      const hit = await lookupBarcode(c, { signal: AbortSignal.timeout(6000) }).catch(() => null);
+      if (hit) return hit;
+    }
+    return null;
+  };
+
+  const [s, o, w, k] = await Promise.all([
+    saved().catch(() => null),
+    off(),
+    forms.upcA ? walmartByUpc(forms.upcA).then(fromStore).catch(() => null) : Promise.resolve(null),
+    krogerByProductId(forms.krogerId).then(fromStore).catch(() => null),
+  ]);
+  const merged = mergeProductInfo(forms.ean13, { saved: s, openfoodfacts: o, walmart: w, kroger: k });
+  if (!merged) return null;
+  const product = { ...merged.product, category: merged.product.category ?? guessCategoryAndZone(merged.product.name).category };
+  return { product, source: merged.sources[0], sources: merged.sources };
 }

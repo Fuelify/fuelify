@@ -15,6 +15,7 @@ import {
   spokenItemToPantryDraft,
   GROCERY_STORE_INFO,
   describeMatch,
+  guessCategoryAndZone,
 } from '@fuelify/shared';
 import { useAuthStore, useGroceryStore, useHouseholdStore, usePantryStore, useSupabase } from '@/lib/stores';
 import { findBarcode, rememberBarcode } from '@/lib/barcode-client';
@@ -100,7 +101,7 @@ export default function PantryPage() {
         openAdd();
         return;
       }
-      openAdd({ name: info.name, brand: info.brand, category: info.category, quantity: info.quantity ?? 1, unit: info.unit, storageZone: 'dry' });
+      openAdd({ name: info.name, brand: info.brand, category: info.category, quantity: info.quantity ?? 1, unit: info.unit, storageZone: guessCategoryAndZone(info.name).storageZone ?? 'dry', imageUrl: info.imageUrl, barcode });
     } catch (e) {
       setLookupError((e as Error).message);
     } finally {
@@ -270,7 +271,12 @@ function TotalCard({ total, onClick }: { total: PantryItemTotal; onClick: () => 
   return (
     <button className="card card-button stack-sm" onClick={onClick} style={{ gap: 8 }}>
       <div className="row" style={{ gap: 12 }}>
-        <span style={{ width: 32, display: 'flex', justifyContent: 'center', color: 'var(--text-2)' }} aria-hidden="true"><Icon name={ZONE_ICON[total.storageZones[0] ?? 'dry']} size={22} /></span>
+        {total.imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={total.imageUrl} alt="" loading="lazy" style={{ width: 40, height: 40, objectFit: 'contain', borderRadius: 8, background: '#fff', flexShrink: 0 }} />
+        ) : (
+          <span style={{ width: 32, display: 'flex', justifyContent: 'center', color: 'var(--text-2)' }} aria-hidden="true"><Icon name={ZONE_ICON[total.storageZones[0] ?? 'dry']} size={22} /></span>
+        )}
         <div className="grow">
           <div className="truncate" style={{ fontWeight: 700 }}>{total.items[0]?.name ?? total.name}</div>
           <div className="small muted">
@@ -369,8 +375,12 @@ function AddItemSheet({ open, draft, onClose, onSave }: { open: boolean; draft: 
     <Sheet open={open} onClose={onClose} title="Add to pantry"
       footer={<button className="btn btn-primary btn-block" onClick={save} disabled={busy || !d.name.trim()}>{busy ? 'Adding…' : 'Add item'}</button>}>
       <div className="stack">
+        {d.imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={d.imageUrl} alt="" style={{ width: 96, height: 96, objectFit: 'contain', borderRadius: 12, background: '#fff', alignSelf: 'center' }} />
+        )}
         <div className="field">
-          <label htmlFor="pi-name">Item</label>
+        <label htmlFor="pi-name">Item</label>
           <input id="pi-name" className="input" placeholder="e.g. Brown rice" value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} autoFocus={!draft?.name} />
         </div>
         <div className="field">

@@ -23,6 +23,8 @@ function rowToItem(row: PantryItemRow): PantryItem {
     purchaseDate: row.purchase_date,
     expirationDate: row.expiration_date,
     notes: row.notes,
+    imageUrl: row.image_url ?? null,
+    barcode: row.barcode ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     addedByName: null,
@@ -44,6 +46,8 @@ function draftToInsertRow(householdId: string, userId: string, draft: PantryItem
     purchase_date: draft.purchaseDate ?? null,
     expiration_date: draft.expirationDate ?? null,
     notes: draft.notes ?? null,
+    image_url: draft.imageUrl ?? null,
+    barcode: draft.barcode ?? null,
   };
 }
 
