@@ -42,6 +42,18 @@ interface WalmartItem {
   availableOnline?: boolean;
 }
 
+/** Identify a product by its 12-digit UPC (for barcode scans). */
+export async function walmartByUpc(upcA: string): Promise<{ name: string; brand: string | null; size: string | null; imageUrl: string | null } | null> {
+  if (!walmart.configured()) return null;
+  const data = await fetchJson<{ items?: WalmartItem[] }>(
+    `https://developer.api.walmart.com/api-proxy/service/affil/product/v2/items?upc=${encodeURIComponent(upcA)}`,
+    { headers: signedHeaders() },
+    'Walmart',
+  ).catch(() => null);
+  const i = data?.items?.[0];
+  return i ? { name: i.name, brand: i.brandName ?? null, size: i.size ?? null, imageUrl: i.mediumImage ?? i.thumbnailImage ?? null } : null;
+}
+
 export const walmart: GroceryProvider = {
   id: 'walmart',
   configured: () => !!(process.env.WALMART_CONSUMER_ID && process.env.WALMART_PRIVATE_KEY),

@@ -360,6 +360,34 @@ export interface Database {
         Update: Record<string, never>;
         Relationships: [];
       };
+      barcode_products: {
+        Row: {
+          barcode: string;
+          name: string;
+          brand: string | null;
+          category: string | null;
+          image_url: string | null;
+          quantity: number | null;
+          unit: string | null;
+          source: string;
+          added_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          barcode: string;
+          name: string;
+          brand?: string | null;
+          category?: string | null;
+          image_url?: string | null;
+          quantity?: number | null;
+          unit?: string | null;
+          source: string;
+          added_by?: string | null;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
       household_grocery: {
         Row: {
           household_id: string;

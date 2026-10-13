@@ -39,7 +39,7 @@ function mapCategory(tags: string[] | undefined): PantryCategory | undefined {
 }
 
 /** Parse a quantity string like "500 g", "1.5 L", "12 x 330 ml" → { quantity, unit } */
-function parseQuantityString(s: string | undefined): { quantity?: number; unit?: string } {
+export function parsePackageSize(s: string | null | undefined): { quantity?: number; unit?: string } {
   if (!s) return {};
   // Try "N x M unit" → treat as N count
   const multi = s.match(/^\s*(\d+(?:\.\d+)?)\s*[x×]\s*\d/i);
@@ -102,6 +102,8 @@ export async function lookupBarcode(
     throw new Error(`Barcode lookup network error: ${(e as Error).message}`);
   }
 
+  // Open Food Facts answers 404 for products it doesn't have: that's "not found", not an error
+  if (response.status === 404) return null;
   if (!response.ok) {
     throw new Error(`Barcode lookup failed: HTTP ${response.status}`);
   }
@@ -120,7 +122,7 @@ export async function lookupBarcode(
   const brand = p.brands ? p.brands.split(',')[0].trim() : undefined;
   const imageUrl = p.image_front_small_url || p.image_small_url || p.image_url;
   const category = mapCategory(p.categories_tags);
-  const { quantity, unit } = parseQuantityString(p.quantity);
+  const { quantity, unit } = parsePackageSize(p.quantity);
 
   return {
     barcode: trimmed,

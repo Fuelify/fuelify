@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { StoreProvider } from '@/lib/stores';
 import { ThemeController } from '@/lib/theme';
+import { ServiceWorker } from '@/lib/service-worker';
 import { THEME_COLORS, THEME_INIT_SCRIPT } from '@/lib/theme-constants';
 import './globals.css';
 
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body>
         <StoreProvider>
           <ThemeController />
+          <ServiceWorker />
           {children}
         </StoreProvider>
       </body>
