@@ -7,3 +7,4 @@ export * from './ingredients';
 export * from './basket-optimizer';
 export * from './substitutions';
 export * from './voice-parse';
+export * from './item-matcher';

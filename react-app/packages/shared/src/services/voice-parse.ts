@@ -64,9 +64,37 @@ const FILLER = /\b(um+|uh+|er+|okay|ok|so|like|please|thanks|thank you|let'?s se
 const LEAD_IN = /^\s*(?:(?:i|we) (?:also )?(?:need|want|will need|'ll need|should get|gotta get)|(?:can you |could you |please )?(?:add|get|buy|pick up|grab|put)|don'?t forget|we'?re out of|we are out of|out of|and|also|plus|then|some|more)\b\s*/i;
 const TAIL = /\b(?:to|on|onto|in|into) (?:the |my |our )?(?:shopping |grocery )?(?:list|cart)\b|\bfrom the store\b/gi;
 
+// Names that really do repeat a word
+const DOUBLED = new Set(['mahi', 'bang', 'chop', 'bora', 'cous', 'baba', 'yum']);
+
+/**
+ * Drop words the recognizer heard twice in a row: "almond almond milk" →
+ * "almond milk", "ground beef ground beef" → "ground beef" (Android often
+ * repeats words while listening).
+ */
+export function collapseRepeats(text: string): string {
+  const words = text.trim().split(/\s+/);
+  const out: string[] = [];
+  for (let i = 0; i < words.length; i++) {
+    // Longest repeated run (up to 3 words) starting here
+    let skipped = false;
+    for (let n = 3; n >= 1; n--) {
+      const a = out.slice(-n).join(' ').toLowerCase();
+      const b = words.slice(i, i + n).join(' ').toLowerCase().replace(/[,.;]$/, '');
+      if (out.length >= n && a.replace(/[,.;]$/, '') === b && !(n === 1 && DOUBLED.has(b))) {
+        i += n - 1;
+        skipped = true;
+        break;
+      }
+    }
+    if (!skipped) out.push(words[i]);
+  }
+  return out.join(' ');
+}
+
 /** Split a spoken shopping list into item phrases. */
 export function splitSpokenList(text: string): string[] {
-  let s = ` ${text.toLowerCase()} `;
+  let s = ` ${collapseRepeats(text).toLowerCase()} `;
   for (const p of AND_PHRASES) s = s.split(p).join(p.replace(/ and /g, ` ${AND_MARK} `));
   // "two and a half pounds" is one amount
   s = s.replace(/\b(\w+) and (a |an |one )?(half|third|quarter)\b/g, `$1 ${AND_MARK} $2$3`);
@@ -126,7 +154,7 @@ const capitalize = (s: string) => s.replace(/^\s*\w/, (c) => c.toUpperCase());
  * Without spoken section words, everything after the title is treated as steps.
  */
 export function spokenRecipeToText(text: string): string {
-  const s = text.replace(FILLER, ' ').replace(/\s+/g, ' ').trim();
+  const s = collapseRepeats(text.replace(FILLER, ' ').replace(/\s+/g, ' ').trim());
   const ingAt = s.search(/\b(?:the )?ingredients?(?: are| list)?\b|\byou(?:'ll| will)? need\b/i);
   const stepAt = s.search(/\b(?:the )?(?:instructions|directions|steps|method)(?: are)?\b|\bto make (?:it|this)\b|\bhow to make it\b/i);
 

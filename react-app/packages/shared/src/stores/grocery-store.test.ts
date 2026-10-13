@@ -224,3 +224,20 @@ describe('behavior events', () => {
     expect(events.find((e) => e.type === 'ingredient_swapped')).toMatchObject({ surface: 'cart', fromKey: 'cheddar cheese', toKey: 'pepper jack cheese', mealId: 'm1' });
   });
 });
+
+describe('matching spoken items to products', () => {
+  it('ranks store results, falls back to the pantry when stores are unavailable, and logs the pick', async () => {
+    const { store, api, events } = setup();
+    const found = await store.getState().matchItems('h1', ['ground turkey', 'onion']);
+    expect(found['ground turkey'].map((m) => m.store)).toEqual(['walmart', 'kroger']); // cheaper first
+    expect(found['onion'][0]).toMatchObject({ source: 'pantry', label: 'Onion' });
+
+    (api.search as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Store connections are a Premium feature.'));
+    const offline = await store.getState().matchItems('h1', ['onion']);
+    expect(offline['onion'][0].source).toBe('pantry');
+
+    const options = found['ground turkey'];
+    store.getState().logItemPick({ householdId: 'h1', destination: 'pantry', name: 'ground turkey', match: options[1], options, auto: false });
+    expect(events.at(-1)).toMatchObject({ type: 'cart_product_chosen', fromKey: 'ground turkey', store: 'kroger', recommended: false, suggestionRank: 1, payload: { destination: 'pantry', autoPicked: false } });
+  });
+});

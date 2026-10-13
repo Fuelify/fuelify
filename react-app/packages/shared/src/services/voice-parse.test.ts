@@ -46,6 +46,14 @@ describe('spoken shopping list', () => {
   });
 });
 
+describe('repeated words', () => {
+  it('drops words heard twice but keeps real doubles', () => {
+    expect(brief('almond almond milk')).toEqual([[1, null, 'almond milk']]);
+    expect(brief('two pounds of ground beef ground beef and eggs')).toEqual([[2, 'lb', 'ground beef'], [1, null, 'eggs']]);
+    expect(brief('mahi mahi fillets')).toEqual([[1, null, 'mahi mahi fillets']]);
+  });
+});
+
 describe('spoken search', () => {
   it('drops the request words', () => {
     expect(spokenQuery('search for chicken tacos please')).toBe('chicken tacos');

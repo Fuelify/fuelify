@@ -62,6 +62,8 @@ export function useSpeechInput({ continuous = false, onFinal }: { continuous?: b
   const [error, setError] = useState<string | null>(null);
   const rec = useRef<Recognition | null>(null);
   const finalText = useRef('');
+  // Words from earlier segments of a continuous session (browsers restart it after pauses)
+  const before = useRef('');
   const wanted = useRef(false);
   const onFinalRef = useRef(onFinal);
   onFinalRef.current = onFinal;
@@ -76,13 +78,24 @@ export function useSpeechInput({ continuous = false, onFinal }: { continuous?: b
     r.lang = navigator.language || 'en-US';
     r.continuous = continuous;
     r.interimResults = true;
+    before.current = finalText.current;
     r.onresult = (e) => {
+      // Rebuild this segment from every result rather than appending: Android
+      // re-sends earlier words, sometimes as a longer version of the last result
+      const finals: string[] = [];
       let pending = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
+      for (let i = 0; i < e.results.length; i++) {
         const res = e.results[i];
-        if (res.isFinal) finalText.current = `${finalText.current} ${res[0].transcript}`.replace(/\s+/g, ' ').trim();
-        else pending += res[0].transcript;
+        const t = res[0].transcript.trim();
+        if (!res.isFinal) {
+          pending += ` ${t}`;
+          continue;
+        }
+        const last = finals[finals.length - 1];
+        if (last && t.toLowerCase().startsWith(last.toLowerCase())) finals[finals.length - 1] = t;
+        else if (!last || !last.toLowerCase().endsWith(t.toLowerCase())) finals.push(t);
       }
+      finalText.current = `${before.current} ${finals.join(' ')}`.replace(/\s+/g, ' ').trim();
       setTranscript(finalText.current);
       setInterim(pending.trim());
     };
@@ -97,6 +110,7 @@ export function useSpeechInput({ continuous = false, onFinal }: { continuous?: b
       // Browsers end continuous sessions after a pause; resume until stop()
       if (continuous && wanted.current) {
         try {
+          before.current = finalText.current;
           r.start();
           return;
         } catch {
@@ -139,6 +153,7 @@ export function useSpeechInput({ continuous = false, onFinal }: { continuous?: b
     rec.current?.abort();
     rec.current = null;
     finalText.current = '';
+    before.current = '';
     setTranscript('');
     setInterim('');
     setError(null);

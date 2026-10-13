@@ -38,7 +38,8 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
   const pantry = new PantryRepository(supabase);
   // Every choice worth learning from goes to behavior_events, stamped with the
   // settings in force at the time (read lazily from the stores below)
-  const behaviorLog = createBehaviorLog(new BehaviorRepository(supabase), userId, () => {
+  const behaviorRepo = new BehaviorRepository(supabase);
+  const behaviorLog = createBehaviorLog(behaviorRepo, userId, () => {
     const profile = profileStore.getState().profile;
     const households = householdStore.getState();
     const household = selectActiveHousehold(households);
@@ -66,7 +67,7 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
     householdStore,
     shoppingCartStore,
     groceryStore: createGroceryStore(
-      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore, log: behaviorLog },
+      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore, log: behaviorLog, history: behaviorRepo },
       userId,
     ),
     pantryStore: createPantryStore(pantry, userId),

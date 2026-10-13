@@ -3,8 +3,8 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import type { CartItem } from '@fuelify/shared';
-import { useAuthStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '@/lib/stores';
+import { GROCERY_STORE_INFO, describeMatch, type CartItem } from '@fuelify/shared';
+import { useAuthStore, useGroceryStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '@/lib/stores';
 import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { ShoppingListView } from '@/features/grocery/ShoppingListView';
@@ -43,6 +43,7 @@ function Groceries() {
 
   const [newItem, setNewItem] = useState('');
   const [voiceOpen, setVoiceOpen] = useState(false);
+  const logItemPick = useGroceryStore((s) => s.logItemPick);
   const canListen = useSpeechInput().supported;
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
@@ -124,10 +125,21 @@ function Groceries() {
           </form>
           <VoiceItemsSheet
             open={voiceOpen}
+            householdId={activeHouseholdId}
             onClose={() => setVoiceOpen(false)}
             onAdd={async (spoken) => {
               if (!activeHouseholdId) return;
-              for (const i of spoken) await addItem(activeHouseholdId, { name: i.name, quantity: i.quantity, unit: i.unit ?? undefined });
+              for (const i of spoken) {
+                await addItem(activeHouseholdId, {
+                  name: i.name,
+                  quantity: i.quantity,
+                  unit: i.unit ?? undefined,
+                  category: i.match?.category ?? undefined,
+                  // The product they mean, so whoever shops buys the right one
+                  notes: i.match ? describeMatch(i.match, (s) => GROCERY_STORE_INFO[s].name) : undefined,
+                });
+                if (i.match) logItemPick({ householdId: activeHouseholdId, destination: 'list', name: i.name, match: i.match, options: i.options, auto: i.auto });
+              }
             }}
           />
 
