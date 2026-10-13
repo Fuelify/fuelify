@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { isOwner, sortMembers, validateEmail, type Household, type HouseholdMember } from '@fuelify/shared';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { isOwner, readShopping, sortMembers, validateEmail, type Household, type HouseholdMember, type ShoppingPreferences } from '@fuelify/shared';
 import { useAuthStore, useHouseholdStore } from '@/lib/stores';
 import { Avatar, EmptyState, Icon, LoadingBlock } from '@/components/ui';
 import { LocationField } from '@/features/profile/LocationField';
+import { ShoppingPreferencesForm } from './ShoppingPreferencesForm';
 
 // Household management: members (everyone), add/remove/rename (owner),
 // leave (members), switch and create households.
@@ -40,6 +41,8 @@ export function HouseholdManager() {
 
       <HouseholdLocation household={household} />
 
+      <HouseholdShopping household={household} />
+
       <section className="stack-sm">
         <div className="section-title" style={{ margin: 0 }}>
           <span>Members · {members.length}</span>
@@ -59,8 +62,43 @@ export function HouseholdManager() {
   );
 }
 
+/** Shopping habits and weekly budget, shared by the household; saved as you change them. */
+function HouseholdShopping({ household }: { household: Household }) {
+  const updateSettings = useHouseholdStore((s) => s.updateSettings);
+  const [value, setValue] = useState<ShoppingPreferences>(readShopping(household));
+  const [state, setState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => setValue(readShopping(household)), [household.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const change = (patch: ShoppingPreferences) => {
+    const next = { ...value, ...patch };
+    setValue(next);
+    setState('saving');
+    // The budget slider fires constantly; save once it settles
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(async () => {
+      const ok = await updateSettings(household.id, { shopping: { ...household.shopping, ...next } });
+      setState(ok ? 'saved' : 'error');
+    }, 600);
+  };
+
+  return (
+    <details className="card">
+      <summary className="row-between" style={{ cursor: 'pointer', fontWeight: 700 }}>
+        <span>Shopping &amp; budget</span>
+        <span className="small muted" style={{ fontWeight: 500 }}>
+          {state === 'saving' ? 'Saving…' : state === 'saved' ? 'Saved' : state === 'error' ? 'Couldn’t save' : value.budget !== undefined ? `$${value.budget}/week` : 'Not set'}
+        </span>
+      </summary>
+      <div style={{ marginTop: 12 }}>
+        <ShoppingPreferencesForm value={value} onChange={change} />
+      </div>
+    </details>
+  );
+}
+
 /** Where the household shops; any member can set it. Drives local store prices. */
-function HouseholdLocation({ household }: { household: Household }) {
+export function HouseholdLocation({ household }: { household: Household }) {
   const setLocation = useHouseholdStore((s) => s.setLocation);
   const [text, setText] = useState(household.location ?? '');
   const [saving, setSaving] = useState(false);
@@ -101,7 +139,7 @@ function HouseholdLocation({ household }: { household: Household }) {
   );
 }
 
-function HouseholdName({ householdId, name, editable }: { householdId: string; name: string; editable: boolean }) {
+export function HouseholdName({ householdId, name, editable }: { householdId: string; name: string; editable: boolean }) {
   const updateHousehold = useHouseholdStore((s) => s.updateHousehold);
   const [value, setValue] = useState(name);
   const [saving, setSaving] = useState(false);
@@ -140,7 +178,7 @@ function HouseholdName({ householdId, name, editable }: { householdId: string; n
   );
 }
 
-function MemberRow({ member, isSelf, canRemove }: { member: HouseholdMember; isSelf: boolean; canRemove: boolean }) {
+export function MemberRow({ member, isSelf, canRemove }: { member: HouseholdMember; isSelf: boolean; canRemove: boolean }) {
   const removeMember = useHouseholdStore((s) => s.removeMember);
   const name = [member.firstName, member.lastName].filter(Boolean).join(' ') || (isSelf ? 'You' : 'Household member');
 
@@ -165,7 +203,7 @@ function MemberRow({ member, isSelf, canRemove }: { member: HouseholdMember; isS
   );
 }
 
-function AddMemberForm() {
+export function AddMemberForm() {
   const addMemberByEmail = useHouseholdStore((s) => s.addMemberByEmail);
   const [email, setEmail] = useState('');
   const [busy, setBusy] = useState(false);

@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ONBOARDING_STEPS,
+  HOUSEHOLD_SETUP_STEPS,
+  needsHouseholdSetup,
+  selectActiveHousehold,
   type UserProfile,
   ACTIVITY_OPTIONS,
   ALLERGEN_OPTIONS,
@@ -14,8 +17,6 @@ import {
   DIET_OPTIONS,
   GENDER_OPTIONS,
   HEALTH_GOAL_OPTIONS,
-  PRICE_IMPACT_OPTIONS,
-  SHOPPING_TENDENCY_OPTIONS,
   WEEKLY_WEIGHT_OPTIONS,
   cmToFeetInches,
   feetInchesToCm,
@@ -24,11 +25,8 @@ import {
   displayToKg,
   weeklyWeightLabel,
   readGoals,
-  readShopping,
-  DEFAULT_WEEKLY_BUDGET,
-  MAX_WEEKLY_BUDGET,
 } from '@fuelify/shared';
-import { useProfileStore } from '@/lib/stores';
+import { useHouseholdStore, useProfileStore } from '@/lib/stores';
 import { Icon, LoadingBlock, Logo, OptionRow, Segmented } from '@/components/ui';
 import { useOnboarding, type OnboardingDraft } from './OnboardingContext';
 import { DEVICE_IMAGES, DIET_IMAGES, WELCOME_ANIMATION } from './assets';
@@ -48,7 +46,6 @@ interface StepDef {
 }
 
 const goals = (d: OnboardingDraft) => readGoals(d);
-const shopping = (d: OnboardingDraft) => readShopping(d);
 const habits = (d: OnboardingDraft) => goals(d).habits ?? {};
 
 const STEPS: Record<StepKey, StepDef> = {
@@ -56,7 +53,7 @@ const STEPS: Record<StepKey, StepDef> = {
   profile: {
     title: 'Tell us about you',
     subtitle: 'This helps us personalize your plan.',
-    fields: ['firstName', 'lastName', 'location'],
+    fields: ['firstName', 'lastName'],
     isComplete: (d) => !!d.firstName?.trim(),
     Body: ProfileStep,
   },
@@ -103,12 +100,6 @@ const STEPS: Record<StepKey, StepDef> = {
     fields: ['weight', 'goals'],
     isComplete: (d) => !!d.weight && goals(d).weekly !== undefined,
     Body: WeightStep,
-  },
-  'shopping-preferences': {
-    title: 'Shopping preferences',
-    fields: ['shopping'],
-    isComplete: (d) => !!shopping(d).tendency && !!shopping(d).priceSensitivity,
-    Body: ShoppingStep,
   },
   'activity-level': {
     title: 'Choose your daily activity level',
@@ -201,6 +192,29 @@ export function OnboardingStepScreen({ step }: { step: string }) {
 }
 
 function CompletionScreen() {
+  const ensureHousehold = useHouseholdStore((s) => s.ensureHousehold);
+  const [checked, setChecked] = useState(false);
+  // Make sure the household is loaded (a new user gets one created here)
+  useEffect(() => {
+    ensureHousehold().finally(() => setChecked(true));
+  }, [ensureHousehold]);
+  const needsSetup = useHouseholdStore((s) => needsHouseholdSetup(selectActiveHousehold(s)));
+  if (!checked) return <LoadingBlock />;
+  if (needsSetup) {
+    return (
+      <div className="center-fill" style={{ gap: 16, padding: 24, textAlign: 'center' }}>
+        <div style={{ animation: 'pop 0.5s ease', color: 'var(--primary)', display: 'flex' }} aria-hidden="true"><Icon name="checkCircle" size={72} /></div>
+        <h2 style={{ fontSize: 26, fontWeight: 800 }}>You&apos;re set up!</h2>
+        <p className="muted" style={{ maxWidth: 320 }}>
+          One more short part: your household. Where you shop, your grocery budget, and who you live with. It takes about a minute.
+        </p>
+        <Link href={`/household-setup/${HOUSEHOLD_SETUP_STEPS[0]}`} className="btn btn-primary btn-lg" style={{ marginTop: 8, minWidth: 220 }}>
+          Set up my household
+        </Link>
+        <Link href="/home" className="btn btn-ghost">Later</Link>
+      </div>
+    );
+  }
   return (
     <div className="center-fill" style={{ gap: 16 }}>
       <div style={{ animation: 'pop 0.5s ease', color: 'var(--primary)', display: 'flex' }} aria-hidden="true"><Icon name="checkCircle" size={72} /></div>
@@ -246,14 +260,7 @@ function ProfileStep({ draft }: { draft: OnboardingDraft }) {
         <input id="last" className="input" autoComplete="family-name" value={draft.lastName ?? ''}
           onChange={(e) => update({ lastName: e.target.value })} />
       </div>
-      <div className="field">
-        <label htmlFor="loc">Location</label>
-        <input id="loc" className="input" placeholder="City, State" autoComplete="address-level2" value={draft.location ?? ''}
-          onChange={(e) => update({ location: e.target.value })} />
-        <p className="hint">
-          Location data lets us give personalized recommendations for your area and more precise shopping costs.
-        </p>
-      </div>
+      <p className="hint">Where you shop and your grocery budget are set for your household next, so everyone you live with shares them.</p>
     </div>
   );
 }
@@ -455,37 +462,6 @@ function WeightStep({ draft }: { draft: OnboardingDraft }) {
   );
 }
 
-function ShoppingStep({ draft }: { draft: OnboardingDraft }) {
-  const { updateJson } = useOnboarding();
-  const s = shopping(draft);
-  const budget = s.budget ?? DEFAULT_WEEKLY_BUDGET;
-  return (
-    <div className="stack-lg">
-      <Question title="Are you a price-sensitive shopper?">
-        {SHOPPING_TENDENCY_OPTIONS.map((o) => (
-          <OptionRow key={o} radio title={o} selected={s.tendency === o} onClick={() => updateJson('shopping', { tendency: o })} />
-        ))}
-      </Question>
-      <Question title="Do food prices impact your typical diet or meal planning for the week?" hint="Includes sales, discounts, bulk deals and seasonality.">
-        {PRICE_IMPACT_OPTIONS.map((o) => (
-          <OptionRow key={o} radio title={o} selected={s.priceSensitivity === o} onClick={() => updateJson('shopping', { priceSensitivity: o })} />
-        ))}
-      </Question>
-      <Question title="What is your weekly grocery budget?" hint="Approximate — you can always change this later.">
-        <div className="card stack-sm">
-          <div className="row-between">
-            <span className="muted small">$0</span>
-            <span style={{ fontWeight: 800, fontSize: 22, color: 'var(--primary)' }}>${budget}<span className="small muted">/week</span></span>
-            <span className="muted small">${MAX_WEEKLY_BUDGET}</span>
-          </div>
-          <input type="range" min={0} max={MAX_WEEKLY_BUDGET} step={5} value={budget} aria-label="Weekly grocery budget"
-            onChange={(e) => updateJson('shopping', { budget: Number(e.target.value) })} />
-        </div>
-      </Question>
-    </div>
-  );
-}
-
 function ActivityStep({ draft }: { draft: OnboardingDraft }) {
   const { update } = useOnboarding();
   return (
@@ -539,7 +515,6 @@ function SubmissionStep({ draft }: { draft: OnboardingDraft }) {
     ['Weight', draft.weight ? formatWeight(draft.weight, units) : '—'],
     ['Weekly goal', g.weekly !== undefined ? weeklyWeightLabel(g.weekly, units) : '—'],
     ['Activity', draft.activeness ?? '—'],
-    ['Weekly budget', shopping(draft).budget !== undefined ? `$${shopping(draft).budget}` : '—'],
   ];
   return (
     <div className="stack-lg">

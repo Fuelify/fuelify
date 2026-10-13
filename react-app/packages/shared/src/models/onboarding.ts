@@ -16,13 +16,25 @@ export const ONBOARDING_STEPS = [
   'health-goals',
   'primary-goal',
   'weight-goals',
-  'shopping-preferences',
   'activity-level',
   'device-connections',
   'submission',
 ] as const;
 
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
+
+/**
+ * Household setup, separate from each person's onboarding: done once per
+ * household (whoever gets there first), skipped by people who join a
+ * household that's already set up.
+ */
+export const HOUSEHOLD_SETUP_STEPS = ['household', 'shopping', 'members'] as const;
+export type HouseholdSetupStep = (typeof HOUSEHOLD_SETUP_STEPS)[number];
+
+/** Does this household still need its setup? */
+export function needsHouseholdSetup(household: { setupCompletedAt: string | null } | null | undefined): boolean {
+  return !!household && !household.setupCompletedAt;
+}
 
 export const TOTAL_ONBOARDING_STEPS = ONBOARDING_STEPS.length;
 

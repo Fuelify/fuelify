@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { createHouseholdStore, selectActiveHousehold } from './household-store';
 import { householdInviteErrorMessage, isOwner, sortMembers, type HouseholdMember } from '../models/household';
 import type { HouseholdRepository } from '../supabase/household-repo';
+import { needsHouseholdSetup } from '../models/onboarding';
+import { readShopping } from '../models/profile-answers';
 
 const member = (userId: string, role: 'owner' | 'member', joinedAt = '2026-10-01'): HouseholdMember => ({
   id: `m-${userId}`, householdId: 'h1', userId, role, joinedAt, firstName: userId, lastName: null, imageUrl: null,
@@ -37,10 +39,24 @@ function fakeRepo(overrides: Partial<Record<keyof HouseholdRepository, unknown>>
     addMemberByEmail: vi.fn(async () => member('teagan', 'member')),
     removeMember: vi.fn(async () => undefined),
     setPlan: vi.fn(async (id: string, plan: string) => ({ ...households[0], id, plan })),
+    updateSettings: vi.fn(async (id: string, st: { shopping?: Record<string, unknown>; completeSetup?: boolean }) => ({ ...households[0], id, shopping: st.shopping ?? {}, setupCompletedAt: st.completeSetup ? '2026-10-13T00:00:00Z' : null })),
     setLocation: vi.fn(async (id: string, loc: { label: string | null; postcode: string | null }) => ({ ...households[0], id, location: loc.label, postcode: loc.postcode })),
     ...overrides,
   } as unknown as HouseholdRepository;
 }
+
+describe('household setup', () => {
+  it('is needed until a member finishes it, and saves shared shopping preferences', async () => {
+    const repo = fakeRepo();
+    const store = createHouseholdStore(repo, 'teagan');
+    await store.getState().fetchHouseholds();
+    expect(needsHouseholdSetup({ setupCompletedAt: null })).toBe(true);
+    expect(await store.getState().updateSettings('h1', { shopping: { budget: 150, tendency: 'Yes, I hunt for the bargains' }, completeSetup: true })).toBe(true);
+    const hh = selectActiveHousehold(store.getState())!;
+    expect(readShopping(hh)).toMatchObject({ budget: 150, tendency: 'Yes, I hunt for the bargains' });
+    expect(needsHouseholdSetup(hh)).toBe(false);
+  });
+});
 
 describe('household store', () => {
   it('sets the household location for everyone', async () => {

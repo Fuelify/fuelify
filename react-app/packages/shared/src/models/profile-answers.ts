@@ -18,7 +18,7 @@ export interface ProfileGoals {
   habits?: EatingHabits;
 }
 
-/** profiles.shopping */
+/** households.shopping (was profiles.shopping before households had their own setup) */
 export interface ShoppingPreferences {
   tendency?: string;
   priceSensitivity?: string;
@@ -39,8 +39,8 @@ export function readGoals(profile: { goals?: unknown } | null | undefined): Prof
   };
 }
 
-export function readShopping(profile: { shopping?: unknown } | null | undefined): ShoppingPreferences {
-  const s: Record<string, unknown> = isObject(profile?.shopping) ? profile.shopping : {};
+export function readShopping(owner: { shopping?: unknown } | null | undefined): ShoppingPreferences {
+  const s: Record<string, unknown> = isObject(owner?.shopping) ? owner.shopping : {};
   return {
     tendency: typeof s.tendency === 'string' ? s.tendency : undefined,
     priceSensitivity: typeof s.priceSensitivity === 'string' ? s.priceSensitivity : undefined,

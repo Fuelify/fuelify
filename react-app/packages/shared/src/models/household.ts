@@ -16,6 +16,10 @@ export interface Household {
   /** Rounded (~100 m) for nearest-store lookups */
   latitude: number | null;
   longitude: number | null;
+  /** Shopping habits and weekly budget (shared); read with readShopping */
+  shopping: Record<string, unknown>;
+  /** When the household setup (name, location, shopping, members) was finished */
+  setupCompletedAt: string | null;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

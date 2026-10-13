@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { daysUntil, formatLong, greeting, sortByMealType, todayISO } from '@fuelify/shared';
+import { HOUSEHOLD_SETUP_STEPS, daysUntil, formatLong, greeting, needsHouseholdSetup, selectActiveHousehold, sortByMealType, todayISO } from '@fuelify/shared';
 import { useHouseholdStore, useMealPlanStore, usePantryStore, useProfileStore, useShoppingCartStore } from '@/lib/stores';
 import { Avatar, FoodTile, Icon, LogoMark, type IconName } from '@/components/ui';
 import { useRecipeImage } from '@/features/recipes/useRecipeImage';
@@ -15,6 +15,7 @@ export default function HomePage() {
   const meals = useMealPlanStore((s) => s.meals);
   const fetchDayMealPlan = useMealPlanStore((s) => s.fetchDayMealPlan);
   const ensureHousehold = useHouseholdStore((s) => s.ensureHousehold);
+  const householdNeedsSetup = useHouseholdStore((s) => needsHouseholdSetup(selectActiveHousehold(s)));
   const pantryItems = usePantryStore((s) => s.items);
   const fetchPantry = usePantryStore((s) => s.fetchItems);
   const cartItems = useShoppingCartStore((s) => s.items);
@@ -71,6 +72,17 @@ export default function HomePage() {
             <div className="grow">
               <div style={{ fontWeight: 700 }}>Finish setting up</div>
               <div className="small muted">Answer a few questions so we can personalize your plan.</div>
+            </div>
+            <span style={{ color: 'var(--primary)' }}><Icon name="chevronRight" /></span>
+          </Link>
+        )}
+
+        {householdNeedsSetup && (
+          <Link href={`/household-setup/${HOUSEHOLD_SETUP_STEPS[0]}`} className="card row" style={{ gap: 12, background: 'var(--primary-soft)', borderColor: 'var(--primary)' }}>
+            <span style={{ color: 'var(--primary)' }}><Icon name="users" /></span>
+            <div className="grow">
+              <div style={{ fontWeight: 700 }}>Finish setting up your household</div>
+              <div className="small muted">Where you shop, your weekly budget and who you live with. About a minute.</div>
             </div>
             <span style={{ color: 'var(--primary)' }}><Icon name="chevronRight" /></span>
           </Link>
