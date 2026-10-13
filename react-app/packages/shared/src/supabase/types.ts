@@ -386,6 +386,10 @@ export interface Database {
           id: string;
           name: string;
           plan: string;
+          location: string | null;
+          postcode: string | null;
+          latitude: number | null;
+          longitude: number | null;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -543,6 +547,10 @@ export interface Database {
       add_household_member_by_email: {
         Args: { hh_id: string; member_email: string };
         Returns: Database['public']['Tables']['household_members']['Row'];
+      };
+      set_household_location: {
+        Args: { hh_id: string; loc: string | null; zip: string | null; lat: number | null; lon: number | null };
+        Returns: Database['public']['Tables']['households']['Row'];
       };
     };
     Enums: {

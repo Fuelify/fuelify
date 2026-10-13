@@ -37,11 +37,24 @@ function fakeRepo(overrides: Partial<Record<keyof HouseholdRepository, unknown>>
     addMemberByEmail: vi.fn(async () => member('teagan', 'member')),
     removeMember: vi.fn(async () => undefined),
     setPlan: vi.fn(async (id: string, plan: string) => ({ ...households[0], id, plan })),
+    setLocation: vi.fn(async (id: string, loc: { label: string | null; postcode: string | null }) => ({ ...households[0], id, location: loc.label, postcode: loc.postcode })),
     ...overrides,
   } as unknown as HouseholdRepository;
 }
 
 describe('household store', () => {
+  it('sets the household location for everyone', async () => {
+    const repo = fakeRepo();
+    const store = createHouseholdStore(repo, 'teagan');
+    await store.getState().fetchHouseholds();
+    expect(await store.getState().setLocation('h1', { label: 'Woodstock, GA', postcode: '30188', lat: 34.1, lon: -84.52 })).toBe(true);
+    expect(selectActiveHousehold(store.getState())).toMatchObject({ location: 'Woodstock, GA', postcode: '30188' });
+
+    (repo.setLocation as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('Failed to save household location: not_member'));
+    expect(await store.getState().setLocation('h1', { label: 'Elsewhere', postcode: null, lat: null, lon: null })).toBe(false);
+    expect(store.getState().error).toMatch(/not_member/);
+  });
+
   it('adds a member by email and reports errors as messages', async () => {
     const repo = fakeRepo();
     const store = createHouseholdStore(repo, 'ethan');

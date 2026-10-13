@@ -124,6 +124,8 @@ export interface GroceryDeps {
   mealPlanStore: StoreApi<MealPlanStore>;
   /** Records skips, product picks, swaps and checkouts */
   log?: BehaviorLog;
+  /** A household's US ZIP from its location, for local store prices */
+  householdZip?: (householdId: string | null) => string | null;
   /** The household's past product picks */
   history?: { productChoices: (householdId: string) => Promise<ProductChoice[]> };
 }
@@ -134,10 +136,16 @@ const BATCH_SIZE = 20;
 const PARALLEL_BATCHES = 2;
 
 export function createGroceryStore(deps: GroceryDeps, userId: string) {
-  const config = async () => readGroceryConfig(await deps.profiles.getProfile(userId));
+  /** The user's store settings, with the household's ZIP (location is per household) when it has one. */
+  const settings = async (householdId: string | null | undefined) => {
+    const cfg = readGroceryConfig(await deps.profiles.getProfile(userId));
+    const zip = deps.householdZip?.(householdId ?? null);
+    return zip ? { ...cfg, zipCode: zip } : cfg;
+  };
   const log = deps.log ?? NO_BEHAVIOR_LOG;
 
   return createStore<GroceryStore>()((set, get) => {
+    const config = () => settings(get().list?.householdId);
     const saveCart = async (cart: GroceryCart | null) => {
       const list = get().list;
       set({ cart });
@@ -459,11 +467,12 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
         const unique = [...new Set(names.map((n) => n.trim()).filter(Boolean))];
         if (unique.length === 0) return {};
         const keyed = unique.map((name, i) => ({ key: `m${i}`, query: name }));
+        const cfgFor = () => settings(householdId);
         const [history, pantry, offers] = await Promise.all([
           deps.history?.productChoices(householdId).catch(() => []) ?? Promise.resolve([] as ProductChoice[]),
           deps.pantry.getItems(householdId).catch(() => []),
           // Store prices are Premium; without them, history and pantry still help
-          config()
+          cfgFor()
             .then((cfg) => deps.api.search(keyed, cfg))
             .catch(() => ({}) as Record<string, ProductOffer[]>),
         ]);

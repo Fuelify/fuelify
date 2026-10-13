@@ -9,6 +9,13 @@ export interface Household {
   name: string;
   /** Shared by every member */
   plan: PlanTier;
+  /** Where the household shops, e.g. "Woodstock, GA" (any member can set it) */
+  location: string | null;
+  /** Postal code for local store prices, e.g. "30188" */
+  postcode: string | null;
+  /** Rounded (~100 m) for nearest-store lookups */
+  latitude: number | null;
+  longitude: number | null;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

@@ -76,11 +76,14 @@ react-app/
   (migration 00016). The bucket is public to read; a user can write only to
   `<their id>/`. The web app center-crops to a 512px JPEG before uploading
   (`lib/image.ts`), and `profiles.image_url` holds the public URL.
-- **Location:** `/api/location/search` and `/api/location/reverse` are open to
-  signed-in users only. They use Photon (the OpenStreetMap geocoder; no key,
-  results cached for a day). Reverse lookups round coordinates to about 100 m,
-  and positions are never stored. Picking a US city fills in the grocery ZIP
-  if none is set.
+- **Location:** set per household, not per person (`households.location`,
+  `postcode`, and lat/lon rounded to about 100 m; migration 00017). Any member
+  can set it through the RPC `set_household_location`. Store prices use the
+  household's ZIP (the grocery store's `householdZip`), falling back to the
+  profile ZIP when the household has none. Lookups go through
+  `/api/location/search` and `/api/location/reverse`, which are open to
+  signed-in users only and use Photon (the OpenStreetMap geocoder; no key,
+  results cached for a day). `profiles.location` is deprecated.
 - **Behavior events (learning data):** every choice that says something about a
   household's habits is appended to `behavior_events` (migration 00015) through
   the `behaviorLog` built in `createUserStores()`. This covers ingredient swaps

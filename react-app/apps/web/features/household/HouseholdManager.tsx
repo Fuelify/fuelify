@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { isOwner, sortMembers, validateEmail, type HouseholdMember } from '@fuelify/shared';
+import { isOwner, sortMembers, validateEmail, type Household, type HouseholdMember } from '@fuelify/shared';
 import { useAuthStore, useHouseholdStore } from '@/lib/stores';
 import { Avatar, EmptyState, Icon, LoadingBlock } from '@/components/ui';
+import { LocationField } from '@/features/profile/LocationField';
 
 // Household management: members (everyone), add/remove/rename (owner),
 // leave (members), switch and create households.
@@ -37,6 +38,8 @@ export function HouseholdManager() {
 
       <HouseholdName householdId={household.id} name={household.name} editable={owner} />
 
+      <HouseholdLocation household={household} />
+
       <section className="stack-sm">
         <div className="section-title" style={{ margin: 0 }}>
           <span>Members · {members.length}</span>
@@ -53,6 +56,48 @@ export function HouseholdManager() {
 
       <OtherHouseholds />
     </div>
+  );
+}
+
+/** Where the household shops; any member can set it. Drives local store prices. */
+function HouseholdLocation({ household }: { household: Household }) {
+  const setLocation = useHouseholdStore((s) => s.setLocation);
+  const [text, setText] = useState(household.location ?? '');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  useEffect(() => setText(household.location ?? ''), [household.location]);
+
+  const save = async (loc: Parameters<typeof setLocation>[1]) => {
+    setSaving(true);
+    setSaved(false);
+    const ok = await setLocation(household.id, loc);
+    setSaving(false);
+    setSaved(ok);
+  };
+  const typedChange = text.trim() !== (household.location ?? '');
+
+  return (
+    <section className="stack-sm">
+      <LocationField
+        id="hh-location"
+        label="Household location"
+        hint={household.postcode ? `Store prices near ${household.postcode}. Shared by everyone in the household.` : 'Used for store prices near you. Shared by everyone in the household.'}
+        value={text}
+        onChange={(label, place) => {
+          setText(label);
+          setSaved(false);
+          // Picking a suggestion or "use my location" saves right away
+          if (place) save({ label: place.label, postcode: place.postcode, lat: place.lat, lon: place.lon });
+        }}
+      />
+      {typedChange && (
+        <button type="button" className="btn btn-secondary btn-sm" style={{ alignSelf: 'flex-start' }} disabled={saving}
+          onClick={() => save({ label: text.trim() || null, postcode: null, lat: null, lon: null })}>
+          {saving ? 'Saving…' : 'Save location'}
+        </button>
+      )}
+      {saved && !typedChange && <span className="tiny" style={{ color: 'var(--accent)' }}><Icon name="check" size={14} /> Saved for {household.name}</span>}
+    </section>
   );
 }
 
