@@ -14,8 +14,10 @@ import {
   type StorageZone,
   daysUntil,
   spokenItemToPantryDraft,
+  GROCERY_STORE_INFO,
+  describeMatch,
 } from '@fuelify/shared';
-import { useHouseholdStore, usePantryStore } from '@/lib/stores';
+import { useGroceryStore, useHouseholdStore, usePantryStore } from '@/lib/stores';
 import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet, type IconName } from '@/components/ui';
 import { BarcodeScannerSheet } from '@/features/pantry/BarcodeScannerSheet';
 import { ReceiptImportSheet } from '@/features/pantry/ReceiptImportSheet';
@@ -46,6 +48,7 @@ export default function PantryPage() {
   const [query, setQuery] = useState('');
   const [addOpen, setAddOpen] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
+  const logItemPick = useGroceryStore((s) => s.logItemPick);
   const canListen = useSpeechInput().supported;
   const [draft, setDraft] = useState<PantryItemDraft | null>(null);
   const [groupName, setGroupName] = useState<string | null>(null);
@@ -202,9 +205,25 @@ export default function PantryPage() {
         open={voiceOpen}
         title="Say what you have"
         destination="pantry"
+        householdId={activeHouseholdId}
         onClose={() => setVoiceOpen(false)}
         onAdd={async (spoken) => {
-          if (activeHouseholdId) await addItems(activeHouseholdId, spoken.map(spokenItemToPantryDraft));
+          if (!activeHouseholdId) return;
+          await addItems(activeHouseholdId, spoken.map((i) => {
+            const draft = spokenItemToPantryDraft(i);
+            const m = i.match;
+            return {
+              ...draft,
+              name: draft.name.replace(/^\w/, (c) => c.toUpperCase()),
+              brand: m?.brand ?? undefined,
+              category: m?.category ?? draft.category,
+              storageZone: m?.storageZone ?? draft.storageZone,
+              notes: m ? describeMatch(m, (s) => GROCERY_STORE_INFO[s].name) : undefined,
+            };
+          }));
+          for (const i of spoken) {
+            if (i.match) logItemPick({ householdId: activeHouseholdId, destination: 'pantry', name: i.name, match: i.match, options: i.options, auto: i.auto });
+          }
         }}
       />
       <AddItemSheet

@@ -2,6 +2,7 @@
 
 import type { TypedSupabaseClient } from './client';
 import { BEHAVIOR_SCHEMA_VERSION, type BehaviorContext, type BehaviorEvent } from '../models/behavior-event';
+import type { ProductChoice } from '../services/item-matcher';
 
 export interface BehaviorRow {
   event: BehaviorEvent;
@@ -49,5 +50,27 @@ export class BehaviorRepository {
       })),
     );
     if (error) throw new Error(`Failed to log behavior: ${error.message}`);
+  }
+
+  /** Products this household has picked, most often first (from household_product_choice_stats). */
+  async productChoices(householdId: string, limit = 500): Promise<ProductChoice[]> {
+    const { data, error } = await this.supabase
+      .from('household_product_choice_stats')
+      .select('ingredient_key, store, product_id, product_name, times_chosen, avg_price, last_at')
+      .eq('household_id', householdId)
+      .order('times_chosen', { ascending: false })
+      .limit(limit);
+    if (error) throw new Error(`Failed to load shopping history: ${error.message}`);
+    return (data ?? [])
+      .filter((r) => r.ingredient_key && r.store && r.product_id)
+      .map((r) => ({
+        ingredientKey: r.ingredient_key!,
+        store: r.store!,
+        productId: r.product_id!,
+        productName: r.product_name,
+        timesChosen: Number(r.times_chosen ?? 0),
+        avgPrice: r.avg_price == null ? null : Number(r.avg_price),
+        lastAt: r.last_at,
+      }));
   }
 }

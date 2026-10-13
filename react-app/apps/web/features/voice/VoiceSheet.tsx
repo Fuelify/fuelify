@@ -18,6 +18,7 @@ export function VoiceSheet({
   actionLabel,
   canSubmit,
   onSubmit,
+  onChange,
 }: {
   open: boolean;
   title: string;
@@ -26,12 +27,14 @@ export function VoiceSheet({
   /** An example of what to say */
   example?: string;
   onClose: () => void;
-  /** What will be created from the words so far */
-  preview: (text: string) => ReactNode;
+  /** What will be created from the words so far (`listening`: still talking) */
+  preview: (text: string, listening: boolean) => ReactNode;
   actionLabel: (text: string) => string;
   canSubmit: (text: string) => boolean;
   /** Resolve true to close */
   onSubmit: (text: string) => Promise<boolean> | boolean;
+  /** The words or listening state changed */
+  onChange?: (text: string, listening: boolean) => void;
 }) {
   const speech = useSpeechInput({ continuous: true });
   const [text, setText] = useState('');
@@ -56,6 +59,11 @@ export function VoiceSheet({
     onClose();
   };
   const live = speech.listening ? `${text} ${speech.interim}`.trim() : text;
+
+  useEffect(() => {
+    onChange?.(text, speech.listening);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, speech.listening]);
 
   return (
     <Sheet
@@ -109,7 +117,7 @@ export function VoiceSheet({
           </div>
         )}
 
-        {text.trim() && preview(live)}
+        {text.trim() && preview(live, speech.listening)}
       </div>
     </Sheet>
   );

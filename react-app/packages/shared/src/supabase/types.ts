@@ -523,7 +523,22 @@ export interface Database {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: {
+      household_product_choice_stats: {
+        Row: {
+          household_id: string | null;
+          ingredient_key: string | null;
+          store: string | null;
+          product_id: string | null;
+          product_name: string | null;
+          times_chosen: number | null;
+          over_recommendation: number | null;
+          avg_price: number | null;
+          last_at: string | null;
+        };
+        Relationships: [];
+      };
+    };
     Functions: {
       add_household_member_by_email: {
         Args: { hh_id: string; member_email: string };

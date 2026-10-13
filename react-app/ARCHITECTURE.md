@@ -67,6 +67,11 @@ react-app/
   The UI pieces are in `features/voice`: `VoiceButton` for one phrase,
   `VoiceSheet` for dictation and `VoiceItemsSheet`. They render nothing where
   the browser can't listen.
+  After you speak, items are matched to products by `services/item-matcher.ts`
+  (`groceryStore.matchItems`). Candidates come from the household's past
+  picks (`household_product_choice_stats`), then its pantry, then live store
+  results (Premium). The top option fills itself in, and every pick is
+  logged so it ranks first next time.
 - **Behavior events (learning data):** every choice that says something about a
   household's habits is appended to `behavior_events` (migration 00015) through
   the `behaviorLog` built in `createUserStores()`. This covers ingredient swaps

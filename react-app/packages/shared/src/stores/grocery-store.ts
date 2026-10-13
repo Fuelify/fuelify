@@ -21,6 +21,7 @@ import type { RecipeRepository } from '../supabase/recipe-repo';
 import type { MealPlanStore } from './meal-plan-store';
 import type { ShoppingCartStore } from './shopping-cart-store';
 import { NO_BEHAVIOR_LOG, type BehaviorLog } from './behavior-log';
+import { rankItemMatches, type ItemMatch, type ProductChoice } from '../services/item-matcher';
 
 export interface GroceryApi {
   /** Which stores are connected on the server */
@@ -100,6 +101,14 @@ export interface GroceryActions {
   checkout: (store: GroceryStoreId, items: CheckoutItem[]) => Promise<string | null>;
   /** The recommended option for a line given the rest of the cart and the user's settings. */
   recommend: (key: string, options: ProductOffer[]) => Promise<ProductOffer | null>;
+  /**
+   * Likely products for items someone just said or typed, best first, from the
+   * household's past picks, their pantry and (Premium) the connected stores.
+   * Keyed by item name. Never throws; a source that fails is skipped.
+   */
+  matchItems: (householdId: string, names: string[]) => Promise<Record<string, ItemMatch[]>>;
+  /** Record which product was used for an added item, so it ranks first next time. */
+  logItemPick: (pick: { householdId: string; destination: 'list' | 'pantry'; name: string; match: ItemMatch; options: ItemMatch[]; auto: boolean }) => void;
 }
 
 export type GroceryStore = GroceryState & GroceryActions;
@@ -115,6 +124,8 @@ export interface GroceryDeps {
   mealPlanStore: StoreApi<MealPlanStore>;
   /** Records skips, product picks, swaps and checkouts */
   log?: BehaviorLog;
+  /** The household's past product picks */
+  history?: { productChoices: (householdId: string) => Promise<ProductChoice[]> };
 }
 
 /** A big week's list is ~100 items */
@@ -443,6 +454,45 @@ export function createGroceryStore(deps: GroceryDeps, userId: string) {
       },
 
       recommend: async (key, options) => recommendOffer(options, get().cart, await config(), key),
+
+      matchItems: async (householdId, names) => {
+        const unique = [...new Set(names.map((n) => n.trim()).filter(Boolean))];
+        if (unique.length === 0) return {};
+        const keyed = unique.map((name, i) => ({ key: `m${i}`, query: name }));
+        const [history, pantry, offers] = await Promise.all([
+          deps.history?.productChoices(householdId).catch(() => []) ?? Promise.resolve([] as ProductChoice[]),
+          deps.pantry.getItems(householdId).catch(() => []),
+          // Store prices are Premium; without them, history and pantry still help
+          config()
+            .then((cfg) => deps.api.search(keyed, cfg))
+            .catch(() => ({}) as Record<string, ProductOffer[]>),
+        ]);
+        return Object.fromEntries(
+          keyed.map(({ key, query }) => [query, rankItemMatches(query, { history, pantry, offers: offers[key] ?? [] }).slice(0, 8)]),
+        );
+      },
+
+      logItemPick: ({ householdId, destination, name, match, options, auto }) => {
+        if (!match.productId) return;
+        const { category } = describeIngredient(name);
+        log.track({
+          type: 'cart_product_chosen',
+          // Pantry adds have no surface of their own yet; the payload says where it went
+          surface: destination === 'list' ? 'list' : 'search',
+          householdId,
+          fromText: name,
+          fromKey: ingredientKey(name),
+          fromCategory: category,
+          store: match.store,
+          productId: match.productId,
+          productName: match.label,
+          price: match.price,
+          recommended: options[0] ? options[0].productId === match.productId && options[0].store === match.store : null,
+          suggestionRank: options.findIndex((o) => o.productId === match.productId && o.store === match.store),
+          suggestionCount: options.length,
+          payload: { via: 'item_match', destination, autoPicked: auto, source: match.source, brand: match.brand, size: match.size },
+        });
+      },
     };
   });
 }
