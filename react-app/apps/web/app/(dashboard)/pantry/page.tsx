@@ -6,7 +6,6 @@ import {
   STORAGE_ZONES,
   STORAGE_ZONE_LABELS,
   aggregatePantryItems,
-  lookupBarcode,
   type ItemStatus,
   type PantryItem,
   type PantryItemDraft,
@@ -17,7 +16,8 @@ import {
   GROCERY_STORE_INFO,
   describeMatch,
 } from '@fuelify/shared';
-import { useGroceryStore, useHouseholdStore, usePantryStore } from '@/lib/stores';
+import { useAuthStore, useGroceryStore, useHouseholdStore, usePantryStore, useSupabase } from '@/lib/stores';
+import { findBarcode, rememberBarcode } from '@/lib/barcode-client';
 import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet, type IconName } from '@/components/ui';
 import { BarcodeScannerSheet } from '@/features/pantry/BarcodeScannerSheet';
 import { ReceiptImportSheet } from '@/features/pantry/ReceiptImportSheet';
@@ -48,6 +48,9 @@ export default function PantryPage() {
   const [query, setQuery] = useState('');
   const [addOpen, setAddOpen] = useState(false);
   const [voiceOpen, setVoiceOpen] = useState(false);
+  const [unknownBarcode, setUnknownBarcode] = useState<string | null>(null);
+  const supabase = useSupabase();
+  const userId = useAuthStore((s) => s.userId);
   const logItemPick = useGroceryStore((s) => s.logItemPick);
   const canListen = useSpeechInput().supported;
   const [draft, setDraft] = useState<PantryItemDraft | null>(null);
@@ -87,10 +90,13 @@ export default function PantryPage() {
     setScannerOpen(false);
     setLookupBusy(true);
     setLookupError(null);
+    setUnknownBarcode(null);
     try {
-      const info = await lookupBarcode(barcode);
+      const info = await findBarcode(supabase, barcode);
       if (!info) {
-        setLookupError(`No product found for barcode ${barcode}. Add it manually.`);
+        // Nobody has this one yet: whatever they name it is saved for the next scan
+        setUnknownBarcode(barcode);
+        setLookupError(`We don’t know barcode ${barcode} yet. Add its name and we’ll remember it next time.`);
         openAdd();
         return;
       }
@@ -229,9 +235,14 @@ export default function PantryPage() {
       <AddItemSheet
         open={addOpen}
         draft={draft}
-        onClose={() => setAddOpen(false)}
+        onClose={() => { setAddOpen(false); setUnknownBarcode(null); }}
         onSave={async (d) => {
           if (activeHouseholdId) await addItem(activeHouseholdId, d);
+          if (unknownBarcode) {
+            await rememberBarcode(supabase, userId, unknownBarcode, d).catch(() => {});
+            setUnknownBarcode(null);
+            setLookupError(null);
+          }
           setAddOpen(false);
         }}
       />

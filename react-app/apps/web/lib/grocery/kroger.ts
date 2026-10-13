@@ -48,6 +48,20 @@ interface KrogerProduct {
   items?: { price?: { regular?: number; promo?: number }; size?: string; inventory?: { stockLevel?: string } }[];
 }
 
+/** Identify a product by Kroger's product id (13-digit UPC without check digit), for barcode scans. */
+export async function krogerByProductId(id: string): Promise<{ name: string; brand: string | null; size: string | null; imageUrl: string | null } | null> {
+  if (!kroger.configured()) return null;
+  const data = await fetchJson<{ data?: KrogerProduct }>(
+    `${API}/products/${encodeURIComponent(id)}`,
+    { headers: { Authorization: `Bearer ${await accessToken()}`, Accept: 'application/json' } },
+    'Kroger',
+  ).catch(() => null);
+  const p = data?.data;
+  if (!p?.description) return null;
+  const front = p.images?.find((x) => x.perspective === 'front') ?? p.images?.[0];
+  return { name: p.description, brand: p.brand ?? null, size: p.items?.[0]?.size ?? null, imageUrl: front?.sizes.find((s) => s.size === 'medium')?.url ?? front?.sizes[0]?.url ?? null };
+}
+
 export const kroger: GroceryProvider = {
   id: 'kroger',
   configured: () => !!(process.env.KROGER_CLIENT_ID && process.env.KROGER_CLIENT_SECRET),
