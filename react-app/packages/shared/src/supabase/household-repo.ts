@@ -16,6 +16,8 @@ function rowToHousehold(row: HouseholdRow): Household {
     postcode: row.postcode ?? null,
     latitude: row.latitude == null ? null : Number(row.latitude),
     longitude: row.longitude == null ? null : Number(row.longitude),
+    shopping: row.shopping ?? {},
+    setupCompletedAt: row.setup_completed_at ?? null,
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -48,6 +50,17 @@ export class HouseholdRepository {
       lon: loc.lon,
     });
     if (error) throw new Error(`Failed to save household location: ${error.message}`);
+    return rowToHousehold(data as HouseholdRow);
+  }
+
+  /** Save shopping preferences and/or mark the household setup done (any member). */
+  async updateSettings(householdId: string, settings: { shopping?: Record<string, unknown>; completeSetup?: boolean }): Promise<Household> {
+    const { data, error } = await this.supabase.rpc('update_household_settings', {
+      hh_id: householdId,
+      new_shopping: settings.shopping ?? null,
+      complete_setup: settings.completeSetup ?? false,
+    });
+    if (error) throw new Error(`Failed to save household settings: ${error.message}`);
     return rowToHousehold(data as HouseholdRow);
   }
 

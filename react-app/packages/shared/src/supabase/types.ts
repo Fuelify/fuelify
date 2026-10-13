@@ -418,6 +418,8 @@ export interface Database {
           postcode: string | null;
           latitude: number | null;
           longitude: number | null;
+          shopping: Record<string, unknown>;
+          setup_completed_at: string | null;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -575,6 +577,10 @@ export interface Database {
       add_household_member_by_email: {
         Args: { hh_id: string; member_email: string };
         Returns: Database['public']['Tables']['household_members']['Row'];
+      };
+      update_household_settings: {
+        Args: { hh_id: string; new_shopping?: Record<string, unknown> | null; complete_setup?: boolean };
+        Returns: Database['public']['Tables']['households']['Row'];
       };
       set_household_location: {
         Args: { hh_id: string; loc: string | null; zip: string | null; lat: number | null; lon: number | null };

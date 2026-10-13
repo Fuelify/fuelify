@@ -42,9 +42,10 @@ export default function ProfilePage() {
 
   const units = toUnitSystem(profile?.units);
   const goals = readGoals(profile);
-  const shopping = readShopping(profile);
   const habits = goals.habits ?? {};
   const household = households.find((h) => h.id === activeHouseholdId);
+  // Budget is the household's (shared), not each person's
+  const shopping = readShopping(household);
   const fullName = [profile?.firstName, profile?.lastName].filter(Boolean).join(' ');
   const age = profile?.birthdate ? ageFromBirthdate(profile.birthdate) : null;
 
