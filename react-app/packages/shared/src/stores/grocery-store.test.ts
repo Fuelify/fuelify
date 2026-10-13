@@ -61,6 +61,7 @@ function setup() {
     cartStore,
     mealPlanStore,
     log,
+    householdZip: (hh: string | null) => (hh === 'h1' ? '30188' : null),
   } as unknown as GroceryDeps;
   return { store: createGroceryStore(deps, 'u1'), meals, api, saved, events };
 }
@@ -239,5 +240,14 @@ describe('matching spoken items to products', () => {
     const options = found['ground turkey'];
     store.getState().logItemPick({ householdId: 'h1', destination: 'pantry', name: 'ground turkey', match: options[1], options, auto: false });
     expect(events.at(-1)).toMatchObject({ type: 'cart_product_chosen', fromKey: 'ground turkey', store: 'kroger', recommended: false, suggestionRank: 1, payload: { destination: 'pantry', autoPicked: false } });
+  });
+});
+
+describe('household location', () => {
+  it("prices with the household's ZIP", async () => {
+    const { store, api } = setup();
+    await store.getState().loadList('h1', WEEK);
+    await store.getState().buildCart();
+    expect((api.search as ReturnType<typeof vi.fn>).mock.calls[0][1]).toMatchObject({ zipCode: '30188', strategy: 'balanced' });
   });
 });

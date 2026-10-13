@@ -12,6 +12,10 @@ function rowToHousehold(row: HouseholdRow): Household {
     id: row.id,
     name: row.name,
     plan: toPlanTier(row.plan),
+    location: row.location ?? null,
+    postcode: row.postcode ?? null,
+    latitude: row.latitude == null ? null : Number(row.latitude),
+    longitude: row.longitude == null ? null : Number(row.longitude),
     createdBy: row.created_by,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -33,6 +37,19 @@ function rowToMember(row: HouseholdMemberRow, profile?: DisplayProfile): Househo
 
 export class HouseholdRepository {
   constructor(private supabase: TypedSupabaseClient) {}
+
+  /** Set where the household shops (any member). Pass nulls to clear. */
+  async setLocation(householdId: string, loc: { label: string | null; postcode: string | null; lat: number | null; lon: number | null }): Promise<Household> {
+    const { data, error } = await this.supabase.rpc('set_household_location', {
+      hh_id: householdId,
+      loc: loc.label,
+      zip: loc.postcode,
+      lat: loc.lat,
+      lon: loc.lon,
+    });
+    if (error) throw new Error(`Failed to save household location: ${error.message}`);
+    return rowToHousehold(data as HouseholdRow);
+  }
 
   /** Get all households the user belongs to */
   async getMyHouseholds(userId: string): Promise<Household[]> {

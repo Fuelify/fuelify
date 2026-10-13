@@ -3,13 +3,12 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, PLAN_LABELS, readGroceryConfig, usZip, type Place } from '@fuelify/shared';
+import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, PLAN_LABELS } from '@fuelify/shared';
 import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
 import { Icon, Logo, PageHeader, Segmented, Sheet } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { MealPlanSettings } from '@/features/meal-plan/MealPlanSettings';
 import { GrocerySettings } from '@/features/grocery/GrocerySettings';
-import { LocationField } from '@/features/profile/LocationField';
 import { ProfilePhoto } from '@/features/profile/ProfilePhoto';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
@@ -65,7 +64,7 @@ export default function ProfilePage() {
             <div className="grow">
               <div className="h2 truncate">{fullName || 'Your profile'}</div>
               <div className="small muted truncate">{isAnonymous ? 'Guest account' : email ?? ''}</div>
-              {profile?.location && <div className="small faint truncate">{profile.location}</div>}
+              {household?.location && <div className="small faint truncate">{household.location}</div>}
             </div>
             <button className="icon-btn icon-btn-filled" aria-label="Edit profile" onClick={() => setEditOpen(true)}>
               <Icon name="edit" size={18} />
@@ -168,13 +167,17 @@ export default function ProfilePage() {
             <span>Household</span>
             <Link href="/household" className="small" style={{ color: 'var(--primary)', textTransform: 'none', letterSpacing: 0 }}>Manage</Link>
           </div>
-          <div className="card row" style={{ gap: 12 }}>
+          <Link href="/household" className="card row" style={{ gap: 12 }}>
             <span style={{ color: 'var(--primary)' }}><Icon name="users" /></span>
             <div className="grow">
               <div style={{ fontWeight: 700 }}>{household?.name ?? '—'}</div>
+              <div className="small muted row" style={{ gap: 4 }}>
+                <Icon name="pin" size={14} /> {household?.location ?? 'Add your location for local store prices'}
+              </div>
               <div className="small muted">{members.length === 1 ? '1 member shares' : `${members.length} members share`} the cart and pantry</div>
             </div>
-          </div>
+            <Icon name="chevronRight" />
+          </Link>
 
           {/* Account */}
           <div className="section-title"><span>Account</span></div>
@@ -201,19 +204,11 @@ export default function ProfilePage() {
       <EditProfileSheet
         open={editOpen}
         onClose={() => setEditOpen(false)}
-        initial={{ firstName: profile?.firstName ?? '', lastName: profile?.lastName ?? '', location: profile?.location ?? '' }}
+        initial={{ firstName: profile?.firstName ?? '', lastName: profile?.lastName ?? '' }}
         hasPhoto={!!profile?.imageUrl}
         onRemovePhoto={removeAvatar}
         onSave={async (v) => {
-          // A picked US city also gives us a ZIP for nearby store prices, if none is set yet
-          const grocery = readGroceryConfig(profile);
-          const zip = usZip(v.place?.postcode);
-          const ok = await updateProfile({
-            firstName: v.firstName.trim() || null,
-            lastName: v.lastName.trim() || null,
-            location: v.location.trim() || null,
-            ...(zip && !grocery.zipCode ? { groceryConfig: { ...(profile?.groceryConfig ?? {}), zipCode: zip } } : {}),
-          });
+          const ok = await updateProfile({ firstName: v.firstName.trim() || null, lastName: v.lastName.trim() || null });
           if (ok) setEditOpen(false);
         }}
       />
@@ -240,16 +235,16 @@ function EditProfileSheet({
 }: {
   open: boolean;
   onClose: () => void;
-  initial: { firstName: string; lastName: string; location: string };
-  onSave: (v: { firstName: string; lastName: string; location: string; place: Place | null }) => Promise<void>;
+  initial: { firstName: string; lastName: string };
+  onSave: (v: { firstName: string; lastName: string }) => Promise<void>;
   hasPhoto: boolean;
   onRemovePhoto: () => Promise<boolean>;
 }) {
-  const [v, setV] = useState<{ firstName: string; lastName: string; location: string; place: Place | null }>({ ...initial, place: null });
+  const [v, setV] = useState(initial);
   const [busy, setBusy] = useState(false);
   // Reset when the sheet opens
   useEffect(() => {
-    if (open) setV({ ...initial, place: null });
+    if (open) setV(initial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -274,7 +269,7 @@ function EditProfileSheet({
           <label htmlFor="ep-last">Last name</label>
           <input id="ep-last" className="input" value={v.lastName} onChange={(e) => setV({ ...v, lastName: e.target.value })} />
         </div>
-        <LocationField id="ep-loc" value={v.location} onChange={(location, place) => setV({ ...v, location, place })} />
+        <p className="hint">Location is set for the whole household, in <Link href="/household" style={{ color: 'var(--primary)', fontWeight: 600 }}>Household</Link>.</p>
         {hasPhoto && (
           <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start', color: 'var(--danger)' }}
             onClick={async () => { if (window.confirm('Remove your profile picture?')) await onRemovePhoto(); }}>

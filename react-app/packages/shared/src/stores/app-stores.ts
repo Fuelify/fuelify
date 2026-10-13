@@ -20,6 +20,7 @@ import { createPlanGenerationStore } from './plan-generation-store';
 import { GroceryRepository } from '../supabase/grocery-repo';
 import { BehaviorRepository } from '../supabase/behavior-repo';
 import { readGroceryConfig } from '../models/grocery';
+import { usZip } from '../models/place';
 import { createBehaviorLog } from './behavior-log';
 import { selectActiveHousehold } from './household-store';
 import { createGroceryStore, UNAVAILABLE_GROCERY_API, type GroceryApi } from './grocery-store';
@@ -67,7 +68,11 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
     householdStore,
     shoppingCartStore,
     groceryStore: createGroceryStore(
-      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore, log: behaviorLog, history: behaviorRepo },
+      { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore, log: behaviorLog, history: behaviorRepo,
+        householdZip: (householdId) => {
+          const state = householdStore.getState();
+          return usZip(state.households.find((h) => h.id === (householdId ?? state.activeHouseholdId))?.postcode);
+        } },
       userId,
     ),
     pantryStore: createPantryStore(pantry, userId),

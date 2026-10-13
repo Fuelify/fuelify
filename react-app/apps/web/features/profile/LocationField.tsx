@@ -9,7 +9,7 @@ import { Icon, Spinner } from '@/components/ui';
  * City field backed by the location service: type to search cities, or use
  * the device's location. Free text still works if the service is down.
  */
-export function LocationField({ value, onChange, id = 'location' }: { value: string; onChange: (label: string, place: Place | null) => void; id?: string }) {
+export function LocationField({ value, onChange, id = 'location', label = 'Location', hint = 'Used for store prices near you.' }: { value: string; onChange: (label: string, place: Place | null) => void; id?: string; label?: string; hint?: string }) {
   const supabase = useSupabase();
   const [query, setQuery] = useState(value);
   const [results, setResults] = useState<Place[]>([]);
@@ -53,12 +53,18 @@ export function LocationField({ value, onChange, id = 'location' }: { value: str
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  const choose = (p: Place) => {
+  const choose = async (p: Place) => {
     typed.current = false;
     setQuery(p.label);
     setResults([]);
     setOpen(false);
-    onChange(p.label, p);
+    // City search results often have no postcode; get one from the city's position (for local prices)
+    let place = p;
+    if (!p.postcode) {
+      const found = await call<{ place: Place | null }>(`/api/location/reverse?lat=${p.lat}&lon=${p.lon}`).catch(() => null);
+      if (found?.place?.postcode) place = { ...p, postcode: found.place.postcode };
+    }
+    onChange(place.label, place);
   };
 
   const locate = () => {
@@ -72,7 +78,7 @@ export function LocationField({ value, onChange, id = 'location' }: { value: str
       async (pos) => {
         try {
           const { place } = await call<{ place: Place | null }>(`/api/location/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
-          if (place) choose(place);
+          if (place) await choose(place);
           else setError('Couldn’t find a city for your location. Type it instead.');
         } catch (e) {
           setError((e as Error).message);
@@ -90,7 +96,7 @@ export function LocationField({ value, onChange, id = 'location' }: { value: str
 
   return (
     <div className="field" style={{ position: 'relative' }}>
-      <label htmlFor={id}>Location</label>
+      <label htmlFor={id}>{label}</label>
       <div className="row" style={{ gap: 8 }}>
         <div style={{ position: 'relative', flex: 1 }}>
           <input
@@ -126,7 +132,7 @@ export function LocationField({ value, onChange, id = 'location' }: { value: str
           ))}
         </div>
       )}
-      {error ? <span className="hint" style={{ color: 'var(--danger)' }}>{error}</span> : <span className="hint">Used for store prices near you.</span>}
+      {error ? <span className="hint" style={{ color: 'var(--danger)' }}>{error}</span> : <span className="hint">{hint}</span>}
     </div>
   );
 }

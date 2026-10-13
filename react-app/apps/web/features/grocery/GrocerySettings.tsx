@@ -8,12 +8,13 @@ import {
   GROCERY_STRATEGIES,
   GROCERY_STRATEGY_LABELS,
   readGroceryConfig,
+  usZip,
   type GroceryConfig,
   type GroceryStoreId,
 } from '@fuelify/shared';
-import { useGroceryStore, useProfileStore } from '@/lib/stores';
+import { useGroceryStore, useHouseholdStore, useProfileStore } from '@/lib/stores';
 import { usePlan } from '@/features/premium/usePlan';
-import { Segmented } from '@/components/ui';
+import { Icon, Segmented } from '@/components/ui';
 
 /** Profile card: which stores to shop and how to optimize (profiles.grocery_config). */
 export function GrocerySettings() {
@@ -22,6 +23,8 @@ export function GrocerySettings() {
   const providers = useGroceryStore((s) => s.providers);
   const loadProviders = useGroceryStore((s) => s.loadProviders);
   const { premium } = usePlan();
+  const household = useHouseholdStore((s) => s.households.find((h) => h.id === s.activeHouseholdId));
+  const householdZip = usZip(household?.postcode);
   const config = readGroceryConfig(profile);
   const [zip, setZip] = useState(config.zipCode ?? '');
   const [retailer, setRetailer] = useState(config.instacartRetailer);
@@ -62,12 +65,26 @@ export function GrocerySettings() {
         </p>
       )}
 
-      <div className="field">
-        <label htmlFor="grocery-zip">ZIP code</label>
-        <input id="grocery-zip" className="input" inputMode="numeric" maxLength={5} placeholder="e.g. 33602" value={zip}
-          onChange={(e) => setZip(e.target.value.replace(/\D/g, ''))} onBlur={saveZip} />
-        <span className="hint">Used for local prices and your nearest store.</span>
-      </div>
+      {householdZip ? (
+        // Location is the household's; it sets the ZIP for local prices
+        <Link href="/household" className="list-row" style={{ gap: 10, borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
+          <Icon name="pin" size={18} />
+          <span className="grow">
+            <span style={{ display: 'block', fontWeight: 600 }}>{household?.location ?? householdZip}</span>
+            <span className="tiny muted">Prices near {householdZip} · household location</span>
+          </span>
+          <span className="small" style={{ color: 'var(--primary)', fontWeight: 600 }}>Change</span>
+        </Link>
+      ) : (
+        <div className="field">
+          <label htmlFor="grocery-zip">ZIP code</label>
+          <input id="grocery-zip" className="input" inputMode="numeric" maxLength={5} placeholder="e.g. 33602" value={zip}
+            onChange={(e) => setZip(e.target.value.replace(/\D/g, ''))} onBlur={saveZip} />
+          <span className="hint">
+            Used for local prices. Or <Link href="/household" style={{ color: 'var(--primary)', fontWeight: 600 }}>set your household’s location</Link> for everyone.
+          </span>
+        </div>
+      )}
 
       <span className="label">Stores</span>
       <div className="list">
