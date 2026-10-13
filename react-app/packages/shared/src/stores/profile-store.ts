@@ -14,6 +14,9 @@ export interface ProfileActions {
   fetchProfile: () => Promise<void>;
   /** Resolves true on success; failures are also recorded in `error`. */
   updateProfile: (updates: Partial<UserProfile>) => Promise<boolean>;
+  /** Upload a new profile picture (a resized JPEG). Resolves true on success. */
+  uploadAvatar: (image: Blob) => Promise<boolean>;
+  removeAvatar: () => Promise<boolean>;
   completeOnboarding: () => Promise<void>;
   toggleDarkMode: () => Promise<void>;
   setUnits: (units: string) => Promise<void>;
@@ -46,6 +49,28 @@ export function createProfileStore(repo: ProfileRepository, userId: string) {
         return true;
       } catch (err) {
         set({ isLoading: false, error: (err as Error).message });
+        return false;
+      }
+    },
+
+    uploadAvatar: async (image) => {
+      set({ error: null });
+      try {
+        set({ profile: await repo.uploadAvatar(userId, image) });
+        return true;
+      } catch (err) {
+        set({ error: (err as Error).message });
+        return false;
+      }
+    },
+
+    removeAvatar: async () => {
+      set({ error: null });
+      try {
+        set({ profile: await repo.deleteAvatar(userId) });
+        return true;
+      } catch (err) {
+        set({ error: (err as Error).message });
         return false;
       }
     },

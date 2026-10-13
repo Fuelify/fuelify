@@ -67,8 +67,16 @@ export function FoodTile({ title, imageUrl, size = 52 }: { title: string; imageU
   return <FoodImage className="food-tile" title={title} imageUrl={imageUrl} iconSize={Math.round(size * 0.46)} style={{ width: size, height: size }} />;
 }
 
-export function Avatar({ first, last, size }: { first?: string | null; last?: string | null; size?: 'md' | 'lg' }) {
-  return <div className={`avatar${size === 'lg' ? ' avatar-lg' : ''}`}>{initialsOf(first, last) || <Icon name="user" size={size === 'lg' ? 28 : 20} />}</div>;
+/** Profile picture, or initials when there isn't one. */
+export function Avatar({ first, last, imageUrl, size, style }: { first?: string | null; last?: string | null; imageUrl?: string | null; size?: 'md' | 'lg'; style?: CSSProperties }) {
+  // Fall back to initials if the picture can't load
+  const [failed, setFailed] = useState<string | null>(null);
+  const showImage = !!imageUrl && failed !== imageUrl;
+  return (
+    <div className={`avatar${size === 'lg' ? ' avatar-lg' : ''}`} style={style}>
+      {showImage ? <img src={imageUrl!} alt="" onError={() => setFailed(imageUrl!)} /> : initialsOf(first, last) || <Icon name="user" size={size === 'lg' ? 28 : 20} />}
+    </div>
+  );
 }
 
 /** The Fuelify mark, rendered from the shared geometry so it stays crisp at any size. */

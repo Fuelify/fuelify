@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { initialsOf, isOwner, sortMembers, validateEmail, type HouseholdMember } from '@fuelify/shared';
+import { isOwner, sortMembers, validateEmail, type HouseholdMember } from '@fuelify/shared';
 import { useAuthStore, useHouseholdStore } from '@/lib/stores';
-import { EmptyState, Icon, LoadingBlock } from '@/components/ui';
+import { Avatar, EmptyState, Icon, LoadingBlock } from '@/components/ui';
 
 // Household management: members (everyone), add/remove/rename (owner),
 // leave (members), switch and create households.
@@ -101,7 +101,7 @@ function MemberRow({ member, isSelf, canRemove }: { member: HouseholdMember; isS
 
   return (
     <div className="list-row" style={{ paddingRight: canRemove ? 4 : undefined }}>
-      <div className="avatar" style={{ width: 36, height: 36, fontSize: 14 }}>{initialsOf(member.firstName, member.lastName) || <Icon name="user" size={18} />}</div>
+      <Avatar first={member.firstName} last={member.lastName} imageUrl={member.imageUrl} style={{ width: 36, height: 36, fontSize: 14 }} />
       <div className="grow">
         <div className="truncate" style={{ fontWeight: 600 }}>{name}{isSelf && member.firstName ? ' (you)' : ''}</div>
         <div className="tiny faint">Joined {new Date(member.joinedAt).toLocaleDateString()}</div>

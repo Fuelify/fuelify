@@ -15,3 +15,4 @@ export * from './nutrition';
 export * from './grocery';
 export * from './grocery-cart';
 export * from './behavior-event';
+export * from './place';

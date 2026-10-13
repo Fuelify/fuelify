@@ -72,6 +72,15 @@ react-app/
   picks (`household_product_choice_stats`), then its pantry, then live store
   results (Premium). The top option fills itself in, and every pick is
   logged so it ranks first next time.
+- **Profile pictures:** they're stored in the Supabase Storage bucket `avatars`
+  (migration 00016). The bucket is public to read; a user can write only to
+  `<their id>/`. The web app center-crops to a 512px JPEG before uploading
+  (`lib/image.ts`), and `profiles.image_url` holds the public URL.
+- **Location:** `/api/location/search` and `/api/location/reverse` are open to
+  signed-in users only. They use Photon (the OpenStreetMap geocoder; no key,
+  results cached for a day). Reverse lookups round coordinates to about 100 m,
+  and positions are never stored. Picking a US city fills in the grocery ZIP
+  if none is set.
 - **Behavior events (learning data):** every choice that says something about a
   household's habits is appended to `behavior_events` (migration 00015) through
   the `behaviorLog` built in `createUserStores()`. This covers ingredient swaps

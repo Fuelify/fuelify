@@ -3,12 +3,14 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, PLAN_LABELS } from '@fuelify/shared';
+import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, PLAN_LABELS, readGroceryConfig, usZip, type Place } from '@fuelify/shared';
 import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
-import { Icon, Logo, PageHeader, Segmented, Sheet, Avatar } from '@/components/ui';
+import { Icon, Logo, PageHeader, Segmented, Sheet } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { MealPlanSettings } from '@/features/meal-plan/MealPlanSettings';
 import { GrocerySettings } from '@/features/grocery/GrocerySettings';
+import { LocationField } from '@/features/profile/LocationField';
+import { ProfilePhoto } from '@/features/profile/ProfilePhoto';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
 // onboarding answers, units, household and account actions.
@@ -17,6 +19,7 @@ export default function ProfilePage() {
   const profile = useProfileStore((s) => s.profile);
   const fetchProfile = useProfileStore((s) => s.fetchProfile);
   const updateProfile = useProfileStore((s) => s.updateProfile);
+  const removeAvatar = useProfileStore((s) => s.removeAvatar);
   const setUnits = useProfileStore((s) => s.setUnits);
   const theme = usePreferencesStore((s) => s.theme);
   const setTheme = usePreferencesStore((s) => s.setTheme);
@@ -58,7 +61,7 @@ export default function ProfilePage() {
         <div className="screen-pad stack" style={{ paddingTop: 4, paddingBottom: 32 }}>
           {/* Identity */}
           <div className="card row" style={{ gap: 14 }}>
-            <Avatar size="lg" first={profile?.firstName} last={profile?.lastName} />
+            <ProfilePhoto />
             <div className="grow">
               <div className="h2 truncate">{fullName || 'Your profile'}</div>
               <div className="small muted truncate">{isAnonymous ? 'Guest account' : email ?? ''}</div>
@@ -199,8 +202,18 @@ export default function ProfilePage() {
         open={editOpen}
         onClose={() => setEditOpen(false)}
         initial={{ firstName: profile?.firstName ?? '', lastName: profile?.lastName ?? '', location: profile?.location ?? '' }}
+        hasPhoto={!!profile?.imageUrl}
+        onRemovePhoto={removeAvatar}
         onSave={async (v) => {
-          const ok = await updateProfile({ firstName: v.firstName.trim() || null, lastName: v.lastName.trim() || null, location: v.location.trim() || null });
+          // A picked US city also gives us a ZIP for nearby store prices, if none is set yet
+          const grocery = readGroceryConfig(profile);
+          const zip = usZip(v.place?.postcode);
+          const ok = await updateProfile({
+            firstName: v.firstName.trim() || null,
+            lastName: v.lastName.trim() || null,
+            location: v.location.trim() || null,
+            ...(zip && !grocery.zipCode ? { groceryConfig: { ...(profile?.groceryConfig ?? {}), zipCode: zip } } : {}),
+          });
           if (ok) setEditOpen(false);
         }}
       />
@@ -222,17 +235,21 @@ function EditProfileSheet({
   onClose,
   initial,
   onSave,
+  hasPhoto,
+  onRemovePhoto,
 }: {
   open: boolean;
   onClose: () => void;
   initial: { firstName: string; lastName: string; location: string };
-  onSave: (v: { firstName: string; lastName: string; location: string }) => Promise<void>;
+  onSave: (v: { firstName: string; lastName: string; location: string; place: Place | null }) => Promise<void>;
+  hasPhoto: boolean;
+  onRemovePhoto: () => Promise<boolean>;
 }) {
-  const [v, setV] = useState(initial);
+  const [v, setV] = useState<{ firstName: string; lastName: string; location: string; place: Place | null }>({ ...initial, place: null });
   const [busy, setBusy] = useState(false);
   // Reset when the sheet opens
   useEffect(() => {
-    if (open) setV(initial);
+    if (open) setV({ ...initial, place: null });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -257,10 +274,13 @@ function EditProfileSheet({
           <label htmlFor="ep-last">Last name</label>
           <input id="ep-last" className="input" value={v.lastName} onChange={(e) => setV({ ...v, lastName: e.target.value })} />
         </div>
-        <div className="field">
-          <label htmlFor="ep-loc">Location</label>
-          <input id="ep-loc" className="input" value={v.location} onChange={(e) => setV({ ...v, location: e.target.value })} />
-        </div>
+        <LocationField id="ep-loc" value={v.location} onChange={(location, place) => setV({ ...v, location, place })} />
+        {hasPhoto && (
+          <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start', color: 'var(--danger)' }}
+            onClick={async () => { if (window.confirm('Remove your profile picture?')) await onRemovePhoto(); }}>
+            <Icon name="trash" size={16} /> Remove profile picture
+          </button>
+        )}
       </div>
     </Sheet>
   );
