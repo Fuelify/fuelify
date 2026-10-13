@@ -134,3 +134,45 @@ export async function lookupBarcode(
     unit,
   };
 }
+
+/** Where a barcode's details came from */
+export type ProductSource = 'saved' | 'openfoodfacts' | 'walmart' | 'kroger';
+
+/** Priority per field: product databases name things well, stores have the photos and sizes. */
+const FIELD_PRIORITY: Record<'name' | 'brand' | 'category' | 'size' | 'image', ProductSource[]> = {
+  // What someone in Fuelify confirmed beats everything
+  name: ['saved', 'openfoodfacts', 'walmart', 'kroger'],
+  brand: ['saved', 'openfoodfacts', 'walmart', 'kroger'],
+  category: ['saved', 'openfoodfacts', 'walmart', 'kroger'],
+  size: ['saved', 'openfoodfacts', 'walmart', 'kroger'],
+  // Store photos are consistent product shots; Open Food Facts' are user photos, often missing
+  image: ['walmart', 'kroger', 'openfoodfacts', 'saved'],
+};
+
+/**
+ * Combine what each source knows about one barcode, field by field, so a
+ * gap in one (no photo, no brand, no size) is filled from another.
+ */
+export function mergeProductInfo(barcode: string, found: Partial<Record<ProductSource, Partial<ProductInfo> | null>>): { product: ProductInfo; sources: ProductSource[] } | null {
+  const pick = <K extends keyof ProductInfo>(field: keyof typeof FIELD_PRIORITY, key: K): ProductInfo[K] | undefined => {
+    for (const s of FIELD_PRIORITY[field]) {
+      const v = found[s]?.[key];
+      if (v !== undefined && v !== null && v !== '') return v as ProductInfo[K];
+    }
+    return undefined;
+  };
+  const name = pick('name', 'name');
+  if (!name) return null;
+  const sizeFrom = FIELD_PRIORITY.size.find((s) => found[s]?.quantity != null);
+  const product: ProductInfo = {
+    barcode,
+    name,
+    brand: pick('brand', 'brand'),
+    category: pick('category', 'category'),
+    imageUrl: pick('image', 'imageUrl'),
+    quantity: sizeFrom ? found[sizeFrom]!.quantity : undefined,
+    unit: sizeFrom ? found[sizeFrom]!.unit : undefined,
+  };
+  const sources = (Object.keys(found) as ProductSource[]).filter((s) => found[s]);
+  return { product, sources };
+}

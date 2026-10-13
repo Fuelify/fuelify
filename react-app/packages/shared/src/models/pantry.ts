@@ -49,6 +49,9 @@ export interface PantryItem {
   purchaseDate: string | null;
   expirationDate: string | null;
   notes: string | null;
+  /** Product photo (from a barcode scan) */
+  imageUrl: string | null;
+  barcode: string | null;
   createdAt: string;
   updatedAt: string;
   // Populated from profiles join
@@ -68,6 +71,8 @@ export interface PantryItemTotal {
   earliestExpiration: string | null;
   storageZones: StorageZone[];
   items: PantryItem[];
+  /** A product photo from any of the items */
+  imageUrl: string | null;
 }
 
 /** Aggregate pantry items by name */
@@ -102,6 +107,7 @@ export function aggregatePantryItems(items: PantryItem[]): PantryItemTotal[] {
       openCount: groupItems.filter((i) => i.status === 'open').length,
       expiredCount: groupItems.filter((i) => i.status === 'expired').length,
       earliestExpiration: expirations[0] ?? null,
+      imageUrl: groupItems.find((i) => i.imageUrl)?.imageUrl ?? null,
       storageZones: zones,
       items: groupItems,
     });

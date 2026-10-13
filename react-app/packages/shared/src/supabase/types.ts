@@ -475,6 +475,8 @@ export interface Database {
           purchase_date: string | null;
           expiration_date: string | null;
           notes: string | null;
+          image_url: string | null;
+          barcode: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -493,6 +495,8 @@ export interface Database {
           purchase_date?: string | null;
           expiration_date?: string | null;
           notes?: string | null;
+          image_url?: string | null;
+          barcode?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -508,6 +512,8 @@ export interface Database {
           purchase_date?: string | null;
           expiration_date?: string | null;
           notes?: string | null;
+          image_url?: string | null;
+          barcode?: string | null;
           updated_at?: string;
         };
         Relationships: [];

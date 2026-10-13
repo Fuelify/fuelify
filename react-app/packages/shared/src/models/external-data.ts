@@ -46,4 +46,6 @@ export interface PantryItemDraft {
   purchaseDate?: string;
   expirationDate?: string;
   notes?: string;
+  imageUrl?: string;
+  barcode?: string;
 }
