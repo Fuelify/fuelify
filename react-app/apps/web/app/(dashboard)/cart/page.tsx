@@ -110,9 +110,7 @@ function Groceries() {
             <StoreCartView premium={premium} />
           ) : (
           <>
-          {activeHouseholdId && <ShoppingListView householdId={activeHouseholdId} premium={premium} />}
-
-          <div className="section-title" style={{ marginBottom: 0 }}><span>Other items</span></div>
+          <div className="section-title" style={{ marginBottom: 0, marginTop: 0 }}><span>Your items</span></div>
           <form onSubmit={handleAdd} className="row">
             <input className="input" placeholder="Add an item…" value={newItem} onChange={(e) => setNewItem(e.target.value)} aria-label="New item" />
             <button type="submit" className="btn btn-primary" disabled={!newItem.trim()} aria-label="Add item" style={{ padding: '0 14px' }}>
@@ -136,7 +134,7 @@ function Groceries() {
           {cartLoading && items.length === 0 ? (
             <LoadingBlock />
           ) : items.length === 0 ? (
-            <p className="hint">Anything else you need: add it above. These go in the cart too.</p>
+            <p className="hint">Add anything else you need, typed or spoken. These go in the cart too.</p>
           ) : (
             <>
               {unchecked.length > 0 && (
@@ -170,6 +168,9 @@ function Groceries() {
               )}
             </>
           )}
+
+          {/* The meal plan's list follows; your own items stay at the top so adding is always in reach */}
+          {activeHouseholdId && <ShoppingListView householdId={activeHouseholdId} premium={premium} />}
           </>
           )}
         </div>
