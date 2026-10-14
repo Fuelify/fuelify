@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatHeight, formatWeight, weeklyWeightLabel, ageFromBirthdate, readGoals, readShopping, toUnitSystem, THEME_LABELS, THEME_PREFERENCES, type ThemePreference, PLAN_LABELS } from '@fuelify/shared';
-import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
+import { AUTH_DISABLED, useAuthStore, useCommunityStore, useHouseholdStore, useProfileStore, usePreferencesStore } from '@/lib/stores';
 import { Icon, Logo, PageHeader, Segmented, Sheet } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { MealPlanSettings } from '@/features/meal-plan/MealPlanSettings';
@@ -33,6 +33,11 @@ export default function ProfilePage() {
   const planLabel = plan.plan ? PLAN_LABELS[plan.plan] : '…';
 
   const [editOpen, setEditOpen] = useState(false);
+  const isAdmin = useCommunityStore((s) => s.isAdmin);
+  const checkAdmin = useCommunityStore((s) => s.checkAdmin);
+  useEffect(() => {
+    checkAdmin();
+  }, [checkAdmin]);
 
   useEffect(() => {
     fetchProfile();
@@ -172,6 +177,17 @@ export default function ProfilePage() {
             </div>
             <Icon name="chevronRight" />
           </Link>
+
+          {isAdmin && (
+            <Link href="/admin/photos" className="card row" style={{ gap: 12 }}>
+              <span style={{ color: 'var(--tertiary)' }}><Icon name="star" /></span>
+              <div className="grow">
+                <div style={{ fontWeight: 700 }}>Review member photos</div>
+                <div className="small muted">Admin: showcase the best to everyone</div>
+              </div>
+              <Icon name="chevronRight" />
+            </Link>
+          )}
 
           {/* Account */}
           <div className="section-title"><span>Account</span></div>

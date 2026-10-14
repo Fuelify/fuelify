@@ -18,19 +18,39 @@ export interface RecipePhoto {
   /** 'stock' = the recipe's own photo; 'user' = added by a member */
   source: 'stock' | 'user';
   uploadedBy: string | null;
+  /** Showcased by an admin: shown to everyone (gallery and Discover cards). Otherwise only the uploader (and admins) see it. */
+  featured: boolean;
   createdAt: string;
 }
 
-/** The recipe's own photo first, then members' photos (newest first), no duplicates. */
-export function recipeGallery(recipe: { id: string; imageUrl?: string | null }, photos: RecipePhoto[]): RecipePhoto[] {
+/** Who sees a member photo, from the viewer's point of view. */
+export function photoAudience(p: RecipePhoto, viewerId: string | null): 'stock' | 'yours' | 'showcased' | 'pending' {
+  if (p.source === 'stock') return 'stock';
+  if (p.uploadedBy && p.uploadedBy === viewerId) return 'yours';
+  return p.featured ? 'showcased' : 'pending';
+}
+
+/**
+ * Photos for a recipe's gallery, in order: the recipe's own photo, yours
+ * (always shown to you), showcased ones, then (admins only) ones waiting to be
+ * showcased. Newest first within each group, no duplicates. Other people's
+ * photos that aren't showcased only reach admins (the database filters them).
+ */
+export function recipeGallery(recipe: { id: string; imageUrl?: string | null }, photos: RecipePhoto[], viewerId: string | null = null): RecipePhoto[] {
   const stock: RecipePhoto[] = recipe.imageUrl
-    ? [{ id: `stock-${recipe.id}`, recipeId: recipe.id, url: recipe.imageUrl, source: 'stock', uploadedBy: null, createdAt: '' }]
+    ? [{ id: `stock-${recipe.id}`, recipeId: recipe.id, url: recipe.imageUrl, source: 'stock', uploadedBy: null, featured: true, createdAt: '' }]
     : [];
+  const rank = { stock: 0, yours: 1, showcased: 2, pending: 3 } as const;
   const seen = new Set(stock.map((p) => p.url));
   const rest = [...photos]
-    .sort((a, b) => (a.source === b.source ? b.createdAt.localeCompare(a.createdAt) : a.source === 'stock' ? -1 : 1))
+    .sort((a, b) => rank[photoAudience(a, viewerId)] - rank[photoAudience(b, viewerId)] || b.createdAt.localeCompare(a.createdAt))
     .filter((p) => !seen.has(p.url) && seen.add(p.url));
   return [...stock, ...rest];
+}
+
+/** The photo for a Discover card: the recipe's own, else its newest showcased member photo. */
+export function cardPhoto(recipe: { imageUrl?: string | null }, showcased: RecipePhoto[] | undefined): string | null {
+  return recipe.imageUrl ?? [...(showcased ?? [])].filter((p) => p.featured).sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0]?.url ?? null;
 }
 
 /** Short labels for the stats that have something to say, e.g. ["12 likes", "3 favorites", "Cooked 8× this month"]. */

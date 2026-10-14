@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { recipeGallery, type Recipe } from '@fuelify/shared';
+import { photoAudience, recipeGallery, type Recipe, type RecipePhoto } from '@fuelify/shared';
 import { useAuthStore, useCommunityStore } from '@/lib/stores';
 import { fitJpeg } from '@/lib/image';
 import { FoodImage, Icon, Spinner } from '@/components/ui';
@@ -17,10 +17,17 @@ export function RecipeGallery({ recipe }: { recipe: Recipe }) {
   const loadPhotos = useCommunityStore((s) => s.loadPhotos);
   const addPhoto = useCommunityStore((s) => s.addPhoto);
   const removePhoto = useCommunityStore((s) => s.removePhoto);
+  const isAdmin = useCommunityStore((s) => s.isAdmin);
+  const checkAdmin = useCommunityStore((s) => s.checkAdmin);
+  const setFeatured = useCommunityStore((s) => s.setFeatured);
   const track = useRef<HTMLDivElement>(null);
   const input = useRef<HTMLInputElement>(null);
   const [index, setIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    checkAdmin();
+  }, [checkAdmin]);
 
   useEffect(() => {
     loadPhotos(recipe.id);
@@ -28,7 +35,7 @@ export function RecipeGallery({ recipe }: { recipe: Recipe }) {
     track.current?.scrollTo({ left: 0 });
   }, [recipe.id, loadPhotos]);
 
-  const gallery = recipeGallery(recipe, photos ?? []);
+  const gallery = recipeGallery(recipe, photos ?? [], userId);
   const current = gallery[index];
 
   const onScroll = () => {
@@ -54,9 +61,18 @@ export function RecipeGallery({ recipe }: { recipe: Recipe }) {
 
   const actions = (
     <div className="gallery-actions">
-      {current?.source === 'user' && current.uploadedBy === userId && (
-        <button type="button" className="icon-btn" aria-label="Remove your photo"
-          onClick={async () => { if (window.confirm('Remove your photo?')) { await removePhoto(current); setIndex(0); track.current?.scrollTo({ left: 0 }); } }}>
+      {isAdmin && current?.source === 'user' && (
+        <button type="button" className="icon-btn" aria-pressed={current.featured}
+          aria-label={current.featured ? 'Stop showcasing this photo' : 'Showcase this photo to everyone'}
+          title={current.featured ? 'Showcased: everyone sees it. Tap to make it private.' : 'Showcase to everyone (gallery and Discover cards)'}
+          onClick={() => setFeatured(current, !current.featured)}
+          style={current.featured ? { background: '#fff', color: 'var(--tertiary)' } : undefined}>
+          <Icon name="star" size={18} filled={current.featured} />
+        </button>
+      )}
+      {current?.source === 'user' && (current.uploadedBy === userId || isAdmin) && (
+        <button type="button" className="icon-btn" aria-label={current.uploadedBy === userId ? 'Remove your photo' : 'Remove this photo'}
+          onClick={async () => { if (window.confirm(current.uploadedBy === userId ? 'Remove your photo?' : 'Remove this member’s photo?')) { await removePhoto(current); setIndex(0); track.current?.scrollTo({ left: 0 }); } }}>
           <Icon name="trash" size={18} />
         </button>
       )}
@@ -84,7 +100,7 @@ export function RecipeGallery({ recipe }: { recipe: Recipe }) {
               </div>
             ))}
           </div>
-          {current && <span className="gallery-tag">{current.source === 'stock' ? 'Recipe photo' : current.uploadedBy === userId ? 'Your photo' : 'From the community'}</span>}
+          {current && <span className="gallery-tag">{galleryLabel(current, userId)}</span>}
           {actions}
           {gallery.length > 1 && (
             <div className="gallery-dots" aria-hidden="true">
@@ -95,7 +111,20 @@ export function RecipeGallery({ recipe }: { recipe: Recipe }) {
       )}
       <input ref={input} type="file" accept="image/*" hidden onChange={(e) => onFile(e.target.files?.[0])} />
       {error && <div className="alert" role="alert">{error}</div>}
-      {gallery.length <= 1 && <p className="tiny faint">Made this? Tap the camera to add a photo of yours for the community.</p>}
+      {gallery.length <= 1 && <p className="tiny faint">Made this? Tap the camera to add a photo. You’ll always see yours here; our team may showcase great ones for everyone.</p>}
     </div>
   );
+}
+
+function galleryLabel(p: RecipePhoto, viewerId: string | null): string {
+  switch (photoAudience(p, viewerId)) {
+    case 'stock':
+      return 'Recipe photo';
+    case 'yours':
+      return p.featured ? 'Your photo · showcased' : 'Your photo · only you see it';
+    case 'showcased':
+      return 'From the community';
+    default:
+      return 'Not showcased · admins only';
+  }
 }

@@ -649,3 +649,7 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
 .gallery-tag { position: absolute; left: 8px; top: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 12px; font-weight: 600; }
 .gallery-actions { position: absolute; right: 8px; top: 8px; display: flex; gap: 6px; }
 .gallery-actions .icon-btn { width: 36px; height: 36px; background: rgba(0, 0, 0, 0.55); color: #fff; }
+
+/* Admin photo review */
+.admin-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (min-width: 600px) { .admin-photos { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
