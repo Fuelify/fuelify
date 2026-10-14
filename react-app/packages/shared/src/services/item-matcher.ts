@@ -67,7 +67,7 @@ function placeOf(name: string): { category: string | null; storageZone: StorageZ
 
 export function rankItemMatches(
   itemName: string,
-  sources: { history?: ProductChoice[]; pantry?: { name: string; brand: string | null; category: string | null; storageZone: StorageZone; unit: string | null }[]; offers?: ProductOffer[] },
+  sources: { history?: ProductChoice[]; pantry?: { name: string; brand: string | null; category: string | null; storageZone: StorageZone; unit: string | null; imageUrl?: string | null }[]; offers?: ProductOffer[] },
 ): ItemMatch[] {
   const key = ingredientKey(itemName);
   const out = new Map<string, ItemMatch>();
@@ -107,7 +107,7 @@ export function rankItemMatches(
       store: null,
       productId: null,
       price: null,
-      imageUrl: null,
+      imageUrl: p.imageUrl ?? null,
       category: p.category,
       storageZone: p.storageZone,
       timesChosen: 0,
@@ -142,6 +142,16 @@ export function rankItemMatches(
     // Store order is the store's relevance; then cheaper and in stock
     put(id, { ...base, source: 'store', timesChosen: 0, score: coverage + 0.3 * cheapness + (o.inStock ? 0.1 : -0.3) - i * 0.02 });
   });
+
+  // Matches without a photo (an old pick no store returned today, a pantry item
+  // added by hand) borrow one from a store product that's clearly the same thing
+  const withPhotos = offers.filter((o) => o.imageUrl);
+  for (const m of out.values()) {
+    if (m.imageUrl) continue;
+    // Every word of the match's name is in the product's name (store order = relevance)
+    const same = withPhotos.find((o) => nameCoverage(m.label, o.name) >= AUTO_PICK_COVERAGE);
+    if (same) m.imageUrl = same.imageUrl;
+  }
 
   return [...out.values()].sort((a, b) => b.score - a.score);
 }
