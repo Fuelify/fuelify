@@ -1,7 +1,7 @@
 // Pantry layout: each storage zone (dry, fridge, freezer) split into aisle
 // categories, e.g. Dry → Grains & Pasta, Canned & Jarred, Baking…
 
-import { PANTRY_CATEGORIES, STORAGE_ZONES, type PantryCategory, type PantryItem, type PantryItemTotal, type StorageZone } from './pantry';
+import { PANTRY_CATEGORIES, STORAGE_ZONES, aggregatePantryItems, type PantryCategory, type PantryItem, type PantryItemTotal, type StorageZone } from './pantry';
 import { guessCategoryAndZone } from '../services/receipt-parser';
 import { categorizeIngredient, ingredientKey } from '../services/ingredients';
 
@@ -50,9 +50,8 @@ export function pantrySections(totals: PantryItemTotal[], zone: StorageZone | 'a
   const zones = zone === 'all' ? STORAGE_ZONES : [zone];
   return zones
     .map((z) => {
-      const inZone = totals
-        .map((t) => ({ t, items: t.items.filter((i) => i.storageZone === z) }))
-        .filter((x) => x.items.length > 0);
+      // Re-total per zone: a card under Fridge counts only the fridge packages
+      const inZone = aggregatePantryItems(totals.flatMap((t) => t.items).filter((i) => i.storageZone === z)).map((t) => ({ t, items: t.items }));
       const byCategory = new Map<PantryCategory, PantryItemTotal[]>();
       for (const { t, items } of inZone) {
         // The most common category among its packages

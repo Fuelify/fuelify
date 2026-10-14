@@ -6,6 +6,7 @@ import {
   STORAGE_ZONES,
   STORAGE_ZONE_LABELS,
   aggregatePantryItems,
+  formatPantryAmounts,
   pantrySections,
   type ItemStatus,
   type PantryItem,
@@ -79,7 +80,7 @@ export default function PantryPage() {
 
   const totals = useMemo(() => aggregatePantryItems(filtered), [filtered]);
   const sections = useMemo(() => pantrySections(totals, activeZone), [totals, activeZone]);
-  const group = useMemo(() => (groupName ? aggregatePantryItems(items).find((t) => t.name === groupName) ?? null : null), [items, groupName]);
+  const group = useMemo(() => (groupName ? aggregatePantryItems(items).find((t) => t.key === groupName) ?? null : null), [items, groupName]);
 
   const expiredCount = items.filter((i) => i.status === 'expired').length;
   const openCount = items.filter((i) => i.status === 'open').length;
@@ -211,7 +212,7 @@ export default function PantryPage() {
                       <div className="section-title" style={{ margin: 0 }}>
                         <span>{c.category} · {c.totals.length}</span>
                       </div>
-                      {c.totals.map((t) => <TotalCard key={t.name} total={t} onClick={() => setGroupName(t.name)} />)}
+                      {c.totals.map((t) => <TotalCard key={t.key} total={t} onClick={() => setGroupName(t.key)} />)}
                     </div>
                   ))}
                 </section>
@@ -290,6 +291,9 @@ function expiryBadge(date: string | null) {
 }
 
 function TotalCard({ total, onClick }: { total: PantryItemTotal; onClick: () => void }) {
+  const brands = [...new Set(total.items.map((i) => i.brand).filter(Boolean))];
+  const partial = total.openCount > 0 || total.expiredCount > 0;
+  const openPcts = total.items.filter((i) => i.status === 'open').map((i) => i.remainingPct);
   return (
     <button className="card card-button stack-sm" onClick={onClick} style={{ gap: 8 }}>
       <div className="row" style={{ gap: 12 }}>
@@ -299,26 +303,30 @@ function TotalCard({ total, onClick }: { total: PantryItemTotal; onClick: () => 
         ) : (
           <span style={{ width: 32, display: 'flex', justifyContent: 'center', color: 'var(--text-2)' }} aria-hidden="true"><Icon name={ZONE_ICON[total.storageZones[0] ?? 'dry']} size={22} /></span>
         )}
-        <div className="grow">
-          <div className="truncate" style={{ fontWeight: 700 }}>{total.items[0]?.name ?? total.name}</div>
-          <div className="small muted">
-            {total.totalQuantity}{total.unit ? ` ${total.unit}` : ''}
+        <div className="grow" style={{ minWidth: 0 }}>
+          <div className="truncate" style={{ fontWeight: 700 }}>{total.name}</div>
+          <div className="small muted truncate">
+            {formatPantryAmounts(total.amounts)}
             {total.itemCount > 1 ? ` · ${total.itemCount} packages` : ''}
-            {total.items[0]?.brand ? ` · ${total.items[0].brand}` : ''}
+            {brands.length === 1 ? ` · ${brands[0]}` : brands.length > 1 ? ` · ${brands.length} brands` : ''}
           </div>
         </div>
         <Icon name="chevronRight" size={18} />
       </div>
       <div className="chips" style={{ gap: 6 }}>
         {total.sealedCount > 0 && <span className="badge badge-accent">{total.sealedCount} sealed</span>}
-        {total.openCount > 0 && <span className="badge badge-primary">{total.openCount} open</span>}
+        {total.openCount > 0 && (
+          <span className="badge badge-primary">
+            {total.openCount} open · {openPcts.length === 1 ? `${openPcts[0]}% left` : `${Math.min(...openPcts)}–${Math.max(...openPcts)}% left`}
+          </span>
+        )}
         {total.expiredCount > 0 && <span className="badge badge-danger">{total.expiredCount} expired</span>}
         {expiryBadge(total.earliestExpiration)}
       </div>
-      {total.openCount > 0 && (
+      {partial && (
         <div className="row" style={{ gap: 8 }}>
-          <div className="progress grow"><div style={{ width: `${total.avgRemainingPct}%` }} /></div>
-          <span className="tiny faint">{total.avgRemainingPct}% left</span>
+          <div className="progress grow" aria-hidden="true"><div style={{ width: `${total.onHandPct}%` }} /></div>
+          <span className="tiny faint">{formatPantryAmounts(total.amounts, true)} on hand</span>
         </div>
       )}
     </button>
@@ -335,16 +343,24 @@ function GroupSheet({ total, onClose, onAddAnother }: { total: PantryItemTotal |
     <Sheet
       open={!!total}
       onClose={onClose}
-      title={total?.items[0]?.name ?? ''}
+      title={total?.name ?? ''}
       footer={total ? <button className="btn btn-secondary btn-block" onClick={() => onAddAnother(total)}><Icon name="plus" /> Add another</button> : undefined}
     >
       {total && (
         <div className="stack">
-          {total.items.map((item: PantryItem) => (
+          <div className="small muted">
+            On hand: <strong style={{ color: 'var(--text)' }}>{formatPantryAmounts(total.amounts, true)}</strong>
+            {total.itemCount > 1 ? ` across ${total.itemCount} packages` : ''}
+          </div>
+          {total.items.map((item: PantryItem, idx: number) => (
             <div key={item.id} className="card stack-sm">
               <div className="row-between">
-                <div>
-                  <div style={{ fontWeight: 700 }}>{item.quantity}{item.unit ? ` ${item.unit}` : ''}{item.brand ? ` · ${item.brand}` : ''}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div className="row" style={{ gap: 6 }}>
+                    <span style={{ fontWeight: 700 }}>{item.quantity}{item.unit ? ` ${item.unit}` : ''}{item.brand ? ` · ${item.brand}` : ''}</span>
+                    {idx === 0 && total.itemCount > 1 && item.status !== 'expired' && <span className="badge">Use first</span>}
+                  </div>
+                  {item.name !== total.name && <div className="small truncate">{item.name}</div>}
                   <div className="tiny faint">{STORAGE_ZONE_LABELS[item.storageZone]}{item.category ? ` · ${item.category}` : ''}</div>
                 </div>
                 <span className={`badge ${STATUS_BADGE[item.status]}`} style={{ textTransform: 'capitalize' }}>{item.status}</span>
