@@ -61,7 +61,7 @@ function setup() {
     cartStore,
     mealPlanStore,
     log,
-    householdZip: (hh: string | null) => (hh === 'h1' ? '30188' : null),
+    householdGrocery: (hh: string | null) => (hh === 'h1' ? { config: { strategy: 'balanced', maxStores: 2, stores: ['kroger', 'walmart'], preferOrganic: true }, zip: '30188' } : null),
   } as unknown as GroceryDeps;
   return { store: createGroceryStore(deps, 'u1'), meals, api, saved, events };
 }
@@ -244,10 +244,11 @@ describe('matching spoken items to products', () => {
 });
 
 describe('household location', () => {
-  it("prices with the household's ZIP", async () => {
+  it("prices with the household's settings and ZIP", async () => {
     const { store, api } = setup();
     await store.getState().loadList('h1', WEEK);
     await store.getState().buildCart();
-    expect((api.search as ReturnType<typeof vi.fn>).mock.calls[0][1]).toMatchObject({ zipCode: '30188', strategy: 'balanced' });
+    // The household's settings are used (the person's profile doesn't prefer organic)
+    expect((api.search as ReturnType<typeof vi.fn>).mock.calls[0][1]).toMatchObject({ zipCode: '30188', strategy: 'balanced', preferOrganic: true, stores: ['kroger', 'walmart'] });
   });
 });

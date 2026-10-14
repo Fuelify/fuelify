@@ -621,3 +621,12 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
 .avatar-edit { position: relative; border: none; padding: 0; background: none; cursor: pointer; border-radius: 50%; flex-shrink: 0; }
 .avatar-edit .avatar-badge { position: absolute; right: -2px; bottom: -2px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--primary); color: var(--on-primary); border: 2px solid var(--surface); }
 .avatar-edit .avatar-busy { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0, 0, 0, 0.35); border-radius: 50%; }
+
+/* Recipe prep / cook / total */
+.recipe-times { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.recipe-time { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; text-align: center; }
+.recipe-time + .recipe-time { border-left: 1px solid var(--border); }
+.recipe-time strong { font-size: 15px; }
+.recipe-time .tiny { display: inline-flex; align-items: center; gap: 3px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
+.recipe-time-total { background: var(--primary-soft); }
+.recipe-time-total strong { color: var(--primary); }

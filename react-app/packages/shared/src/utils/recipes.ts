@@ -49,6 +49,16 @@ export function totalTimeMinutes(recipe: Pick<Recipe, 'prepTimeMinutes' | 'cookT
   return (recipe.prepTimeMinutes ?? 0) + (recipe.cookTimeMinutes ?? 0);
 }
 
+/** 45 → "45 min", 60 → "1 hr", 75 → "1 hr 15 min". */
+export function formatMinutes(minutes: number | null | undefined): string | null {
+  if (minutes == null || !Number.isFinite(minutes) || minutes <= 0) return null;
+  const m = Math.round(minutes);
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  if (h === 0) return `${r} min`;
+  return r === 0 ? `${h} hr` : `${h} hr ${r} min`;
+}
+
 /**
  * Catalog search for adding a meal. Every word must appear in the title,
  * description, cuisine, diet or ingredients. With `mealType`, only recipes that

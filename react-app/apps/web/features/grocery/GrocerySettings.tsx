@@ -19,13 +19,14 @@ import { Icon, Segmented } from '@/components/ui';
 /** Profile card: which stores to shop and how to optimize (profiles.grocery_config). */
 export function GrocerySettings() {
   const profile = useProfileStore((s) => s.profile);
-  const updateProfile = useProfileStore((s) => s.updateProfile);
+  const setGroceryConfig = useHouseholdStore((s) => s.setGroceryConfig);
   const providers = useGroceryStore((s) => s.providers);
   const loadProviders = useGroceryStore((s) => s.loadProviders);
   const { premium } = usePlan();
   const household = useHouseholdStore((s) => s.households.find((h) => h.id === s.activeHouseholdId));
   const householdZip = usZip(household?.postcode);
-  const config = readGroceryConfig(profile);
+  // The household's settings; a person's old profile settings only until the household has its own
+  const config = readGroceryConfig(household && Object.keys(household.groceryConfig ?? {}).length ? household : profile);
   const [zip, setZip] = useState(config.zipCode ?? '');
   const [retailer, setRetailer] = useState(config.instacartRetailer);
   const [error, setError] = useState<string | null>(null);
@@ -37,11 +38,11 @@ export function GrocerySettings() {
     setZip(config.zipCode ?? '');
     setRetailer(config.instacartRetailer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profile?.id]);
+  }, [household?.id]);
 
   const save = async (patch: Partial<GroceryConfig>) => {
     setError(null);
-    if (!(await updateProfile({ groceryConfig: { ...config, ...patch } }))) setError('Couldn’t save. Try again.');
+    if (!household || !(await setGroceryConfig(household.id, { ...config, ...patch }))) setError('Couldn’t save. Try again.');
   };
 
   const toggleStore = (id: GroceryStoreId) =>
@@ -66,23 +67,15 @@ export function GrocerySettings() {
       )}
 
       {householdZip ? (
-        // Location is the household's; it sets the ZIP for local prices
-        <Link href="/household" className="list-row" style={{ gap: 10, borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}>
-          <Icon name="pin" size={18} />
-          <span className="grow">
-            <span style={{ display: 'block', fontWeight: 600 }}>{household?.location ?? householdZip}</span>
-            <span className="tiny muted">Prices near {householdZip} · household location</span>
-          </span>
-          <span className="small" style={{ color: 'var(--primary)', fontWeight: 600 }}>Change</span>
-        </Link>
+        <p className="small muted row" style={{ gap: 6 }}>
+          <Icon name="pin" size={16} /> Prices near {householdZip}, from the household location.
+        </p>
       ) : (
         <div className="field">
           <label htmlFor="grocery-zip">ZIP code</label>
           <input id="grocery-zip" className="input" inputMode="numeric" maxLength={5} placeholder="e.g. 33602" value={zip}
             onChange={(e) => setZip(e.target.value.replace(/\D/g, ''))} onBlur={saveZip} />
-          <span className="hint">
-            Used for local prices. Or <Link href="/household" style={{ color: 'var(--primary)', fontWeight: 600 }}>set your household’s location</Link> for everyone.
-          </span>
+          <span className="hint">Used for local prices until you set the household location.</span>
         </div>
       )}
 

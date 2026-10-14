@@ -53,8 +53,8 @@ export const DEFAULT_GROCERY_CONFIG: GroceryConfig = {
 };
 
 /** Typed view of profiles.grocery_config; anything missing or malformed takes the default. */
-export function readGroceryConfig(profile: { groceryConfig?: unknown } | null | undefined): GroceryConfig {
-  const raw = (profile?.groceryConfig && typeof profile.groceryConfig === 'object' ? profile.groceryConfig : {}) as Record<string, unknown>;
+export function readGroceryConfig(owner: { groceryConfig?: unknown } | null | undefined): GroceryConfig {
+  const raw = (owner?.groceryConfig && typeof owner.groceryConfig === 'object' ? owner.groceryConfig : {}) as Record<string, unknown>;
   const d = DEFAULT_GROCERY_CONFIG;
   const zip = typeof raw.zipCode === 'string' && /^\d{5}$/.test(raw.zipCode) ? raw.zipCode : d.zipCode;
   const stores = Array.isArray(raw.stores) ? GROCERY_STORES.filter((s) => (raw.stores as unknown[]).includes(s)) : d.stores;

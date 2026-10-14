@@ -5,6 +5,7 @@ import { isOwner, readShopping, sortMembers, validateEmail, type Household, type
 import { useAuthStore, useHouseholdStore } from '@/lib/stores';
 import { Avatar, EmptyState, Icon, LoadingBlock } from '@/components/ui';
 import { LocationField } from '@/features/profile/LocationField';
+import { GrocerySettings } from '@/features/grocery/GrocerySettings';
 import { ShoppingPreferencesForm } from './ShoppingPreferencesForm';
 
 // Household management: members (everyone), add/remove/rename (owner),
@@ -42,6 +43,12 @@ export function HouseholdManager() {
       <HouseholdLocation household={household} />
 
       <HouseholdShopping household={household} />
+
+      <section className="stack-sm">
+        <div className="section-title" style={{ margin: 0 }}><span>Grocery stores</span></div>
+        <GrocerySettings />
+        <p className="hint">Shared by everyone in the household: which stores to price, and how to split the cart.</p>
+      </section>
 
       <section className="stack-sm">
         <div className="section-title" style={{ margin: 0 }}>

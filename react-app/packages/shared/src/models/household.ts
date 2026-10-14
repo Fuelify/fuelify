@@ -18,6 +18,8 @@ export interface Household {
   longitude: number | null;
   /** Shopping habits and weekly budget (shared); read with readShopping */
   shopping: Record<string, unknown>;
+  /** Store settings shared by the household; read with readGroceryConfig */
+  groceryConfig: Record<string, unknown>;
   /** When the household setup (name, location, shopping, members) was finished */
   setupCompletedAt: string | null;
   createdBy: string;

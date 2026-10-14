@@ -420,6 +420,7 @@ export interface Database {
           longitude: number | null;
           shopping: Record<string, unknown>;
           setup_completed_at: string | null;
+          grocery_config: Record<string, unknown>;
           created_by: string;
           created_at: string;
           updated_at: string;
@@ -586,6 +587,10 @@ export interface Database {
       };
       update_household_settings: {
         Args: { hh_id: string; new_shopping?: Record<string, unknown> | null; complete_setup?: boolean };
+        Returns: Database['public']['Tables']['households']['Row'];
+      };
+      set_household_grocery_config: {
+        Args: { hh_id: string; cfg: Record<string, unknown> };
         Returns: Database['public']['Tables']['households']['Row'];
       };
       set_household_location: {

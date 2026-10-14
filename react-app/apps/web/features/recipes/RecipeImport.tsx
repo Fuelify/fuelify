@@ -15,6 +15,7 @@ import {
 import { useRecipeStore, useSupabase } from '@/lib/stores';
 import { FoodImage, Icon, Segmented, Spinner } from '@/components/ui';
 import { VoiceSheet } from '@/features/voice/VoiceSheet';
+import { RecipeTimes } from './RecipeSheet';
 import { useSpeechInput } from '@/lib/useSpeechInput';
 
 type Source = 'link' | 'text';
@@ -183,7 +184,6 @@ function DraftReview({
   const facts = [
     `${draft.ingredients.length} ingredient${draft.ingredients.length === 1 ? '' : 's'}`,
     `${draft.steps.length} step${draft.steps.length === 1 ? '' : 's'}`,
-    time ? `${time} min` : null,
     draft.calories ? `${draft.calories} kcal` : null,
     draft.servings ? `serves ${draft.servings}` : null,
     draft.nutrition.proteinG != null ? `${draft.nutrition.proteinG}g protein` : null,
@@ -196,6 +196,7 @@ function DraftReview({
         <label htmlFor="draft-title">Name</label>
         <input id="draft-title" className="input" value={draft.title} onChange={(e) => onChange({ ...draft, title: e.target.value })} />
       </div>
+      {time > 0 && <RecipeTimes prep={draft.prepTimeMinutes} cook={draft.cookTimeMinutes} total={time} />}
       <p className="small muted">{facts}</p>
       {draft.sourceUrl && <p className="tiny faint truncate">From {new URL(draft.sourceUrl).hostname.replace(/^www\./, '')}</p>}
 
