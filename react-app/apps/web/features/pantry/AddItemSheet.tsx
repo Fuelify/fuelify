@@ -212,7 +212,7 @@ export function AddItemSheet({
         <div className="field">
           <span className="label">Stored in</span>
           <Segmented<StorageZone>
-            options={STORAGE_ZONES.map((z) => ({ value: z, label: STORAGE_ZONE_LABELS[z].replace(' / Pantry', '') }))}
+            options={STORAGE_ZONES.map((z) => ({ value: z, label: STORAGE_ZONE_LABELS[z] }))}
             value={d.storageZone ?? 'dry'}
             onChange={(z) => setD({ ...d, storageZone: z })}
           />

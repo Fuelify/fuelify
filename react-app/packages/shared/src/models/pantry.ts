@@ -4,7 +4,7 @@ export const STORAGE_ZONES = ['dry', 'cool', 'frozen'] as const;
 export type StorageZone = (typeof STORAGE_ZONES)[number];
 
 export const STORAGE_ZONE_LABELS: Record<StorageZone, string> = {
-  dry: 'Dry / Pantry',
+  dry: 'Dry',
   cool: 'Fridge',
   frozen: 'Freezer',
 };
