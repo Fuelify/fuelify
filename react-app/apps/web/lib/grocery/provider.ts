@@ -10,8 +10,14 @@ export interface GroceryProvider {
   configured: () => boolean;
   /** Offers for one query; empty when the store can't price (Instacart). */
   search: (query: string, config: GroceryConfig) => Promise<ProductOffer[]>;
-  /** URL that opens these items at the store */
-  checkout: (items: CheckoutItem[], config: GroceryConfig) => Promise<string>;
+  /** URL that opens these items at the store (after adding them to the person's cart, where the store allows) */
+  checkout: (items: CheckoutItem[], config: GroceryConfig, who: CheckoutCaller) => Promise<string>;
+}
+
+/** The signed-in person checking out (for stores that add to their own account's cart). */
+export interface CheckoutCaller {
+  userId: string;
+  userToken: string;
 }
 
 export class ProviderError extends Error {}

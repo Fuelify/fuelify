@@ -14,6 +14,9 @@ const short = (iso: string) => fromISODate(iso).toLocaleDateString(undefined, { 
  * The week's shopping list: every ingredient the planned meals need, by aisle.
  * Pantry items are shown but marked; tap an item to swap it or skip it.
  */
+/** The days the list covers: today and the next few. */
+export const listDates = () => Array.from({ length: DAYS }, (_, i) => addDays(todayISO(), i));
+
 export function ShoppingListView({ householdId, premium }: { householdId: string; premium: boolean }) {
   const list = useGroceryStore((s) => s.list);
   const busy = useGroceryStore((s) => s.busy);
@@ -21,7 +24,7 @@ export function ShoppingListView({ householdId, premium }: { householdId: string
   const loadList = useGroceryStore((s) => s.loadList);
   const [open, setOpen] = useState<ListItem | null>(null);
 
-  const dates = useMemo(() => Array.from({ length: DAYS }, (_, i) => addDays(todayISO(), i)), []);
+  const dates = useMemo(listDates, []);
   useEffect(() => {
     if (premium) loadList(householdId, dates);
   }, [premium, householdId, dates, loadList]);

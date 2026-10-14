@@ -9,3 +9,4 @@ export * from './substitutions';
 export * from './voice-parse';
 export * from './item-matcher';
 export * from './gtin';
+export * from './shop-elsewhere';

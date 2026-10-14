@@ -16,6 +16,9 @@ import { useGroceryStore, useHouseholdStore, useProfileStore } from '@/lib/store
 import { FoodTile, Icon, Segmented, Sheet, Spinner } from '@/components/ui';
 import { VoiceButton } from '@/features/voice/VoiceButton';
 import { SwapOptions } from './SwapOptions';
+import { KrogerAccount } from './KrogerAccount';
+import { ShopElsewhere } from './ShopElsewhere';
+import { listDates } from './ShoppingListView';
 
 const usd = (n: number) => `$${n.toFixed(2)}`;
 const storeName = (s: GroceryStoreId) => GROCERY_STORE_INFO[s].name;
@@ -41,12 +44,19 @@ export function StoreCartView({ premium }: { premium: boolean }) {
   const [open, setOpen] = useState<string | null>(null);
   const [opening, setOpening] = useState<GroceryStoreId | null>(null);
   const [query, setQuery] = useState('');
+  const [kroger, setKroger] = useState<{ connected: boolean; check: number }>({ connected: false, check: 0 });
   const household = useHouseholdStore((s) => s.households.find((h) => h.id === s.activeHouseholdId));
   const config = readGroceryConfig(household && Object.keys(household.groceryConfig ?? {}).length ? household : profile);
 
   useEffect(() => {
     if (premium && !providers) loadProviders();
   }, [premium, providers, loadProviders]);
+  // Opened straight on the Cart tab (e.g. back from Kroger): load the list and saved cart
+  const loadList = useGroceryStore((s) => s.loadList);
+  const hasList = !!list;
+  useEffect(() => {
+    if (premium && household && !hasList) loadList(household.id, listDates());
+  }, [premium, household?.id, hasList, loadList]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!premium) {
     return (
@@ -62,7 +72,7 @@ export function StoreCartView({ premium }: { premium: boolean }) {
   if (providers && pricedStores.length === 0) {
     return (
       <div className="alert alert-info">
-        None of your stores are connected for prices yet. Check <Link href="/profile" style={{ fontWeight: 700 }}>Profile → Grocery stores</Link>.
+        None of your stores are connected for prices yet. Check <Link href="/household" style={{ fontWeight: 700 }}>Household → Grocery stores</Link>.
       </div>
     );
   }
@@ -71,6 +81,8 @@ export function StoreCartView({ premium }: { premium: boolean }) {
     setOpening(store);
     const url = await checkout(store, items.map((i) => ({ ...i, quantity: 1 })));
     setOpening(null);
+    // Kroger may have signed them out: look again so "Connect" shows
+    if (!url && store === 'kroger') setKroger((k) => ({ connected: false, check: k.check + 1 }));
     if (url) window.open(url, '_blank', 'noopener');
   };
 
@@ -122,7 +134,18 @@ export function StoreCartView({ premium }: { premium: boolean }) {
                   {opening === 'walmart' ? 'Opening…' : `Check out at Walmart (${group.lines.length})`}
                 </button>
               )}
-              {group.store === 'kroger' && <p className="hint">Kroger checkout needs a Kroger sign-in (coming next). Open items from their detail for now.</p>}
+              {group.store === 'kroger' && (
+                <>
+                  <KrogerAccount key={kroger.check} compact returnTo="/cart?view=cart" onStatus={(s) => setKroger((k) => ({ ...k, connected: s.connected }))} />
+                  {kroger.connected && (
+                    <button className="btn btn-primary btn-block" disabled={opening !== null}
+                      onClick={() => go('kroger', group.lines.map((l) => ({ name: l.choice!.name, productId: l.choice!.productId })))}>
+                      {opening === 'kroger' ? 'Adding…' : `Add to my Kroger cart (${group.lines.length})`}
+                    </button>
+                  )}
+                  <p className="tiny faint">{kroger.connected ? 'Adds these to the cart on your Kroger account; choose pickup or delivery and pay on Kroger.' : 'Connect once to send these straight to your Kroger cart.'}</p>
+                </>
+              )}
             </div>
           ))}
 
@@ -145,6 +168,11 @@ export function StoreCartView({ premium }: { premium: boolean }) {
         </>
       )}
       {error && <div className="alert" role="alert">{error}</div>}
+      {cart && (
+        <ShopElsewhere preferredStore={config.instacartRetailer}
+          label={summary!.missing.length ? 'Shop the rest elsewhere, or share the list' : 'Share or shop at another store'}
+          items={[...summary!.missing, ...summary!.stores.flatMap((g) => g.lines)].map((l) => ({ name: l.name, amount: l.amount || null }))} />
+      )}
 
       <details className="card">
         <summary style={{ fontWeight: 600, cursor: 'pointer' }}>Search all your stores</summary>

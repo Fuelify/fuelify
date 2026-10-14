@@ -360,6 +360,12 @@ export interface Database {
         Update: Record<string, never>;
         Relationships: [];
       };
+      kroger_links: {
+        Row: { user_id: string; token_enc: string; connected_at: string; updated_at: string };
+        Insert: { user_id?: string; token_enc: string };
+        Update: { token_enc?: string };
+        Relationships: [];
+      };
       app_admins: {
         Row: { user_id: string; added_at: string };
         Insert: Record<string, never>;

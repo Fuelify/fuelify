@@ -15,7 +15,7 @@ export interface GroceryStoreInfo {
 }
 
 export const GROCERY_STORE_INFO: Record<GroceryStoreId, GroceryStoreInfo> = {
-  kroger: { id: 'kroger', name: 'Kroger', prices: true, checkout: 'product-links', note: 'Local prices and weekly deals at your nearest Kroger-family store.' },
+  kroger: { id: 'kroger', name: 'Kroger', prices: true, checkout: 'cart-link', note: 'Local prices and weekly deals at your nearest Kroger-family store; adds to your Kroger cart once you connect your account.' },
   walmart: { id: 'walmart', name: 'Walmart', prices: true, checkout: 'cart-link', note: 'Prices from Walmart; opens a filled Walmart cart.' },
   instacart: { id: 'instacart', name: 'Instacart', prices: false, checkout: 'shopping-list', note: 'Sends your list to Instacart to shop at stores like Publix.' },
 };

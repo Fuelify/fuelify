@@ -6,7 +6,7 @@
 import { placeFromPhoton, type Place } from '@fuelify/shared';
 
 const PHOTON = 'https://photon.komoot.io';
-const HEADERS = { 'User-Agent': 'Fuelify/1.0 (https://fuelify-murex.vercel.app)', Accept: 'application/json' };
+const HEADERS = { 'User-Agent': 'Fuelify/1.0 (https://fuelifyapp.vercel.app)', Accept: 'application/json' };
 // Cities, towns and neighborhoods, not streets or shops
 const PLACE_LAYERS = ['city', 'district', 'locality', 'county', 'state'];
 

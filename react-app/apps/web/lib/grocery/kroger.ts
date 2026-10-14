@@ -2,12 +2,12 @@
 // prices and promos at the store nearest the user's ZIP code.
 // Env: KROGER_CLIENT_ID, KROGER_CLIENT_SECRET (app with the product.compact scope).
 //
-// Adding to a customer's Kroger cart needs them to sign in to Kroger (OAuth
-// authorization code + cart.basic:write); until that's built, checkout opens
-// the chosen products on kroger.com.
+// Checkout adds the chosen products to the person's own Kroger cart, once
+// they've connected their Kroger account (see kroger-cart.ts).
 
 import type { ProductOffer } from '@fuelify/shared';
 import { fetchJson, money, ProviderError, type GroceryProvider } from './provider';
+import { addToKrogerCart, userClient } from './kroger-cart';
 
 const API = 'https://api.kroger.com/v1';
 const STORE_BRANDS = /^(kroger|simple truth|private selection|heritage farm|psst|comforts)/i;
@@ -67,7 +67,7 @@ export const kroger: GroceryProvider = {
   configured: () => !!(process.env.KROGER_CLIENT_ID && process.env.KROGER_CLIENT_SECRET),
 
   async search(query, config) {
-    if (!config.zipCode) throw new ProviderError('Add your ZIP code in Profile → Grocery stores to get Kroger prices.');
+    if (!config.zipCode) throw new ProviderError('Set your household’s location (Household → location) to get Kroger prices near you.');
     const locationId = await nearestLocation(config.zipCode);
     if (!locationId) return [];
     const data = await fetchJson<{ data: KrogerProduct[] }>(
@@ -97,7 +97,10 @@ export const kroger: GroceryProvider = {
     });
   },
 
-  async checkout() {
-    throw new ProviderError('Adding to your Kroger cart needs you to sign in to Kroger, which isn’t connected yet. Open each item from the list instead.');
+  /** Adds the items to the person's own Kroger cart (they connect their Kroger account once), then opens it. */
+  async checkout(items, _config, who) {
+    const upcs = items.filter((i) => i.productId && /^\d{13}$/.test(i.productId)).map((i) => ({ upc: i.productId!, quantity: i.quantity }));
+    await addToKrogerCart(userClient(who.userToken), who.userId, upcs);
+    return 'https://www.kroger.com/cart';
   },
 };
