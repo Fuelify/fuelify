@@ -27,3 +27,4 @@ export { displayName, fetchDisplayProfiles, withAddedByNames } from './profile-n
 export type { DisplayProfile } from './profile-names';
 export * from './grocery-repo';
 export * from './behavior-repo';
+export * from './community-repo';

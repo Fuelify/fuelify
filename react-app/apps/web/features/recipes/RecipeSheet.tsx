@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NUTRIENTS, applySwaps, formatMinutes, type IngredientSwap, type Recipe, type SuggestionMeta, todayISO, totalTimeMinutes } from '@fuelify/shared';
-import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
-import { FoodImage, Icon, Sheet } from '@/components/ui';
+import { useCommunityStore, useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
+import { CommunityStats } from './CommunityStats';
+import { RecipeGallery } from './RecipeGallery';
+import { Icon, Sheet } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
 import { SwapOptions } from '@/features/grocery/SwapOptions';
 
@@ -87,9 +89,10 @@ export function RecipeSheet({
       >
         {recipe && (
           <div className="stack-lg">
-            <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} iconSize={56} style={{ height: 180, borderRadius: 'var(--radius)' }} />
+            <RecipeGallery recipe={recipe} />
             <p className="muted">{recipe.description}</p>
             <RecipeMeta recipe={recipe} />
+            <SheetCommunityStats recipeId={recipe.id} />
             {recipe.sourceUrl && (
               <a href={recipe.sourceUrl} target="_blank" rel="noopener noreferrer" className="small row" style={{ gap: 6, color: 'var(--primary)', fontWeight: 600 }}>
                 <Icon name="link" size={16} /> View original on {new URL(recipe.sourceUrl).hostname.replace(/^www\./, '')}
@@ -174,6 +177,15 @@ export function RecipeSheet({
       />
     </>
   );
+}
+
+function SheetCommunityStats({ recipeId }: { recipeId: string }) {
+  const stats = useCommunityStore((s) => s.stats[recipeId]);
+  const loadStats = useCommunityStore((s) => s.loadStats);
+  useEffect(() => {
+    loadStats([recipeId]);
+  }, [recipeId, loadStats]);
+  return <CommunityStats stats={stats} size="md" />;
 }
 
 export function RecipeMeta({ recipe }: { recipe: Recipe }) {

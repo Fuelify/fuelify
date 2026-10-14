@@ -630,3 +630,22 @@ input[type='range'] { width: 100%; accent-color: var(--primary); height: 28px; }
 .recipe-time .tiny { display: inline-flex; align-items: center; gap: 3px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600; }
 .recipe-time-total { background: var(--primary-soft); }
 .recipe-time-total strong { color: var(--primary); }
+
+/* Community stats */
+.community-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.community-stat { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-size: 13px; color: var(--text-2); }
+.community-stats-md .community-stat { font-size: 14px; }
+.community-stat svg { color: var(--accent); }
+
+/* Recipe photo gallery (swipe) */
+.gallery { position: relative; border-radius: var(--radius); overflow: hidden; background: var(--surface-3); }
+.gallery-track { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.gallery-track::-webkit-scrollbar { display: none; }
+.gallery-slide { flex: 0 0 100%; scroll-snap-align: center; height: 240px; position: relative; }
+.gallery-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-dots { position: absolute; bottom: 8px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; pointer-events: none; }
+.gallery-dots span { width: 7px; height: 7px; border-radius: 50%; background: rgba(255, 255, 255, 0.55); box-shadow: 0 0 2px rgba(0, 0, 0, 0.4); }
+.gallery-dots span[aria-current='true'] { background: #fff; width: 18px; border-radius: 4px; }
+.gallery-tag { position: absolute; left: 8px; top: 8px; padding: 3px 8px; border-radius: 999px; background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 12px; font-weight: 600; }
+.gallery-actions { position: absolute; right: 8px; top: 8px; display: flex; gap: 6px; }
+.gallery-actions .icon-btn { width: 36px; height: 36px; background: rgba(0, 0, 0, 0.55); color: #fff; }
