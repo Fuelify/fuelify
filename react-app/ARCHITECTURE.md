@@ -109,6 +109,16 @@ react-app/
   For every other store the fallback is `ShopElsewhere`: share/copy the list
   (`listAsText`) or open each item in the store's search (`storeSearchUrl`).
 
+- **Price book (stores without a price API):** `price_observations` (migration 00025)
+  holds prices a household paid, from receipts or logged by hand, with the store
+  (`normalizeStore` maps receipt names to chains) and only the first 3 digits of the ZIP.
+  Members read their household's rows; everyone else's reach a user only through the
+  `community_prices` RPC as per-store medians, and only when 2+ households reported.
+  `pricePoints` picks the best price per item and store (yours under 120 days, then nearby,
+  then national); `estimateBasket` / `compareStores` price a list. Receipts are read by
+  `/api/receipts/parse` (Claude vision with structured output; `ANTHROPIC_API_KEY`).
+  UI: the Prices page (`/prices`), the receipt sheet, the cart item sheet and `ShopElsewhere`.
+
 ## Commands (from `react-app/`)
 
 | | |

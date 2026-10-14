@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   SHOP_ELSEWHERE_STORES,
+  estimateBasket,
   guessShopElsewhereStore,
   listAsText,
   storeSearchUrl,
   type ShareableItem,
   type ShopElsewhereStore,
 } from '@fuelify/shared';
+import { usePriceBookStore } from '@/lib/stores';
+import { usePriceBook } from '@/features/prices/usePriceBook';
 import { Icon, Sheet } from '@/components/ui';
+
+const usd = (n: number) => `$${n.toFixed(2)}`;
 
 const PICK_KEY = 'fuelify.shopElsewhere.store';
 
@@ -44,8 +50,22 @@ export function ShopElsewhere({
   const [store, setStore] = useState<ShopElsewhereStore>('aldi');
   const [done, setDone] = useState<string[]>([]);
   const [note, setNote] = useState<string | null>(null);
+  usePriceBook();
+  const points = usePriceBookStore((s) => s.points);
+  const loadCommunity = usePriceBookStore((s) => s.loadCommunity);
+  const names = items.map((i) => i.name).join('|');
+  useEffect(() => {
+    if (open) loadCommunity(names.split('|'));
+  }, [open, names, loadCommunity]);
+  // Known prices per store for this list (one of each item)
+  const estimates = useMemo(
+    () => Object.fromEntries(SHOP_ELSEWHERE_STORES.map((s) => [s.id, estimateBasket(items, s.id, points)])),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [names, points],
+  );
 
   if (items.length === 0) return null;
+  const estimate = estimates[store];
   const text = listAsText(items, title);
 
   const pick = (s: ShopElsewhereStore) => {
@@ -100,6 +120,7 @@ export function ShopElsewhere({
               {SHOP_ELSEWHERE_STORES.map((s) => (
                 <button key={s.id} type="button" className="chip" aria-pressed={store === s.id} onClick={() => pick(s.id)}>
                   {s.name.replace(/ \(.*\)$/, '')}
+                  {estimates[s.id]?.priced > 0 && <span className="tiny" style={{ fontWeight: 500 }}>~{usd(estimates[s.id].total)}</span>}
                 </button>
               ))}
             </div>
@@ -108,9 +129,21 @@ export function ShopElsewhere({
             </p>
           </div>
 
+          {estimate && estimate.priced > 0 ? (
+            <div className="card row-between" style={{ padding: 12 }}>
+              <span className="small">
+                <strong>About {usd(estimate.total)}</strong> at {storeName} for {estimate.priced} of {items.length} items
+                <span className="tiny faint" style={{ display: 'block' }}>One of each, from prices your household and others paid. <Link href="/prices" style={{ color: 'var(--primary)' }}>Prices</Link></span>
+              </span>
+            </div>
+          ) : store !== 'other' && store !== 'instacart' ? (
+            <p className="tiny faint">No {storeName} prices yet. Scan a {storeName} receipt or log prices on the <Link href="/prices" style={{ color: 'var(--primary)' }}>Prices</Link> page.</p>
+          ) : null}
+
           <div className="list">
             {items.map((i) => {
               const got = done.includes(i.name);
+              const known = estimate?.lines.find((l) => l.name === i.name)?.point;
               return (
                 <div key={i.name} className="list-row" style={{ gap: 10 }}>
                   <button type="button" aria-label={got ? `Unmark ${i.name}` : `Mark ${i.name} added`} onClick={() => setDone((d) => (got ? d.filter((n) => n !== i.name) : [...d, i.name]))}
@@ -122,7 +155,11 @@ export function ShopElsewhere({
                   </button>
                   <span className="grow" style={{ minWidth: 0 }}>
                     <span className="truncate" style={{ display: 'block', fontWeight: 600, textTransform: 'capitalize', textDecoration: got ? 'line-through' : undefined, color: got ? 'var(--text-3)' : undefined }}>{i.name}</span>
-                    {i.amount && <span className="tiny faint">{i.amount}</span>}
+                    {(i.amount || known) && (
+                      <span className="tiny faint">
+                        {[i.amount, known && `${usd(known.price)}${known.basis === 'yours' ? ' you paid' : ' typical'}`].filter(Boolean).join(' · ')}
+                      </span>
+                    )}
                   </span>
                   <a className="btn btn-ghost btn-sm" href={storeSearchUrl(store, i.name)} target="_blank" rel="noopener noreferrer"
                     onClick={() => setDone((d) => (d.includes(i.name) ? d : [...d, i.name]))} aria-label={`Find ${i.name} at ${storeName}`}>

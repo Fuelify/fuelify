@@ -95,9 +95,14 @@ function Groceries() {
         title="Cart"
         sub={household ? household.name : undefined}
         right={
-          <Link href="/household" className="icon-btn icon-btn-filled" aria-label="Manage household">
+<span className="row" style={{ gap: 8 }}>
+          <Link href="/prices" className="icon-btn icon-btn-filled" aria-label="Prices">
+            <Icon name="receipt" size={20} />
+          </Link>
+                    <Link href="/household" className="icon-btn icon-btn-filled" aria-label="Manage household">
             <Icon name="users" size={20} />
           </Link>
+          </span>
         }
       />
 

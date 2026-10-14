@@ -366,6 +366,20 @@ export interface Database {
         Update: { token_enc?: string };
         Relationships: [];
       };
+      price_observations: {
+        Row: {
+          id: string; user_id: string; household_id: string; store_key: string; store_name: string; region: string | null;
+          item_key: string; item_name: string; product_name: string | null; price: number; quantity: number; size: string | null;
+          observed_on: string; source: string; receipt_id: string | null; created_at: string;
+        };
+        Insert: {
+          id?: string; user_id?: string; household_id: string; store_key: string; store_name: string; region?: string | null;
+          item_key: string; item_name: string; product_name?: string | null; price: number; quantity?: number; size?: string | null;
+          observed_on?: string; source: string; receipt_id?: string | null;
+        };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
       app_admins: {
         Row: { user_id: string; added_at: string };
         Insert: Record<string, never>;
@@ -610,6 +624,10 @@ export interface Database {
       set_recipe_image_featured: {
         Args: { image_id: string; on_off: boolean };
         Returns: Database['public']['Tables']['recipe_images']['Row'];
+      };
+      community_prices: {
+        Args: { keys: string[]; zip3: string | null };
+        Returns: { item_key: string; store_key: string; store_name: string; scope: string; median_price: number; observations: number; households: number; last_seen: string }[];
       };
       recipe_community_stats: {
         Args: { ids: string[] };
