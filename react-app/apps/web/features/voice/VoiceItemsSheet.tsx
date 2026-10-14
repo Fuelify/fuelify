@@ -10,7 +10,7 @@ const amount = (i: SpokenItem) => (i.unit ? `${i.quantity} ${i.unit}` : i.quanti
 const storeName = (m: ItemMatch) => (m.store ? GROCERY_STORE_INFO[m.store].name : null);
 
 /** Why an option is offered, e.g. "Your usual · bought 3×" */
-function sourceNote(m: ItemMatch): string {
+export function sourceNote(m: ItemMatch): string {
   const where = [storeName(m), m.price != null ? `$${m.price.toFixed(2)}` : null].filter(Boolean).join(' ');
   if (m.source === 'history') return [`Your usual${m.timesChosen > 1 ? ` · picked ${m.timesChosen}×` : ''}`, where].filter(Boolean).join(' · ');
   if (m.source === 'pantry') return ['In your pantry', m.brand].filter(Boolean).join(' · ');

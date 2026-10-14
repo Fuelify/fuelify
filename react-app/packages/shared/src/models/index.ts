@@ -18,3 +18,4 @@ export * from './behavior-event';
 export * from './place';
 export * from './community';
 export * from './price-book';
+export * from './pantry-sections';

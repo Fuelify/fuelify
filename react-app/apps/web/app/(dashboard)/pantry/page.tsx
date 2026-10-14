@@ -6,6 +6,7 @@ import {
   STORAGE_ZONES,
   STORAGE_ZONE_LABELS,
   aggregatePantryItems,
+  pantrySections,
   type ItemStatus,
   type PantryItem,
   type PantryItemDraft,
@@ -23,6 +24,7 @@ import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented, Sheet, type Icon
 import { BarcodeScannerSheet } from '@/features/pantry/BarcodeScannerSheet';
 import { ReceiptImportSheet } from '@/features/pantry/ReceiptImportSheet';
 import { MealIdeasSheet } from '@/features/pantry/MealIdeasSheet';
+import { AddItemSheet } from '@/features/pantry/AddItemSheet';
 import { VoiceButton } from '@/features/voice/VoiceButton';
 import { VoiceItemsSheet } from '@/features/voice/VoiceItemsSheet';
 import { useSpeechInput } from '@/lib/useSpeechInput';
@@ -76,6 +78,7 @@ export default function PantryPage() {
   }, [items, activeZone, query]);
 
   const totals = useMemo(() => aggregatePantryItems(filtered), [filtered]);
+  const sections = useMemo(() => pantrySections(totals, activeZone), [totals, activeZone]);
   const group = useMemo(() => (groupName ? aggregatePantryItems(items).find((t) => t.name === groupName) ?? null : null), [items, groupName]);
 
   const expiredCount = items.filter((i) => i.status === 'expired').length;
@@ -194,8 +197,25 @@ export default function PantryPage() {
               {items.length === 0 ? 'Add groceries by hand, scan a barcode or import a receipt.' : 'No items match this filter.'}
             </EmptyState>
           ) : (
-            <div className="stack-sm">
-              {totals.map((t) => <TotalCard key={t.name} total={t} onClick={() => setGroupName(t.name)} />)}
+            <div className="stack">
+              {sections.map((section) => (
+                <section key={section.zone} className="stack-sm" aria-label={STORAGE_ZONE_LABELS[section.zone]}>
+                  {activeZone === 'all' && (
+                    <h2 className="row" style={{ gap: 8, fontSize: 18, fontWeight: 800, margin: '4px 0 0' }}>
+                      <Icon name={ZONE_ICON[section.zone]} size={20} /> {STORAGE_ZONE_LABELS[section.zone]}
+                      <span className="faint small" style={{ fontWeight: 500 }}>{section.count}</span>
+                    </h2>
+                  )}
+                  {section.categories.map((c) => (
+                    <div key={c.category} className="stack-sm">
+                      <div className="section-title" style={{ margin: 0 }}>
+                        <span>{c.category} · {c.totals.length}</span>
+                      </div>
+                      {c.totals.map((t) => <TotalCard key={t.name} total={t} onClick={() => setGroupName(t.name)} />)}
+                    </div>
+                  ))}
+                </section>
+              ))}
             </div>
           )}
 
@@ -237,6 +257,7 @@ export default function PantryPage() {
       <AddItemSheet
         open={addOpen}
         draft={draft}
+        householdId={activeHouseholdId}
         onClose={() => { setAddOpen(false); setUnknownBarcode(null); }}
         onSave={async (d) => {
           if (activeHouseholdId) await addItem(activeHouseholdId, d);
@@ -352,75 +373,6 @@ function GroupSheet({ total, onClose, onAddAnother }: { total: PantryItemTotal |
           ))}
         </div>
       )}
-    </Sheet>
-  );
-}
-
-function AddItemSheet({ open, draft, onClose, onSave }: { open: boolean; draft: PantryItemDraft | null; onClose: () => void; onSave: (d: PantryItemDraft) => Promise<void> }) {
-  const [d, setD] = useState<PantryItemDraft>({ name: '' });
-  const [busy, setBusy] = useState(false);
-
-  useEffect(() => {
-    if (open && draft) setD(draft);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  const save = async () => {
-    if (!d.name.trim()) return;
-    setBusy(true);
-    await onSave({ ...d, name: d.name.trim(), brand: d.brand?.trim() || undefined, unit: d.unit?.trim() || undefined, quantity: d.quantity || 1 });
-    setBusy(false);
-  };
-
-  return (
-    <Sheet open={open} onClose={onClose} title="Add to pantry"
-      footer={<button className="btn btn-primary btn-block" onClick={save} disabled={busy || !d.name.trim()}>{busy ? 'Adding…' : 'Add item'}</button>}>
-      <div className="stack">
-        {d.imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={d.imageUrl} alt="" style={{ width: 96, height: 96, objectFit: 'contain', borderRadius: 12, background: '#fff', alignSelf: 'center' }} />
-        )}
-        <div className="field">
-        <label htmlFor="pi-name">Item</label>
-          <input id="pi-name" className="input" placeholder="e.g. Brown rice" value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} autoFocus={!draft?.name} />
-        </div>
-        <div className="field">
-          <label htmlFor="pi-brand">Brand</label>
-          <input id="pi-brand" className="input" placeholder="Optional" value={d.brand ?? ''} onChange={(e) => setD({ ...d, brand: e.target.value })} />
-        </div>
-        <div className="field">
-          <span className="label">Stored in</span>
-          <Segmented<StorageZone>
-            options={STORAGE_ZONES.map((z) => ({ value: z, label: STORAGE_ZONE_LABELS[z].replace(' / Pantry', '') }))}
-            value={d.storageZone ?? 'dry'}
-            onChange={(z) => setD({ ...d, storageZone: z })}
-          />
-        </div>
-        <div className="row" style={{ alignItems: 'flex-end' }}>
-          <div className="field" style={{ width: 96 }}>
-            <label htmlFor="pi-qty">Quantity</label>
-            <input id="pi-qty" className="input" type="number" inputMode="decimal" min={0} step={0.5} value={d.quantity ?? 1}
-              onChange={(e) => setD({ ...d, quantity: parseFloat(e.target.value) || 0 })} />
-          </div>
-          <div className="field grow">
-            <label htmlFor="pi-unit">Unit</label>
-            <input id="pi-unit" className="input" placeholder="e.g. lbs, bags, cans" value={d.unit ?? ''} onChange={(e) => setD({ ...d, unit: e.target.value })} />
-          </div>
-        </div>
-        <div className="row" style={{ alignItems: 'flex-end' }}>
-          <div className="field grow">
-            <label htmlFor="pi-cat">Category</label>
-            <select id="pi-cat" className="select" value={d.category ?? ''} onChange={(e) => setD({ ...d, category: e.target.value || undefined })}>
-              <option value="">None</option>
-              {PANTRY_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div className="field grow">
-            <label htmlFor="pi-exp">Expires</label>
-            <input id="pi-exp" className="input" type="date" value={d.expirationDate ?? ''} onChange={(e) => setD({ ...d, expirationDate: e.target.value || undefined })} />
-          </div>
-        </div>
-      </div>
     </Sheet>
   );
 }
