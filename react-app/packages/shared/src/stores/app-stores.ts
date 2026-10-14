@@ -21,6 +21,8 @@ import { GroceryRepository } from '../supabase/grocery-repo';
 import { BehaviorRepository } from '../supabase/behavior-repo';
 import { CommunityRepository } from '../supabase/community-repo';
 import { createCommunityStore } from './community-store';
+import { createPriceBookStore } from './price-book-store';
+import { PriceBookRepository } from '../supabase/price-book-repo';
 import { readGroceryConfig } from '../models/grocery';
 import { usZip } from '../models/place';
 import { createBehaviorLog } from './behavior-log';
@@ -80,6 +82,7 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
     ),
     pantryStore: createPantryStore(pantry, userId),
     communityStore: createCommunityStore(new CommunityRepository(supabase), userId),
+    priceBookStore: createPriceBookStore(new PriceBookRepository(supabase)),
     mealSuggestionStore: createMealSuggestionStore(new MealSuggester(supabase)),
   };
 }

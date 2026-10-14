@@ -1,13 +1,21 @@
 // The simple fallback for stores without an API (Aldi, Publix, Costco, Target…):
 // share the list as text, and open each item in the store's own search.
 
-export type ShopElsewhereStore = 'aldi' | 'publix' | 'costco' | 'target' | 'walmart' | 'kroger' | 'instacart' | 'other';
+import { normalizeStore } from '../models/price-book';
+
+/** Ids match the price book's store keys, so prices line up. */
+export type ShopElsewhereStore =
+  | 'aldi' | 'trader-joes' | 'publix' | 'sprouts' | 'wegmans' | 'costco' | 'target' | 'whole-foods' | 'walmart' | 'kroger' | 'instacart' | 'other';
 
 export const SHOP_ELSEWHERE_STORES: { id: ShopElsewhereStore; name: string }[] = [
   { id: 'aldi', name: 'Aldi' },
+  { id: 'trader-joes', name: 'Trader Joe’s' },
   { id: 'publix', name: 'Publix' },
+  { id: 'sprouts', name: 'Sprouts' },
+  { id: 'wegmans', name: 'Wegmans' },
   { id: 'costco', name: 'Costco' },
   { id: 'target', name: 'Target' },
+  { id: 'whole-foods', name: 'Whole Foods' },
   { id: 'walmart', name: 'Walmart' },
   { id: 'kroger', name: 'Kroger' },
   { id: 'instacart', name: 'Instacart' },
@@ -16,7 +24,11 @@ export const SHOP_ELSEWHERE_STORES: { id: ShopElsewhereStore; name: string }[] =
 
 const SEARCH: Record<ShopElsewhereStore, (q: string) => string> = {
   aldi: (q) => `https://www.aldi.us/results?q=${q}`,
+  'trader-joes': (q) => `https://www.traderjoes.com/home/search?q=${q}&section=products`,
   publix: (q) => `https://www.publix.com/search?searchTerm=${q}`,
+  sprouts: (q) => `https://shop.sprouts.com/search?search_term=${q}`,
+  wegmans: (q) => `https://shop.wegmans.com/search?search_term=${q}`,
+  'whole-foods': (q) => `https://www.wholefoodsmarket.com/search?text=${q}`,
   costco: (q) => `https://www.costco.com/CatalogSearch?keyword=${q}`,
   target: (q) => `https://www.target.com/s?searchTerm=${q}`,
   walmart: (q) => `https://www.walmart.com/search?q=${q}`,
@@ -33,8 +45,8 @@ export function storeSearchUrl(store: ShopElsewhereStore, item: string): string 
 
 /** Best guess at a store from free text, e.g. the household's Instacart retailer "Publix" → 'publix'. */
 export function guessShopElsewhereStore(name: string | null | undefined): ShopElsewhereStore {
-  const n = (name ?? '').toLowerCase();
-  return SHOP_ELSEWHERE_STORES.find((s) => s.id !== 'other' && n.includes(s.id))?.id ?? 'aldi';
+  const key = normalizeStore(name)?.key;
+  return SHOP_ELSEWHERE_STORES.find((s) => s.id !== 'other' && s.id === key)?.id ?? 'aldi';
 }
 
 export interface ShareableItem {

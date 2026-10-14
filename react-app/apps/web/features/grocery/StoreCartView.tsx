@@ -6,13 +6,15 @@ import {
   GROCERY_STORE_INFO,
   dealSaving,
   offerPrice,
+  pricesForItem,
   readGroceryConfig,
   summarizeCart,
   type CartLine,
   type GroceryStoreId,
   type ProductOffer,
 } from '@fuelify/shared';
-import { useGroceryStore, useHouseholdStore, useProfileStore } from '@/lib/stores';
+import { useGroceryStore, useHouseholdStore, usePriceBookStore, useProfileStore } from '@/lib/stores';
+import { usePriceBook } from '@/features/prices/usePriceBook';
 import { FoodTile, Icon, Segmented, Sheet, Spinner } from '@/components/ui';
 import { VoiceButton } from '@/features/voice/VoiceButton';
 import { SwapOptions } from './SwapOptions';
@@ -254,12 +256,16 @@ function CartLineSheet({ line, onClose }: { line: CartLine | null; onClose: () =
   const [query, setQuery] = useState('');
   const [mode, setMode] = useState<'options' | 'swap'>('options');
   const [best, setBest] = useState<ProductOffer | null>(null);
+  usePriceBook();
+  const bookPoints = usePriceBookStore((s) => s.points);
+  const loadCommunity = usePriceBookStore((s) => s.loadCommunity);
 
   useEffect(() => {
     if (!line) return;
     setQuery(line.name);
     setMode('options');
     recommend(line.key, line.options).then(setBest);
+    loadCommunity([line.name]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [line?.key, line?.options.length]);
 
@@ -293,6 +299,22 @@ function CartLineSheet({ line, onClose }: { line: CartLine | null; onClose: () =
               <button className="btn btn-secondary" disabled={!query.trim() || busy}>{busy ? <Spinner /> : <Icon name="search" size={18} />}</button>
               <VoiceButton label="Search for a product by voice" onText={(q) => { setQuery(q); searchLine(line.key, q); }} />
             </form>
+            {pricesForItem(line.name, bookPoints).length > 0 && (
+              <div className="stack-sm">
+                <span className="label">At other stores</span>
+                <div className="list">
+                  {pricesForItem(line.name, bookPoints).slice(0, 5).map((p) => (
+                    <div key={p.storeKey} className="list-row" style={{ gap: 10 }}>
+                      <span className="grow small">
+                        <strong>{p.storeName}</strong>
+                        <span className="tiny faint" style={{ display: 'block' }}>{[p.basis === 'yours' ? 'You paid' : p.basis === 'nearby' ? 'Nearby households' : 'Typical', p.size].filter(Boolean).join(' · ')}</span>
+                      </span>
+                      <strong className="small">{usd(p.price)}</strong>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
             {line.choice?.url && (
               <a className="small" href={line.choice.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-2)' }}>
                 View this product at {storeName(line.choice.store)} ↗

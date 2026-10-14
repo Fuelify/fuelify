@@ -15,6 +15,7 @@ describe('guessShopElsewhereStore', () => {
   it('matches a retailer name', () => {
     expect(guessShopElsewhereStore('Publix')).toBe('publix');
     expect(guessShopElsewhereStore('ALDI US')).toBe('aldi');
+    expect(guessShopElsewhereStore("Trader Joe's")).toBe('trader-joes');
     expect(guessShopElsewhereStore(null)).toBe('aldi');
   });
 });

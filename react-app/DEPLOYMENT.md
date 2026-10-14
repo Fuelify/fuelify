@@ -202,6 +202,7 @@ redeploy. A store with no keys shows "Not set up yet" in Household → Grocery s
 | Store | Sign up | Variables |
 | --- | --- | --- |
 | Kroger (and Kroger-family stores) | https://developer.kroger.com — create an app with the `product.compact` and `cart.basic:write` scopes, and add the redirect URI `https://fuelifyapp.vercel.app/kroger/callback` | `KROGER_CLIENT_ID`, `KROGER_CLIENT_SECRET`, optional `KROGER_REDIRECT_URI` (default: `<site>/kroger/callback`) |
+| Receipt reading (price book) | https://console.anthropic.com — API key | `ANTHROPIC_API_KEY` |
 | Walmart | https://walmart.io — Affiliate (product) API; upload an RSA public key | `WALMART_CONSUMER_ID`, `WALMART_PRIVATE_KEY` (PEM; `\n` escapes are fine), `WALMART_KEY_VERSION` (default `1`), optional `WALMART_PUBLISHER_ID` |
 | Instacart (Publix and others) | https://www.instacart.com/company/business/developers — Developer Platform API key | `INSTACART_API_KEY`, optional `INSTACART_API_BASE` (`https://connect.dev.instacart.tools` for development keys) |
 
