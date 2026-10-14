@@ -360,6 +360,12 @@ export interface Database {
         Update: Record<string, never>;
         Relationships: [];
       };
+      recipe_images: {
+        Row: { id: string; recipe_id: string; url: string; source: string; uploaded_by: string | null; created_at: string };
+        Insert: { id?: string; recipe_id: string; url: string; source?: string; uploaded_by?: string | null };
+        Update: Record<string, never>;
+        Relationships: [];
+      };
       barcode_products: {
         Row: {
           barcode: string;
@@ -588,6 +594,10 @@ export interface Database {
       update_household_settings: {
         Args: { hh_id: string; new_shopping?: Record<string, unknown> | null; complete_setup?: boolean };
         Returns: Database['public']['Tables']['households']['Row'];
+      };
+      recipe_community_stats: {
+        Args: { ids: string[] };
+        Returns: { recipe_id: string; likes: number; favorites: number; cooked_30d: number; trending: boolean }[];
       };
       set_household_grocery_config: {
         Args: { hh_id: string; cfg: Record<string, unknown> };

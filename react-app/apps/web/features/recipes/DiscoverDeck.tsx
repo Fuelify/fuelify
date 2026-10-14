@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildDiscoverDeck, type Recipe } from '@fuelify/shared';
-import { useRecipeStore } from '@/lib/stores';
+import { useCommunityStore, useRecipeStore } from '@/lib/stores';
 import { EmptyState, FoodImage, Icon } from '@/components/ui';
+import { CommunityStats } from './CommunityStats';
 import { RecipeMeta } from './RecipeSheet';
 
 // Mirrors lib/screens/discovery_screen.dart: drag right = like, left = dislike,
@@ -23,6 +24,12 @@ export function DiscoverDeck({ recipes, diet, onOpen, onSeeSaved }: { recipes: R
   const moved = useRef(false);
 
   const top = deck[0];
+  // Community stats for the next few cards, fetched in one go
+  const loadStats = useCommunityStore((s) => s.loadStats);
+  const upcoming = deck.slice(0, 10).map((r) => r.id).join(',');
+  useEffect(() => {
+    if (upcoming) loadStats(upcoming.split(','));
+  }, [upcoming, loadStats]);
   const next = deck[1];
 
   const decide = (choice: 'liked' | 'disliked' | 'favorited') => {
@@ -132,9 +139,15 @@ function RecipeCard({ recipe, hint, style, ...handlers }: { recipe: Recipe; hint
         <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em' }}>{recipe.title}</h2>
         <p className="muted small" style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{recipe.description}</p>
         <RecipeMeta recipe={recipe} />
+        <CardCommunityStats recipeId={recipe.id} />
       </div>
     </div>
   );
+}
+
+function CardCommunityStats({ recipeId }: { recipeId: string }) {
+  const stats = useCommunityStore((s) => s.stats[recipeId]);
+  return <CommunityStats stats={stats} />;
 }
 
 function RoundButton({ label, icon, color, small, onClick }: { label: string; icon: 'x' | 'star' | 'heart'; color: string; small?: boolean; onClick: () => void }) {

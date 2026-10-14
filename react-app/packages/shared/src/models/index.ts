@@ -16,3 +16,4 @@ export * from './grocery';
 export * from './grocery-cart';
 export * from './behavior-event';
 export * from './place';
+export * from './community';

@@ -43,3 +43,6 @@ export type { GroceryStore, GroceryState, GroceryActions, GroceryApi, GroceryDep
 
 export { createBehaviorLog, NO_BEHAVIOR_LOG } from './behavior-log';
 export type { BehaviorLog } from './behavior-log';
+
+export { createCommunityStore } from './community-store';
+export type { CommunityStore, CommunityState, CommunityActions } from './community-store';
