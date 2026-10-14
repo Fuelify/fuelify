@@ -223,6 +223,7 @@ export default function PantryPage() {
               ...draft,
               name: draft.name.replace(/^\w/, (c) => c.toUpperCase()),
               brand: m?.brand ?? undefined,
+              imageUrl: m?.imageUrl ?? undefined,
               category: m?.category ?? draft.category,
               storageZone: m?.storageZone ?? draft.storageZone,
               notes: m ? describeMatch(m, (s) => GROCERY_STORE_INFO[s].name) : undefined,

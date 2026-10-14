@@ -37,6 +37,21 @@ describe('item matcher', () => {
     expect(ranked[1]).toMatchObject({ source: 'store', storageZone: 'cool' });
   });
 
+  it('gives pantry and past picks a photo', () => {
+    const ranked = rankItemMatches('almond milk', {
+      pantry: [{ name: 'Almond milk', brand: 'Califia', category: 'Dairy', storageZone: 'cool', unit: null, imageUrl: 'califia.jpg' }],
+    });
+    expect(ranked[0].imageUrl).toBe('califia.jpg');
+    // No photo of its own: borrow from a store product that is clearly the same thing
+    const borrowed = rankItemMatches('almond milk', {
+      pantry: [{ name: 'Almond milk', brand: null, category: 'Dairy', storageZone: 'cool', unit: null }],
+      offers: [offer('kroger', 'Kroger Whole Milk', 2.5, { imageUrl: 'whole.jpg' }), offer('kroger', 'Kroger Almond Milk', 2.79, { imageUrl: 'almond.jpg' })],
+    });
+    expect(borrowed.find((m) => m.source === 'pantry')?.imageUrl).toBe('almond.jpg');
+    const none = rankItemMatches('oat milk', { pantry: [{ name: 'Oat milk', brand: null, category: 'Dairy', storageZone: 'cool', unit: null }], offers: [offer('kroger', 'Kroger Almond Milk', 2.79, { imageUrl: 'almond.jpg' })] });
+    expect(none[0].imageUrl).toBeNull();
+  });
+
   it('only auto-picks a store result that clearly is the item', () => {
     const ranked = rankItemMatches('almond milk', { offers: [offer('walmart', 'Great Value 2% Milk', 3)] });
     expect(autoPick('almond milk', ranked)).toBeNull();
