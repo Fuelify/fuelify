@@ -3,12 +3,13 @@
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { GROCERY_STORE_INFO, describeMatch, type CartItem } from '@fuelify/shared';
+import { GROCERY_STORE_INFO, describeMatch, formatAmounts, readGroceryConfig, type CartItem } from '@fuelify/shared';
 import { useAuthStore, useGroceryStore, useHouseholdStore, usePantryStore, useShoppingCartStore } from '@/lib/stores';
 import { EmptyState, Icon, LoadingBlock, PageHeader, Segmented } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { ShoppingListView } from '@/features/grocery/ShoppingListView';
 import { StoreCartView } from '@/features/grocery/StoreCartView';
+import { ShopElsewhere } from '@/features/grocery/ShopElsewhere';
 import { VoiceItemsSheet } from '@/features/voice/VoiceItemsSheet';
 import { useSpeechInput } from '@/lib/useSpeechInput';
 
@@ -44,6 +45,7 @@ function Groceries() {
   const [newItem, setNewItem] = useState('');
   const [voiceOpen, setVoiceOpen] = useState(false);
   const logItemPick = useGroceryStore((s) => s.logItemPick);
+  const planList = useGroceryStore((s) => s.list);
   const canListen = useSpeechInput().supported;
   const [busy, setBusy] = useState(false);
   const [started, setStarted] = useState(false);
@@ -106,6 +108,9 @@ function Groceries() {
       <div className="screen-scroll">
         <div className="screen-pad stack" style={{ paddingTop: 0, paddingBottom: 32 }}>
           {(cartError || hhError) && <div className="alert">{cartError ?? hhError}</div>}
+          {params.get('kroger') === 'connected' && (
+            <div className="alert alert-info" role="status"><Icon name="checkCircle" size={16} /> Kroger account connected. Your Kroger items can now go straight to your Kroger cart.</div>
+          )}
 
           {view === 'cart' ? (
             <StoreCartView premium={premium} />
@@ -183,6 +188,17 @@ function Groceries() {
 
           {/* The meal plan's list follows; your own items stay at the top so adding is always in reach */}
           {activeHouseholdId && <ShoppingListView householdId={activeHouseholdId} premium={premium} />}
+
+          {/* Shop anywhere: share the list, or find each item at a store we can't fill a cart at */}
+          <ShopElsewhere
+            preferredStore={household ? readGroceryConfig(household).instacartRetailer : null}
+            items={[
+              ...unchecked.map((i) => ({ name: i.name, amount: i.unit ? `${i.quantity} ${i.unit}` : i.quantity !== 1 ? `×${i.quantity}` : null, group: i.category })),
+              ...(planList?.householdId === activeHouseholdId
+                ? planList.items.filter((i) => !i.inPantry && !planList.skipped.includes(i.key)).map((i) => ({ name: i.name, amount: formatAmounts(i.amounts) || null }))
+                : []),
+            ]}
+          />
           </>
           )}
         </div>

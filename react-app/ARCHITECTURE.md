@@ -103,6 +103,12 @@ react-app/
   household. A new decision point in the app should add an event type (in
   `models/behavior-event.ts` and the table's CHECK) rather than going unlogged.
 
+- **Store carts:** Walmart opens a filled cart link; Kroger adds to the person's own
+  Kroger cart after they connect their account once (OAuth in `lib/grocery/kroger-cart.ts`,
+  `/api/kroger/link`, `/kroger/callback`; tokens encrypted per person in `kroger_links`).
+  For every other store the fallback is `ShopElsewhere`: share/copy the list
+  (`listAsText`) or open each item in the store's search (`storeSearchUrl`).
+
 ## Commands (from `react-app/`)
 
 | | |

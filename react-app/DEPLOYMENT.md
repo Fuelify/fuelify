@@ -197,16 +197,23 @@ eas submit --platform android
 
 Store APIs are called only from the server routes in `apps/web/app/api/grocery/*`.
 Add these in Vercel → Project → Settings → Environment Variables (Production), then
-redeploy. A store with no keys shows "Not set up yet" in Profile → Grocery stores.
+redeploy. A store with no keys shows "Not set up yet" in Household → Grocery stores.
 
 | Store | Sign up | Variables |
 | --- | --- | --- |
-| Kroger (and Kroger-family stores) | https://developer.kroger.com — create an app with the `product.compact` scope | `KROGER_CLIENT_ID`, `KROGER_CLIENT_SECRET` |
+| Kroger (and Kroger-family stores) | https://developer.kroger.com — create an app with the `product.compact` and `cart.basic:write` scopes, and add the redirect URI `https://fuelifyapp.vercel.app/kroger/callback` | `KROGER_CLIENT_ID`, `KROGER_CLIENT_SECRET`, optional `KROGER_REDIRECT_URI` (default: `<site>/kroger/callback`) |
 | Walmart | https://walmart.io — Affiliate (product) API; upload an RSA public key | `WALMART_CONSUMER_ID`, `WALMART_PRIVATE_KEY` (PEM; `\n` escapes are fine), `WALMART_KEY_VERSION` (default `1`), optional `WALMART_PUBLISHER_ID` |
 | Instacart (Publix and others) | https://www.instacart.com/company/business/developers — Developer Platform API key | `INSTACART_API_KEY`, optional `INSTACART_API_BASE` (`https://connect.dev.instacart.tools` for development keys) |
 
 What each does today:
 - **Kroger** — product search with local prices and promos at the store nearest the
-  user's ZIP. Adding to a customer's Kroger cart needs Kroger sign-in (OAuth, `cart.basic:write`), not built yet.
+  household's ZIP. Each person can connect their Kroger account once (Household →
+  Grocery stores, or the Cart's Kroger section); "Add to my Kroger cart" then puts the
+  chosen products in their real Kroger cart. Their Kroger tokens are stored in
+  `kroger_links` (migration 00024), encrypted with a key derived from `KROGER_CLIENT_SECRET`,
+  so rotating the secret means everyone reconnects.
 - **Walmart** — product search with prices; "Open Walmart cart" uses Walmart's add-to-cart link.
 - **Instacart** — no price search; sends the list to Instacart, where the user picks the store (e.g. Publix).
+- **Any other store (Aldi, Publix, Costco, Target…)** — no keys needed: "Share or shop at another
+  store" shares or copies the list, and opens each item in that store's own website search
+  (`services/shop-elsewhere.ts`).

@@ -15,6 +15,7 @@ import {
 import { useGroceryStore, useHouseholdStore, useProfileStore } from '@/lib/stores';
 import { usePlan } from '@/features/premium/usePlan';
 import { Icon, Segmented } from '@/components/ui';
+import { KrogerAccount } from './KrogerAccount';
 
 /** Profile card: which stores to shop and how to optimize (profiles.grocery_config). */
 export function GrocerySettings() {
@@ -99,6 +100,13 @@ export function GrocerySettings() {
           );
         })}
       </div>
+
+      {config.stores.includes('kroger') && providers?.kroger && (
+        <div className="field">
+          <span className="label">Your Kroger account</span>
+          <KrogerAccount returnTo="/household" />
+        </div>
+      )}
 
       {config.stores.includes('instacart') && (
         <div className="field">

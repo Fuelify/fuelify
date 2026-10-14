@@ -26,7 +26,7 @@ export const instacart: GroceryProvider = {
           title: `Fuelify shopping list${config.instacartRetailer ? ` for ${config.instacartRetailer}` : ''}`,
           link_type: 'shopping_list',
           line_items: items.slice(0, 200).map((i) => ({ name: i.name, quantity: Math.max(1, i.quantity), display_text: i.name })),
-          landing_page_configuration: { partner_linkback_url: 'https://fuelify-murex.vercel.app/cart', enable_pantry_items: true },
+          landing_page_configuration: { partner_linkback_url: 'https://fuelifyapp.vercel.app/cart', enable_pantry_items: true },
         }),
       },
       'Instacart',

@@ -3,6 +3,7 @@
 
 import { GROCERY_STORES, readGroceryConfig, type CheckoutItem, type GroceryStoreId } from '@fuelify/shared';
 import { PROVIDERS, ProviderError } from '@/lib/grocery';
+import { KrogerLinkMissing } from '@/lib/grocery/kroger-cart';
 import { premiumCaller } from '@/lib/grocery/auth';
 
 export const runtime = 'nodejs';
@@ -22,8 +23,10 @@ export async function POST(request: Request) {
   if (!provider.configured()) return Response.json({ error: `${store} isn’t connected yet.` }, { status: 409 });
 
   try {
-    return Response.json({ url: await provider.checkout(items, readGroceryConfig({ groceryConfig: body?.config })) });
+    const userToken = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? '';
+    return Response.json({ url: await provider.checkout(items, readGroceryConfig({ groceryConfig: body?.config }), { userId: caller.userId, userToken }) });
   } catch (err) {
+    if (err instanceof KrogerLinkMissing) return Response.json({ error: err.message, needsKrogerLink: true }, { status: 409 });
     if (err instanceof ProviderError) return Response.json({ error: err.message }, { status: 422 });
     console.error(`${store} checkout failed`, err);
     return Response.json({ error: 'Something went wrong.' }, { status: 500 });
