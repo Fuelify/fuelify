@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { buildDiscoverDeck, type Recipe } from '@fuelify/shared';
+import { buildDiscoverDeck, cardPhoto, type Recipe } from '@fuelify/shared';
 import { useCommunityStore, useRecipeStore } from '@/lib/stores';
 import { EmptyState, FoodImage, Icon } from '@/components/ui';
 import { CommunityStats } from './CommunityStats';
@@ -26,10 +26,13 @@ export function DiscoverDeck({ recipes, diet, onOpen, onSeeSaved }: { recipes: R
   const top = deck[0];
   // Community stats for the next few cards, fetched in one go
   const loadStats = useCommunityStore((s) => s.loadStats);
+  const loadShowcased = useCommunityStore((s) => s.loadShowcased);
   const upcoming = deck.slice(0, 10).map((r) => r.id).join(',');
   useEffect(() => {
-    if (upcoming) loadStats(upcoming.split(','));
-  }, [upcoming, loadStats]);
+    if (!upcoming) return;
+    loadStats(upcoming.split(','));
+    loadShowcased(upcoming.split(','));
+  }, [upcoming, loadStats, loadShowcased]);
   const next = deck[1];
 
   const decide = (choice: 'liked' | 'disliked' | 'favorited') => {
@@ -115,6 +118,9 @@ export function DiscoverDeck({ recipes, diet, onOpen, onSeeSaved }: { recipes: R
 }
 
 function RecipeCard({ recipe, hint, style, ...handlers }: { recipe: Recipe; hint?: string | null; style?: React.CSSProperties } & React.HTMLAttributes<HTMLDivElement>) {
+  // Showcased member photos: the card's photo when the recipe has none, and a count either way
+  const showcased = useCommunityStore((s) => s.showcased[recipe.id]);
+  const extra = (showcased?.length ?? 0) + (recipe.imageUrl ? 1 : 0);
   return (
     <div
       {...handlers}
@@ -126,7 +132,12 @@ function RecipeCard({ recipe, hint, style, ...handlers }: { recipe: Recipe; hint
         display: 'flex', flexDirection: 'column', userSelect: 'none', ...style,
       }}
     >
-      <FoodImage title={recipe.title} imageUrl={recipe.imageUrl} iconSize={96} style={{ flex: 1, minHeight: 120 }}>
+      <FoodImage title={recipe.title} imageUrl={cardPhoto(recipe, showcased)} iconSize={96} style={{ flex: 1, minHeight: 120 }}>
+        {extra > 1 && (
+          <span className="gallery-tag" style={{ left: 'auto', right: 10, top: 10 }}>
+            <Icon name="camera" size={12} /> {extra} photos
+          </span>
+        )}
         {hint && (
           <span style={{
             position: 'absolute', top: 18, left: hint === 'NOPE' ? undefined : 18, right: hint === 'NOPE' ? 18 : undefined,

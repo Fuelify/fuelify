@@ -360,8 +360,14 @@ export interface Database {
         Update: Record<string, never>;
         Relationships: [];
       };
+      app_admins: {
+        Row: { user_id: string; added_at: string };
+        Insert: Record<string, never>;
+        Update: Record<string, never>;
+        Relationships: [];
+      };
       recipe_images: {
-        Row: { id: string; recipe_id: string; url: string; source: string; uploaded_by: string | null; created_at: string };
+        Row: { id: string; recipe_id: string; url: string; source: string; uploaded_by: string | null; featured: boolean; featured_by: string | null; featured_at: string | null; created_at: string };
         Insert: { id?: string; recipe_id: string; url: string; source?: string; uploaded_by?: string | null };
         Update: Record<string, never>;
         Relationships: [];
@@ -594,6 +600,10 @@ export interface Database {
       update_household_settings: {
         Args: { hh_id: string; new_shopping?: Record<string, unknown> | null; complete_setup?: boolean };
         Returns: Database['public']['Tables']['households']['Row'];
+      };
+      set_recipe_image_featured: {
+        Args: { image_id: string; on_off: boolean };
+        Returns: Database['public']['Tables']['recipe_images']['Row'];
       };
       recipe_community_stats: {
         Args: { ids: string[] };
