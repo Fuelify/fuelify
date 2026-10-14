@@ -12,7 +12,7 @@ import {
   type GroceryStoreId,
   type ProductOffer,
 } from '@fuelify/shared';
-import { useGroceryStore, useProfileStore } from '@/lib/stores';
+import { useGroceryStore, useHouseholdStore, useProfileStore } from '@/lib/stores';
 import { FoodTile, Icon, Segmented, Sheet, Spinner } from '@/components/ui';
 import { VoiceButton } from '@/features/voice/VoiceButton';
 import { SwapOptions } from './SwapOptions';
@@ -41,7 +41,8 @@ export function StoreCartView({ premium }: { premium: boolean }) {
   const [open, setOpen] = useState<string | null>(null);
   const [opening, setOpening] = useState<GroceryStoreId | null>(null);
   const [query, setQuery] = useState('');
-  const config = readGroceryConfig(profile);
+  const household = useHouseholdStore((s) => s.households.find((h) => h.id === s.activeHouseholdId));
+  const config = readGroceryConfig(household && Object.keys(household.groceryConfig ?? {}).length ? household : profile);
 
   useEffect(() => {
     if (premium && !providers) loadProviders();

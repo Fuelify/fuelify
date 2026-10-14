@@ -84,6 +84,11 @@ react-app/
   `/api/location/search` and `/api/location/reverse`, which are open to
   signed-in users only and use Photon (the OpenStreetMap geocoder; no key,
   results cached for a day). `profiles.location` is deprecated.
+- **Household settings:** location, shopping habits and budget
+  (`households.shopping`), and grocery store settings
+  (`households.grocery_config`, read with `readGroceryConfig`) belong to the
+  household and can be edited by any member through security-definer RPCs.
+  The matching profile columns are deprecated and only used as a fallback.
 - **Behavior events (learning data):** every choice that says something about a
   household's habits is appended to `behavior_events` (migration 00015) through
   the `behaviorLog` built in `createUserStores()`. This covers ingredient swaps

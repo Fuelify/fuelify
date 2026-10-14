@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { NUTRIENTS, applySwaps, type IngredientSwap, type Recipe, type SuggestionMeta, todayISO, totalTimeMinutes } from '@fuelify/shared';
+import { NUTRIENTS, applySwaps, formatMinutes, type IngredientSwap, type Recipe, type SuggestionMeta, todayISO, totalTimeMinutes } from '@fuelify/shared';
 import { useHouseholdStore, useRecipeStore, useShoppingCartStore } from '@/lib/stores';
 import { FoodImage, Icon, Sheet } from '@/components/ui';
 import { MealSheet } from '@/features/meals/MealSheet';
@@ -179,8 +179,35 @@ export function RecipeSheet({
 export function RecipeMeta({ recipe }: { recipe: Recipe }) {
   const time = totalTimeMinutes(recipe);
   return (
+    <div className="stack-sm">
+      {time > 0 && <RecipeTimes prep={recipe.prepTimeMinutes} cook={recipe.cookTimeMinutes} total={time} />}
+      <RecipeChips recipe={recipe} />
+    </div>
+  );
+}
+
+/** Prep, cook and total time side by side ("—" for a part the recipe doesn't give). */
+export function RecipeTimes({ prep, cook, total }: { prep: number | null | undefined; cook: number | null | undefined; total: number }) {
+  const cells: [string, string | null][] = [
+    ['Prep', formatMinutes(prep)],
+    ['Cook', formatMinutes(cook)],
+    ['Total', formatMinutes(total)],
+  ];
+  return (
+    <div className="recipe-times" role="group" aria-label="Time">
+      {cells.map(([label, value]) => (
+        <div key={label} className={label === 'Total' ? 'recipe-time recipe-time-total' : 'recipe-time'}>
+          <span className="tiny muted">{label === 'Total' ? <><Icon name="clock" size={12} /> {label}</> : label}</span>
+          <strong>{value ?? '—'}</strong>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function RecipeChips({ recipe }: { recipe: Recipe }) {
+  return (
     <div className="chips">
-      {time > 0 && <span className="badge"><Icon name="clock" size={12} />&nbsp;{time} min</span>}
       {recipe.calories != null && <span className="badge"><Icon name="flame" size={12} />&nbsp;{recipe.calories} kcal</span>}
       {recipe.dietType && <span className="badge badge-accent">{recipe.dietType}</span>}
       {recipe.cuisine && <span className="badge">{recipe.cuisine}</span>}

@@ -20,6 +20,8 @@ export interface HouseholdActions {
   /** Load households, create a default one if the user has none; resolves to the active household id. */
   ensureHousehold: () => Promise<string | null>;
   updateHousehold: (householdId: string, name: string) => Promise<void>;
+  /** Save the household's store settings (any member). Resolves true on success. */
+  setGroceryConfig: (householdId: string, config: Record<string, unknown>) => Promise<boolean>;
   /** Save shopping preferences and/or mark setup done (any member). Resolves true on success. */
   updateSettings: (householdId: string, settings: { shopping?: Record<string, unknown>; completeSetup?: boolean }) => Promise<boolean>;
   /** Set where the household shops (any member). Resolves true on success. */
@@ -120,6 +122,17 @@ export function createHouseholdStore(repo: HouseholdRepository, userId: string) 
         }));
       } catch (err) {
         set({ error: (err as Error).message });
+      }
+    },
+
+    setGroceryConfig: async (householdId, config) => {
+      try {
+        const updated = await repo.setGroceryConfig(householdId, config);
+        set((state) => ({ households: state.households.map((h) => (h.id === householdId ? updated : h)), error: null }));
+        return true;
+      } catch (err) {
+        set({ error: (err as Error).message });
+        return false;
       }
     },
 

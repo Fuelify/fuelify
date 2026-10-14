@@ -44,7 +44,7 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
     const profile = profileStore.getState().profile;
     const households = householdStore.getState();
     const household = selectActiveHousehold(households);
-    const grocery = readGroceryConfig(profile);
+    const grocery = readGroceryConfig(household && Object.keys(household.groceryConfig ?? {}).length ? household : profile);
     return {
       diet: profile?.diet ?? null,
       allergens: profile?.allergens ?? [],
@@ -69,9 +69,10 @@ export function createUserStores(supabase: TypedSupabaseClient, userId: string, 
     shoppingCartStore,
     groceryStore: createGroceryStore(
       { api: services.groceryApi ?? UNAVAILABLE_GROCERY_API, profiles, meals, recipes, pantry, grocery: new GroceryRepository(supabase), cartStore: shoppingCartStore, mealPlanStore, log: behaviorLog, history: behaviorRepo,
-        householdZip: (householdId) => {
+        householdGrocery: (householdId) => {
           const state = householdStore.getState();
-          return usZip(state.households.find((h) => h.id === (householdId ?? state.activeHouseholdId))?.postcode);
+          const hh = state.households.find((h) => h.id === (householdId ?? state.activeHouseholdId));
+          return hh ? { config: hh.groceryConfig, zip: usZip(hh.postcode) } : null;
         } },
       userId,
     ),

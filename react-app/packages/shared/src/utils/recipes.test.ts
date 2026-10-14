@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Recipe, RecipeClassification } from '../supabase/recipe-repo';
-import { buildDiscoverDeck, filterRecipes, isCompatibleWithDiet, savedRecipes, totalTimeMinutes } from './recipes';
+import { buildDiscoverDeck, filterRecipes, isCompatibleWithDiet, savedRecipes, totalTimeMinutes, formatMinutes } from './recipes';
 
 const recipe = (id: string, dietType: string | null, extra: Partial<Recipe> = {}): Recipe => ({
   id, title: id, description: '', imageUrl: null, ingredients: [], steps: [],
@@ -60,5 +60,15 @@ describe('filterRecipes', () => {
   it('puts recipes that fit the diet first', () => {
     const withDiets = [r('Cod Tacos', ['dinner'], { dietType: 'Pescatarian' }), r('Bean Tacos', ['dinner'], { dietType: 'Vegan' })];
     expect(filterRecipes(withDiets, 'tacos', { diet: 'Vegetarian' }).map((x) => x.id)).toEqual(['Bean Tacos', 'Cod Tacos']);
+  });
+});
+
+describe('formatMinutes', () => {
+  it('reads like a recipe card', () => {
+    expect(formatMinutes(10)).toBe('10 min');
+    expect(formatMinutes(60)).toBe('1 hr');
+    expect(formatMinutes(75)).toBe('1 hr 15 min');
+    expect(formatMinutes(0)).toBeNull();
+    expect(formatMinutes(null)).toBeNull();
   });
 });

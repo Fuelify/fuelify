@@ -124,8 +124,8 @@ export interface GroceryDeps {
   mealPlanStore: StoreApi<MealPlanStore>;
   /** Records skips, product picks, swaps and checkouts */
   log?: BehaviorLog;
-  /** A household's US ZIP from its location, for local store prices */
-  householdZip?: (householdId: string | null) => string | null;
+  /** A household's store settings and its US ZIP (from its location) */
+  householdGrocery?: (householdId: string | null) => { config: Record<string, unknown> | null; zip: string | null } | null;
   /** The household's past product picks */
   history?: { productChoices: (householdId: string) => Promise<ProductChoice[]> };
 }
@@ -136,11 +136,16 @@ const BATCH_SIZE = 20;
 const PARALLEL_BATCHES = 2;
 
 export function createGroceryStore(deps: GroceryDeps, userId: string) {
-  /** The user's store settings, with the household's ZIP (location is per household) when it has one. */
+  /**
+   * Store settings: the household's (stores, strategy… and its location's ZIP);
+   * a person's old profile settings only fill in when the household has none.
+   */
   const settings = async (householdId: string | null | undefined) => {
-    const cfg = readGroceryConfig(await deps.profiles.getProfile(userId));
-    const zip = deps.householdZip?.(householdId ?? null);
-    return zip ? { ...cfg, zipCode: zip } : cfg;
+    const hh = deps.householdGrocery?.(householdId ?? null);
+    const cfg = hh?.config && Object.keys(hh.config).length > 0
+      ? readGroceryConfig({ groceryConfig: hh.config })
+      : readGroceryConfig(await deps.profiles.getProfile(userId));
+    return hh?.zip ? { ...cfg, zipCode: hh.zip } : cfg;
   };
   const log = deps.log ?? NO_BEHAVIOR_LOG;
 

@@ -8,7 +8,6 @@ import { AUTH_DISABLED, useAuthStore, useHouseholdStore, useProfileStore, usePre
 import { Icon, Logo, PageHeader, Segmented, Sheet } from '@/components/ui';
 import { usePlan } from '@/features/premium/usePlan';
 import { MealPlanSettings } from '@/features/meal-plan/MealPlanSettings';
-import { GrocerySettings } from '@/features/grocery/GrocerySettings';
 import { ProfilePhoto } from '@/features/profile/ProfilePhoto';
 
 // The Flutter Profile tab was a placeholder; this surfaces the profile and
@@ -133,12 +132,6 @@ export default function ProfilePage() {
           </div>
           <MealPlanSettings />
 
-          {/* Grocery store connections */}
-          <div className="section-title">
-            <span>Grocery stores</span>
-            {!plan.premium && plan.plan && <span className="badge badge-premium" style={{ textTransform: 'none', letterSpacing: 0 }}>Premium</span>}
-          </div>
-          <GrocerySettings />
 
           {/* Onboarding answers */}
           <div className="section-title">
@@ -175,7 +168,7 @@ export default function ProfilePage() {
               <div className="small muted row" style={{ gap: 4 }}>
                 <Icon name="pin" size={14} /> {household?.location ?? 'Add your location for local store prices'}
               </div>
-              <div className="small muted">{members.length === 1 ? '1 member shares' : `${members.length} members share`} the cart and pantry</div>
+              <div className="small muted">Location, shopping &amp; budget, grocery stores, members</div>
             </div>
             <Icon name="chevronRight" />
           </Link>
